@@ -24,8 +24,20 @@ Commands:
 No external `zip` command is required.
 
 - Build: `npm run build:tizen`
-- Package: `npm run package:tizen` (generates `app.wgt` at project root, includes `dist/**` + `config.xml`)
+- Package: `npm run package:tizen` (generates `./app.wgt` at project root and includes `config.xml` at the root of the archive alongside all `dist/**` files)
 - Combined: `npm run build-and-package:tizen`
+
+Quick usage:
+```
+npm install
+npm run build
+npm run package:tizen
+# outputs ./app.wgt
+```
+
+Notes:
+- The packager does not rely on a system `zip` binary; it uses a Node-based zipper.
+- Ensure `config.xml` exists at the project root: `mytv_frontend/config.xml`.
 
 ## React Compiler
 
