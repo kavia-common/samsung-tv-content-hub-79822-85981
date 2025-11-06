@@ -33,8 +33,8 @@ export default defineConfig(({ mode }) => {
       watch: {
         usePolling: false,
         awaitWriteFinish: {
-          stabilityThreshold: 1000,
-          pollInterval: 200,
+          stabilityThreshold: 800,
+          pollInterval: 150,
         },
         ignored: [
           '**/dist/**',
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       host: true,
-      port: 3001,
+      port: 3000,
       strictPort: true,
       open: false,
     },
