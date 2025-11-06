@@ -23,6 +23,7 @@ export default defineConfig({
     hmr: {
       host: '0.0.0.0',
     },
+    allowedHosts:["vscode-internal-26158-beta.beta01.cloud.kavia.ai"]
   },
   preview: {
     host: true,

@@ -1,26 +1,60 @@
-import { useState } from 'react'
-import { useTizenKeys } from './hooks/useTizenKeys'
-import './App.css'
+import { useMemo } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import './index.css'
+import './theme.css'
+import Splash from './pages/Splash.jsx'
+import Home from './pages/Home.jsx'
+import Login from './pages/Login.jsx'
+import TopMenu from './components/TopMenu.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  useTizenKeys({
-    onEnter: () => setCount(c => c + 1),
-    onBack: () => console.log('Back pressed'),
-  });
-
+/**
+ * PUBLIC_INTERFACE
+ * Root App wiring router and layout. Splash is initial route and auto-navigates to Home.
+ */
+function AppRouter() {
   return (
-    <div className="tv-app">
-      <h1>Tizen TV App</h1>
-      <div className="content">
-        <button onClick={() => setCount(count + 1)} autoFocus>
-          Count: {count}
-        </button>
-        <p>Press ENTER on remote to increment</p>
-      </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Splash />} />
+        <Route
+          path="/home"
+          element={
+            <PageLayout>
+              <Home />
+            </PageLayout>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PageLayout>
+              <Login />
+            </PageLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+/**
+ * PUBLIC_INTERFACE
+ * PageLayout provides the persistent top menu and themed container.
+ */
+function PageLayout({ children }) {
+  const sections = useMemo(() => ([
+    { label: 'Home', path: '/home' },
+    { label: 'Login', path: '/login' },
+    { label: 'Setting', path: '/home#setting' },
+    { label: 'My Plan', path: '/home#plan' },
+  ]), [])
+  return (
+    <div className="app-surface">
+      <TopMenu items={sections} />
+      <div className="page-content">{children}</div>
     </div>
   )
 }
 
-export default App
+export default AppRouter

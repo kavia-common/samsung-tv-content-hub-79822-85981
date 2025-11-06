@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="260" height="150" viewBox="0 0 260 150" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="g5" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#f97316"/></linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#g5)"/>
+  <text x="20" y="86" font-size="28" fill="#fff" font-weight="800">Item 5</text>
+</svg>
