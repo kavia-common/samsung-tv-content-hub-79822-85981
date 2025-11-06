@@ -36,6 +36,8 @@ export default defineConfig(() => {
       port: desiredPort,
       strictPort: true,
       open: false,
+      // Allow preview access from the remote VS Code host
+      allowedHosts: ['vscode-internal-26938-beta.beta01.cloud.kavia.ai'],
       hmr: {
         // Do not force host; let Vite infer correctly behind proxies
         overlay: true,
