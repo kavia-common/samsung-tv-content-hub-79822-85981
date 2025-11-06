@@ -34,6 +34,11 @@ Behavior:
 - Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
 - Buttons are focusable and remote/keyboard accessible (Enter activates).
 
+Dev server stability notes:
+- The dev server ignores changes to vite.config.js and other config/docs to prevent HMR restart loops.
+- To run on the preview env host/port without conflict: `npm run dev -- --host 0.0.0.0 --port 3001` (or `PORT=3001 npm run dev`).
+- Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai and strictPort=true ensures we don't auto-switch ports.
+
 ## Tizen packaging
 
 No external `zip` command is required.

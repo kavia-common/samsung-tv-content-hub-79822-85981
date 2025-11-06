@@ -7,10 +7,15 @@ import react from '@vitejs/plugin-react'
  * Stable Vite 4 + React configuration for Node 18 that avoids restart loops and reduces memory use.
  * - Server host: true (0.0.0.0), port: 3000 default, strictPort: true. Honors PORT env and CLI --port.
  * - Minimal HMR (overlay only); do not force host unless provided via env.
- * - Debounced file watching; explicitly ignores config/env and non-source paths.
+ * - Debounced file watching; explicitly ignores config/env and non-source paths, including vite.config.js itself.
  * - fs.strict limits access to src/public/index.html; dev never serves from dist/.
  * - Preview mirrors dev host/port.
  * - Adds /healthz for readiness; middleware is side-effect free (no disk writes) and never exits process.
+ *
+ * Notes on stability in CI/preview:
+ * - We ignore vite.config.js and other config/docs files to prevent self-restart loops when the environment touches them.
+ * - Host/port are derived from CLI flags or PORT env; no redundant toggles at runtime.
+ * - allowedHosts includes vscode-internal-26938-beta.beta01.cloud.kavia.ai for reverse-proxy previews.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -23,7 +28,7 @@ export default defineConfig(() => {
     const n = Number(p)
     return Number.isFinite(n) && n > 0 ? n : undefined
   }
-  // Vite sets process.env.PORT when --port is provided on CLI
+  // Vite sets process.env.PORT when --port is provided on CLI; also honor explicit PORT env
   const cliOrEnvPort = normalizePort(process.env.PORT)
   const desiredPort = cliOrEnvPort ?? 3000
 
@@ -33,7 +38,7 @@ export default defineConfig(() => {
     ? { host: hmrHost, overlay: true }
     : { overlay: true } // let Vite infer when not specified
 
-  // Centralize allowedHosts for dev and preview
+  // Centralize allowedHosts for dev and preview (ensure preview hostname is allowed)
   const allowedHosts = ['vscode-internal-26938-beta.beta01.cloud.kavia.ai']
 
   return {
@@ -45,14 +50,16 @@ export default defineConfig(() => {
       }),
     ],
     server: {
-      host: true, // 0.0.0.0
+      // Host as 0.0.0.0; respects CLI flag --host 0.0.0.0 or default true (external)
+      host: true,
+      // Port respects CLI --port (Vite sets process.env.PORT) or PORT env; default 3000
       port: desiredPort,
       strictPort: true,
       open: false,
       // Explicitly allow the remote VS Code host (stops 400 host check errors)
       allowedHosts,
       hmr: hmrConfig,
-      // Avoid watching generated docs/config and other churny paths to prevent self-restarts
+      // Avoid watching generated docs/config and other churny paths to prevent self-restarts, including vite.config.js itself
       watch: {
         usePolling: false,
         awaitWriteFinish: {
@@ -75,6 +82,12 @@ export default defineConfig(() => {
           '**/package-lock.json',
           '**/pnpm-lock.yaml',
           '**/yarn.lock',
+          // Critical: ignore Vite and other config files to prevent HMR self-restarts
+          '**/vite.config.*',
+          '**/*eslint*.config.*',
+          '**/*.config.js',
+          '**/*.config.cjs',
+          '**/*.config.mjs',
           // Ignore top-level lock/status files that can be written by CI or other processes
           '**/post_process_status.lock',
           // Workspace root churn outside this project
