@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite", 
+    "dev:port": "PORT=3000 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:port": "PORT=3000 vite preview",
     "build:tizen": "vite build",
     "package:tizen": "cd dist && zip -r ../app.wgt * ../config.xml"
   },
