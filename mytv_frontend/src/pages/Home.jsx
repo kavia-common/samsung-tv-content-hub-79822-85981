@@ -35,12 +35,13 @@ export default function Home() {
 
   // If navigated with a hash (e.g., #settings, #plan), ensure we scroll into view on mount
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '')
-    if (hash) {
-      const el = document.getElementById(hash)
-      if (el && typeof el.scrollIntoView === 'function') {
-        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' }), 60)
-      }
+    // Single-run on mount to handle deep link anchors (e.g., #settings, #plan)
+    const raw = typeof window !== 'undefined' ? window.location.hash : ''
+    const hash = raw ? raw.replace('#', '') : ''
+    if (!hash) return
+    const el = document.getElementById(hash)
+    if (el && typeof el.scrollIntoView === 'function') {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' }), 60)
     }
   }, [])
 

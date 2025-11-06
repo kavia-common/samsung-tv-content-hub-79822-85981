@@ -10,6 +10,8 @@ import TopMenu from './components/TopMenu.jsx'
 /**
  * PUBLIC_INTERFACE
  * Root App wiring router and layout. Splash is initial route and auto-navigates to Home.
+ * Second screen (after Splash) shows a TopMenu with four focusable buttons: Home, Login, Settings, My Plan.
+ * Navigation works via click/Enter and routes to /home, /login, or scrolls to #settings/#plan on Home.
  */
 function AppRouter() {
   return (

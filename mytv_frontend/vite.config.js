@@ -50,10 +50,14 @@ export default defineConfig(() => {
         },
         // Explicitly ignore non-source churn and build artifacts
         ignored: [
+          // repo/build/lock files
           '**/dist/**',
           '**/.git/**',
           '**/*.md',
+          '**/README.md',
           '**/DEV_SERVER.md',
+          '**/CHANGELOG*',
+          '**/docs/**',
           '**/node_modules/**',
           '**/.env*',
           '**/app.wgt',
@@ -62,6 +66,8 @@ export default defineConfig(() => {
           '**/package-lock.json',
           '**/pnpm-lock.yaml',
           '**/yarn.lock',
+          // workspace root churn outside this project
+          '../../**',
         ],
       },
       // Limit filesystem access - do not serve dist in dev
@@ -70,6 +76,7 @@ export default defineConfig(() => {
         allow: [srcDir, publicDir, indexHtml],
         deny: ['dist'],
       },
+      // Ensure Vite doesn't attempt to run in middleware mode in CI non-interactive shell
       middlewareMode: false,
     },
     publicDir: 'public',
@@ -97,22 +104,29 @@ export default defineConfig(() => {
      * Adds a /healthz route to return 200 OK.
      * Side-effect free middleware to signal readiness.
      * Also blocks /dist/* paths in dev to ensure dev server does not serve build output.
+     * Avoids throwing to prevent non-interactive exits.
      */
     configureServer(server) {
       return () => {
-        server.middlewares.use('/healthz', (_req, res) => {
-          res.statusCode = 200
-          res.end('OK')
-        })
+        try {
+          server.middlewares.use('/healthz', (_req, res) => {
+            res.statusCode = 200
+            res.end('OK')
+          })
 
-        server.middlewares.use((req, res, next) => {
-          if (req.url && req.url.startsWith('/dist/')) {
-            res.statusCode = 404
-            res.end('Not Found')
-            return
-          }
-          next()
-        })
+          server.middlewares.use((req, res, next) => {
+            if (req.url && req.url.startsWith('/dist/')) {
+              res.statusCode = 404
+              res.end('Not Found')
+              return
+            }
+            next()
+          })
+        } catch (e) {
+          // In non-interactive environments, never exit the process due to middleware errors.
+          // Log to server for diagnostics but keep server running.
+          server?.config?.logger?.warn?.(`configureServer non-fatal error: ${e?.message || e}`)
+        }
       }
     },
   }

@@ -15,11 +15,17 @@ export default function Splash() {
   useEffect(() => {
     // Keep the existing 5.5s delay
     const timeoutMs = 5500
+    let mounted = true
     const t = setTimeout(() => {
-      navigate('/home', { replace: true })
+      if (mounted) {
+        navigate('/home', { replace: true })
+      }
     }, timeoutMs)
 
-    return () => clearTimeout(t)
+    return () => {
+      mounted = false
+      clearTimeout(t)
+    }
   }, [navigate])
 
   return (

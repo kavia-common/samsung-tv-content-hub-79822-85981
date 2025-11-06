@@ -18,14 +18,14 @@ export default function TopMenu({ items }) {
 
   // Memoize base paths to avoid re-computing and effect churn if items array identity changes
   const itemBasePaths = useMemo(
-    () => items.map(i => i.path.replace(/#.+$/, '')),
+    () => (Array.isArray(items) ? items.map(i => String(i?.path || '')?.replace(/#.+$/, '')) : []),
     [items]
   )
 
   // Sync focus to route path (ignoring hash) - depends on pathname and stable base paths
   useEffect(() => {
     const basePath = location.pathname
-    const idx = itemBasePaths.findIndex(p => basePath.startsWith(p))
+    const idx = itemBasePaths.findIndex(p => p && basePath.startsWith(p))
     if (idx >= 0) setFocusIndex(idx)
   }, [location.pathname, itemBasePaths])
 
