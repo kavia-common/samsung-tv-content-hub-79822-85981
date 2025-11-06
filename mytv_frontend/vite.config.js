@@ -12,32 +12,43 @@ import react from '@vitejs/plugin-react'
  * - Preview mirrors dev host/port.
  * - Adds /healthz for readiness; middleware is side-effect free (no disk writes).
  */
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   const rootDir = process.cwd()
   const srcDir = path.resolve(rootDir, 'src')
   const publicDir = path.resolve(rootDir, 'public')
   const indexHtml = path.resolve(rootDir, 'index.html')
 
+  // Read port from env or CLI --port. Keep one source of truth (strictPort true)
+  const desiredPort = Number(process.env.PORT) || 3000
+
   return {
     base: '/',
     clearScreen: false,
-    plugins: [react()],
+    // Defer heavy plugins if needed; keep react plugin first and lean
+    plugins: [
+      react({
+        // Keep fast-refresh defaults; avoid extra Babel plugins that can increase CPU
+        jsxImportSource: undefined,
+      }),
+    ],
     server: {
       host: true,
-      // Respect CLI --port or PORT env if provided; fallback to 3000
-      port: Number(process.env.PORT) || 3000,
+      port: desiredPort,
       strictPort: true,
       open: false,
       hmr: {
+        // Do not force host; let Vite infer correctly behind proxies
         overlay: true,
       },
       watch: {
+        // Prefer native fs events when available
         usePolling: false,
+        // Debounce writes to avoid rapid HMR loops
         awaitWriteFinish: {
-          stabilityThreshold: 800,
-          pollInterval: 150,
+          stabilityThreshold: 900,
+          pollInterval: 200,
         },
-        // Keep explicit ignores but avoid patterns that match project root inadvertently.
+        // Explicitly ignore non-source churn and build artifacts
         ignored: [
           '**/dist/**',
           '**/.git/**',
@@ -48,6 +59,9 @@ export default defineConfig(({ mode }) => {
           '**/app.wgt',
           '**/scripts/**',
           '**/*.lock',
+          '**/package-lock.json',
+          '**/pnpm-lock.yaml',
+          '**/yarn.lock',
         ],
       },
       // Limit filesystem access - do not serve dist in dev
@@ -65,10 +79,12 @@ export default defineConfig(({ mode }) => {
       // prevent too aggressive chunk size warnings or inlining
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: 0,
+      // Keep sourcemaps off by default for smaller output in CI
+      sourcemap: false,
     },
     preview: {
       host: true,
-      port: Number(process.env.PORT) || 3000,
+      port: desiredPort,
       strictPort: true,
       open: false,
     },
