@@ -34,6 +34,22 @@ export default function Home() {
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22, height: '100%', overflow: 'hidden' }}>
+        {/* Prominent page heading per Ocean Professional theme */}
+        <h1
+          style={{
+            margin: '6px 0 0 6px',
+            padding: '0 2px 0 2px',
+            fontSize: 42,
+            lineHeight: '48px',
+            fontWeight: 900,
+            letterSpacing: 0.6,
+            color: '#ffffff',
+            textShadow: '0 10px 30px rgba(0,0,0,0.45)',
+          }}
+        >
+          MyTV
+        </h1>
+
         <Banner image="/images/banner.jpg" />
         <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
           {rails.map((r, idx) => (
