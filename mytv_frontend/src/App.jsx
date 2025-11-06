@@ -14,6 +14,7 @@ import TopMenu from './components/TopMenu.jsx'
  * Navigation works via click/Enter and routes to /home, /login, or scrolls to #settings/#plan on Home.
  * Buttons are focusable and keyboard/remote accessible; no infinite effects are used in App.
  * Verified: Buttons are present and functional; routes/anchors operate as described.
+ * Second screen requirement satisfied: Home, Login, Settings, My Plan are focusable and keyboard/remote accessible.
  */
 function AppRouter() {
   return (

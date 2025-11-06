@@ -36,6 +36,11 @@ Quick checks:
   # or:
   PORT=3001 npm run dev
 
+- Run on default 3000 with strictPort:
+  npm run dev -- --host 0.0.0.0 --port 3000
+
+- Verify allowedHosts includes vscode-internal-26938-beta.beta01.cloud.kavia.ai (already configured).
+
 Operational notes:
 - Absolutely do NOT write to `.env` or `vite.config.js` at runtime. No scripts/plugins in this repo modify these files.
 - The watcher excludes `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other config/docs; changes to these files will not trigger HMR restarts.
@@ -52,6 +57,19 @@ Behavior:
 - Home and Login navigate to /home and /login respectively.
 - Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
 - Buttons are focusable and remote/keyboard accessible (Enter activates).
+
+Validation checklist:
+1) Start dev server on port 3001:
+   npm run dev -- --host 0.0.0.0 --port 3001
+2) Open the app and wait for Splash to redirect (~5.5s) to /home.
+3) Confirm top menu shows four buttons: Home, Login, Settings, My Plan.
+4) Use keyboard/remote:
+   - Left/Right moves focus between the four buttons.
+   - Enter on Home -> stays on /home.
+   - Enter on Login -> navigates to /login, inputs are focusable.
+   - Enter on Settings -> navigates to /home#settings and scrolls the Settings section into view.
+   - Enter on My Plan -> navigates to /home#plan and scrolls the section into view.
+5) Confirm no dev server restart occurs when navigating or interacting with UI.
 
 ## Tizen packaging (no external zip)
 The packaging flow no longer uses the system `zip` CLI. Instead, a Node-based zipper writes a valid .wgt file:

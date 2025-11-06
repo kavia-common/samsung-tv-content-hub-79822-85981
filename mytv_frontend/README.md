@@ -16,6 +16,12 @@ Currently, two official plugins are available:
 - Allowed host configured: vscode-internal-26938-beta.beta01.cloud.kavia.ai
 - See DEV_SERVER.md for full behavior and scripts.
 
+Stability notes:
+- No runtime process writes to vite.config.js or .env. CLI flags (--host/--port) are respected in-memory only.
+- Vite watch ignores vite.config.js and docs/config/lockfiles to prevent HMR restart loops.
+- Strict port (no auto port switching). Use 3001 in preview environments if 3000 is reserved.
+- Quick readiness check: curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
+
 Commands:
 - npm run dev -> vite (uses vite.config.js)
 - npm run preview -> vite preview (uses vite.config.js)
