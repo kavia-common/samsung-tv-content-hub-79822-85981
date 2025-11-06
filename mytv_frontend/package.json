@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mem": "NODE_OPTIONS=--max-old-space-size=2048 vite",
     "dev:port": "PORT=3001 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:mem": "NODE_OPTIONS=--max-old-space-size=2048 vite preview",
     "preview:port": "PORT=3000 vite preview",
     "build:tizen": "vite build",
     "package:tizen": "node ./scripts/package-tizen.js",

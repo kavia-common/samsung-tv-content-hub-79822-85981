@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTizenKeys } from '../hooks/useTizenKeys'
 
@@ -16,20 +16,25 @@ export default function TopMenu({ items }) {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Sync focus to route path (ignoring hash)
+  // Memoize base paths to avoid re-computing and effect churn if items array identity changes
+  const itemBasePaths = useMemo(
+    () => items.map(i => i.path.replace(/#.+$/, '')),
+    [items]
+  )
+
+  // Sync focus to route path (ignoring hash) - depends on pathname and stable base paths
   useEffect(() => {
     const basePath = location.pathname
-    const idx = items.findIndex(i => basePath.startsWith(i.path.replace(/#.+$/, '')))
+    const idx = itemBasePaths.findIndex(p => basePath.startsWith(p))
     if (idx >= 0) setFocusIndex(idx)
-  }, [location.pathname, items])
+  }, [location.pathname, itemBasePaths])
 
   function goTo(item) {
     if (!item) return
     navigate(item.path)
-    // If path contains a hash, attempt to scroll the target into view
     const hash = item.path.split('#')[1]
     if (hash) {
-      // Delay slightly to allow page content to render
+      // Allow content to render before attempting scroll into view
       setTimeout(() => {
         const el = document.getElementById(hash)
         if (el && typeof el.scrollIntoView === 'function') {
