@@ -1,12 +1,13 @@
 # Dev server behavior
 
-- Host: 0.0.0.0 (external access enabled)
+- Host: 0.0.0.0 (external access enabled via `server.host: true`)
 - Port: from PORT or VITE_PORT env (default 3000)
 - strictPort: true (Vite will NOT auto-pick a new port; it will fail if 3000 is taken)
-- HMR: clientPort uses the server port; overlay enabled; host inferred (no forced 0.0.0.0)
-- Watch: polling disabled; awaitWriteFinish debounce enabled; dist/ and .git ignored; only src, public, config considered
+- HMR: minimal; `clientPort` uses the server port; overlay enabled; host inferred (do not set `hmr.host`)
+- Watch: polling disabled; awaitWriteFinish debounce enabled; ignored: `**/dist/**`, `**/.git/**`, `**/node_modules/**`
+- Scope: only `src`, `public`, and config files are intended for changes during dev
 - Readiness: GET /healthz returns 200 OK (side-effect free)
-- Dev does not serve or read from dist/; dist/ is only used for build output
+- Dev does not serve or read from dist/; dist/ is only used for build output (middleware blocks /dist/* in dev)
 
 Scripts:
 - npm run dev            -> uses ENV PORT or VITE_PORT if provided (defaults to 3000)
@@ -18,3 +19,4 @@ Operational notes:
 - Do NOT write to .env at runtime. No scripts/plugins in this repo modify .env.
 - Avoid adding middleware or plugins that write to files on each request; this causes watch loops.
 - Prefer configuring dev server entirely in vite.config.js (avoid duplicate CLI flags like --host/--port).
+- Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist/` when running `vite build`.
