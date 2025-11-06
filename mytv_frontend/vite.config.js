@@ -7,50 +7,46 @@ import react from '@vitejs/plugin-react'
  * - Uses ESM and defineConfig.
  * - Base path at root.
  * - Dev server binds to 0.0.0.0 with strictPort: true on port 3000.
- * - HMR minimal: only set clientPort and overlay; do not force host.
+ * - HMR minimal: overlay enabled; do not force host; clientPort inferred by Vite.
  * - Debounced file watching to avoid reload storms; dist/ and .git are ignored.
- * - Only src, public, and config files are considered for watch using chokidar ignored patterns.
+ * - fs.strict enabled; only allow src, public, index.html, and vite.config.js during dev; deny dist/.
  * - Preview mirrors dev host/port settings.
  * - Adds /healthz middleware returning 200 OK for readiness checks.
  * - Ensures server does not serve from dist during dev.
+ * - Does not modify or watch .env aggressively (no plugins that write to files).
  */
 export default defineConfig(() => {
-  // Resolve port from env but default to 3000
+  // Centralize port: default 3000, override via PORT or VITE_PORT
   const port = Number(process.env.PORT || process.env.VITE_PORT || 3000)
 
-  // Watch scope and ignores
+  // Watch ignore patterns
   const WATCH_IGNORED = ['**/dist/**', '**/.git/**', '**/node_modules/**']
 
   return {
     base: '/',
     plugins: [react()],
     server: {
-      // host true binds to 0.0.0.0
       host: true,
       port,
       strictPort: true,
-      // Keep HMR minimal; do not force host to avoid reconnect loops
       hmr: {
-        clientPort: port,
         overlay: true,
       },
       // Limit filesystem access - do not serve dist in dev
       fs: {
         strict: true,
-        allow: ['.'],
+        allow: ['src', 'public', 'index.html', 'vite.config.js'],
         deny: ['dist'],
       },
-      // Reduce file change storms that can cause rapid restarts/reloads.
-      // Explicitly ignore heavy dirs; also narrow watch to project root via fs.strict
+      // Reduce file change storms that can cause rapid restarts/reloads
       watch: {
         usePolling: false,
         awaitWriteFinish: {
-          stabilityThreshold: 800,
-          pollInterval: 150,
+          stabilityThreshold: 600,
+          pollInterval: 100,
         },
         ignored: WATCH_IGNORED,
       },
-      // Health/readiness route and guard against /dist access in dev
       middlewareMode: false,
     },
     publicDir: 'public',
@@ -66,8 +62,8 @@ export default defineConfig(() => {
     // PUBLIC_INTERFACE
     /**
      * Adds a /healthz route to return 200 OK.
-     * This ensures readiness probes succeed without triggering HMR or restarts.
-     * Side-effect free middleware.
+     * Side-effect free middleware to signal readiness.
+     * Also blocks /dist/* paths in dev to ensure dev server does not serve build output.
      */
     configureServer(server) {
       return () => {
@@ -76,8 +72,7 @@ export default defineConfig(() => {
           res.end('OK')
         })
 
-        // Harden dev server to avoid accidentally serving dist/ in dev.
-        // This middleware will block requests to /dist/* during dev.
+        // Block accidental access to /dist/* during dev
         server.middlewares.use((req, res, next) => {
           if (req.url && req.url.startsWith('/dist/')) {
             res.statusCode = 404
