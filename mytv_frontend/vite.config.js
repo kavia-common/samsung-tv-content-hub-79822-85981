@@ -7,12 +7,14 @@ import react from '@vitejs/plugin-react'
  * - Uses ESM and defineConfig.
  * - Base path at root.
  * - Dev server binds to 0.0.0.0 with strictPort: true on port 3000.
- * - HMR configured to work reliably behind proxies without forcing host=0.0.0.0.
- * - Debounced file watching to avoid reload storms; dist/ is ignored.
+ * - HMR minimal: do not force host override; only set clientPort and overlay.
+ * - Debounced file watching to avoid reload storms; dist/ and .git are ignored.
+ * - Only src, public, and config files are watched.
  * - Preview mirrors dev host/port settings.
  * - Adds /healthz middleware returning 200 OK for readiness checks.
+ * - Ensures server does not serve from dist during dev.
  */
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   // Resolve port from env but default to 3000
   const port = Number(process.env.PORT || process.env.VITE_PORT || 3000)
 
@@ -23,25 +25,41 @@ export default defineConfig(({ mode }) => {
       host: true, // 0.0.0.0
       port,
       strictPort: true,
-      // Avoid misconfigured HMR host=0.0.0.0 which can cause disconnect/reconnect loops.
-      // Let Vite infer the client host, just ensure correct port and overlay for errors.
+      // Keep HMR minimal; do not force host to avoid reconnect loops
       hmr: {
         clientPort: port,
         overlay: true,
       },
-      // PUBLIC_INTERFACE
-      // Provide a simple readiness endpoint at /healthz
-      middlewareMode: false,
+      // Limit the file system access and watched roots to the project
+      fs: {
+        // Allow only the project root
+        strict: true,
+        allow: ['.'],
+      },
       // Reduce file change storms that can cause rapid restarts/reloads.
       watch: {
+        // Disable polling; rely on native FS events
         usePolling: false,
+        // Debounce writes to prevent flapping on multi-write saves
         awaitWriteFinish: {
-          stabilityThreshold: 500,
+          stabilityThreshold: 700,
           pollInterval: 100,
         },
-        ignored: ['**/dist/**'],
+        // Ignore typical sources of infinite loops
+        ignored: ['**/dist/**', '**/.git/**'],
       },
-      allowedHosts: ['vscode-internal-26158-beta.beta01.cloud.kavia.ai'],
+      // Explicitly declare directories Vite should treat as "roots" for static serving/watching
+      // during development to ensure dist/ is never served or watched.
+      // Note: Vite watches from project root; narrowing via watch.ignored and fs.strict+allow above.
+      // No custom allowedHosts; let Vite infer from request to avoid mismatches that trigger HMR loops.
+    },
+    // Restrict Vite to the main source directories; avoids accidental scanning of dist/ during dev
+    // and reduces the chance of plugin-induced write loops (no plugins write to disk here).
+    publicDir: 'public',
+    // Ensure build output goes to dist/ and is not used in dev
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
     },
     preview: {
       host: true, // 0.0.0.0

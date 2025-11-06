@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "dev:port": "PORT=3000 vite --host",
+    "dev": "vite",
+    "dev:port": "PORT=3000 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
