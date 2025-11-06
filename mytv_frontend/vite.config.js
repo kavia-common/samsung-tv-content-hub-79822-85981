@@ -4,17 +4,14 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 that avoids restart loops.
- * - Host/Port centralized in config (port 3000 by default), strictPort: true.
- * - HMR overlay only; no disk writes in middleware or plugins.
- * - Debounced file watching; explicitly ignores config/env to prevent restarts.
- * - fs.strict limits access; dev never serves from dist/.
+ * - Server host: true (0.0.0.0), port: 3000, strictPort: true.
+ * - Minimal HMR (overlay only); do not force host.
+ * - Debounced file watching; explicitly ignores config/env and non-source paths.
+ * - fs.strict limits access to src/public/index.html; dev never serves from dist/.
  * - Preview mirrors dev host/port.
- * - Adds /healthz for readiness; middleware is side-effect free.
+ * - Adds /healthz for readiness; middleware is side-effect free (no disk writes).
  */
 export default defineConfig(() => {
-  // Centralize port with default 3000; allow override via ENV if explicitly set
-  const port = Number(process.env.PORT || process.env.VITE_PORT || 3000)
-
   return {
     base: '/',
     clearScreen: false,
@@ -24,7 +21,7 @@ export default defineConfig(() => {
       port: 3000,
       strictPort: true,
       hmr: {
-        overlay: true,
+        overlay: true, // minimal HMR config, no forced host
       },
       watch: {
         usePolling: false,
