@@ -5,21 +5,21 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 that avoids restart loops and reduces memory use.
- * - Server host: true (0.0.0.0), port: 3000 default, strictPort: true. Honors PORT env and CLI --port.
- * - Minimal HMR (overlay only); do not force host unless provided via env.
- * - Debounced file watching; explicitly ignores config/env and non-source paths, including vite.config.js itself.
- * - fs.strict limits access to src/public/index.html; dev never serves from dist/.
- * - Preview mirrors dev host/port.
+ * - Server host: true (0.0.0.0) by default; honors CLI --host if provided.
+ * - Port: 3000 default; honors PORT env or CLI --port; strictPort=true (no auto port switching).
+ * - Minimal HMR overlay; honor HMR_HOST env when behind proxies.
+ * - Debounced file watching and hard ignore for config/docs (including vite.config.js) to prevent self-restart loops.
+ * - fs.strict limits dev to src/public/index.html; dev never serves from dist/ (middleware guards).
+ * - Preview mirrors dev host/port/allowedHosts.
  * - Adds /healthz for readiness; middleware is side-effect free (no disk writes) and never exits process.
  *
  * Hardening:
  * - Absolutely no runtime writes to vite.config.js or .env.
- * - Ensure vite.config.* is excluded from watcher to prevent self-restart loops.
  * - Respect CLI flags --host/--port and PORT env without writing anything back to disk.
  *
  * Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai.
  */
-export default defineConfig(({ command, mode }) => {
+export default defineConfig(() => {
   const rootDir = process.cwd()
   const srcDir = path.resolve(rootDir, 'src')
   const publicDir = path.resolve(rootDir, 'public')
@@ -30,9 +30,13 @@ export default defineConfig(({ command, mode }) => {
     const n = Number(p)
     return Number.isFinite(n) && n > 0 ? n : undefined
   }
-  // Vite sets process.env.PORT when --port is provided on CLI; also honor explicit PORT env
   const cliOrEnvPort = normalizePort(process.env.PORT)
   const desiredPort = cliOrEnvPort ?? 3000
+
+  // Derive host from CLI/env without writing back. Vite sets process.env.HOST when --host is supplied.
+  // If --host is absent, setting host: true makes the server listen on 0.0.0.0 while still honoring CLI flags.
+  const cliHost = process.env.HOST?.trim()
+  const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : true
 
   // Allow external access; optionally honor explicit HMR host from env when running behind proxies.
   const hmrHost = process.env.HMR_HOST?.trim()
@@ -68,18 +72,20 @@ export default defineConfig(({ command, mode }) => {
     '**/*.config.mjs',
     // Ignore top-level lock/status files that can be written by CI or other processes
     '**/post_process_status.lock',
-    // Workspace root churn outside this project
+    // Workspace root churn outside this project scope
     '../../**',
   ]
 
-  // Safety net: if any plugin or external tool attempts to write to this file during dev/preview, block it.
-  // This does not actually intercept FS writes, but acts as documentation and a runtime guard when coupled with watcher ignores.
+  // PUBLIC_INTERFACE
+  /**
+   * This object exists purely as documentation; it is not used to write to disk and helps ensure no plugin mutates config.
+   */
   const SAFE_CONFIG_INFO = Object.freeze({
     immutable: true,
     message:
       'vite.config.js must not be modified at runtime. Watcher ignores this file to prevent self-restarts.',
   })
-  void SAFE_CONFIG_INFO // keep referenced to avoid tree-shaking and clarify intent
+  void SAFE_CONFIG_INFO
 
   const baseConfig = {
     base: '/',
@@ -129,8 +135,8 @@ export default defineConfig(({ command, mode }) => {
 
   // Dev server configuration
   baseConfig.server = {
-    host: true, // 0.0.0.0 external access; --host CLI also works
-    port: desiredPort, // honors PORT/--port; no disk writes
+    host: resolvedHost, // honor CLI --host if supplied; otherwise 0.0.0.0
+    port: desiredPort,  // honors PORT/--port; no disk writes
     strictPort: true,
     open: false,
     allowedHosts,
@@ -156,7 +162,7 @@ export default defineConfig(({ command, mode }) => {
 
   // Preview server configuration mirrors dev for host/port/allowedHosts
   baseConfig.preview = {
-    host: true,
+    host: resolvedHost,
     port: desiredPort,
     strictPort: true,
     open: false,

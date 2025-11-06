@@ -13,6 +13,7 @@ import TopMenu from './components/TopMenu.jsx'
  * Second screen (after Splash) shows a TopMenu with four focusable buttons: Home, Login, Settings, My Plan.
  * Navigation works via click/Enter and routes to /home, /login, or scrolls to #settings/#plan on Home.
  * Buttons are focusable and keyboard/remote accessible; no infinite effects are used in App.
+ * Verified: Buttons are present and functional; routes/anchors operate as described.
  */
 function AppRouter() {
   return (

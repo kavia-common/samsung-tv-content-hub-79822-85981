@@ -9,7 +9,7 @@ Currently, two official plugins are available:
 
 ## Dev server and health check
 
-- Dev server runs on 0.0.0.0 with strictPort=true; default port 3000 but respects PORT env or --port via vite.config.js.
+- Dev server runs on 0.0.0.0 with strictPort=true; default port 3000 but respects PORT env or --port via vite.config.js. Host also honors `--host` CLI if provided.
 - File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other `*.config.*` files are excluded from watch to prevent self-restarts.
 - Dist is not served during dev; outDir is only used for builds.
 - A readiness endpoint is available at GET /healthz returning 200 OK.
@@ -66,4 +66,4 @@ The React Compiler is not enabled on this template because of its impact on dev 
 
 ## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and `typescript-eslint` in your project.

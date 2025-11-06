@@ -1,17 +1,20 @@
 # Dev server behavior
 
-- Host: 0.0.0.0 (external access enabled via `server.host: true`)
+- Host: 0.0.0.0 by default (server.host: true) AND honors `--host` CLI if provided; we never write host to disk.
 - Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js). Example: run on 3001 with:
   - `npm run dev -- --host 0.0.0.0 --port 3001` or `PORT=3001 npm run dev`
 - strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
-- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/README.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`, and critically `vite.config.*` and other `*.config.*` files to prevent self-restart loops. Changes to these files will not trigger HMR restarts.
+- Ignored watch paths (prevent self-restart loops), including but not limited to:
+  - `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/README.md`, `**/node_modules/**`, `**/.env*`
+  - Lockfiles and scripts: `**/*.lock`, `**/package-lock.json`, `**/pnpm-lock.yaml`, `**/yarn.lock`, `**/scripts/**`
+  - Critically: `**/vite.config.*`, `**/*eslint*.config.*`, and other `**/*.config.*`
+  - CI churn: `**/post_process_status.lock`
 - Scope: only `src`, `public`, and `index.html` are intended for changes during dev (fs.strict + ignored paths)
 - Readiness: GET /healthz returns 200 OK (side-effect free)
 - Dev does not serve or read from `dist/`; `dist/` is only used for build output (middleware blocks `/dist/*` in dev)
-- Host/Port are centralized in vite.config.js; no runtime writes to config or .env occur.
-- No scripts or plugins in this repository modify vite.config.js at runtime. Runtime edits are prohibited and ignored by the watcher.
+- Host/Port are honored from CLI/env without writing back to config or .env. No runtime writes occur.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai (configured for dev and preview)
