@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:mem": "NODE_OPTIONS=--max-old-space-size=2048 vite",
-    "dev:port": "PORT=3001 vite",
+    "dev:port": "PORT=3000 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

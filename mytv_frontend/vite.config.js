@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       host: true,
-      port: 3001,
+      port: 3000,
       strictPort: true,
       open: false,
       hmr: {
@@ -56,7 +56,7 @@ export default defineConfig(({ mode }) => {
         deny: ['dist'],
       },
       middlewareMode: false,
-      allowedHosts: ['vscode-internal-26938-beta.beta01.cloud.kavia.ai'],
+      // allowedHosts removed to avoid mismatch with preview domain; default is sufficient
     },
     publicDir: 'public',
     build: {
