@@ -3,12 +3,23 @@ import { useNavigate } from 'react-router-dom'
 
 /**
  PUBLIC_INTERFACE
- Splash screen page: centers "MyTV" and navigates to Home after 3 seconds.
+ Splash screen page: centers "MyTV" and navigates to Home after ~5.5 seconds.
+ - Shows the MyTV title centered.
+ - Auto-navigates to /home after a 5500ms delay.
+ - Ensures timer is cleared on unmount to avoid memory leaks or repeated navigations.
 */
 export default function Splash() {
   const navigate = useNavigate()
+
   useEffect(() => {
-    const t = setTimeout(() => navigate('/home', { replace: true }), 3000)
+    // Use a 5.5s delay to meet the 5–6 seconds requirement
+    const timeoutMs = 5500
+    const t = setTimeout(() => {
+      // Replace history entry so Splash isn't in the back stack
+      navigate('/home', { replace: true })
+    }, timeoutMs)
+
+    // Cleanup to avoid navigation after unmount and prevent console errors
     return () => clearTimeout(t)
   }, [navigate])
 

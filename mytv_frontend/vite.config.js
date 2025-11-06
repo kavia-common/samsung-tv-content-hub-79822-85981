@@ -24,6 +24,7 @@ export default defineConfig({
     // PUBLIC_INTERFACE
     // Provide a simple readiness endpoint at /healthz
     middlewareMode: false,
+    allowedHosts:["vscode-internal-26158-beta.beta01.cloud.kavia.ai"]
   },
   preview: {
     host: true, // 0.0.0.0
