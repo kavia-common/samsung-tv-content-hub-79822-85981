@@ -10,7 +10,7 @@ Currently, two official plugins are available:
 ## Dev server and health check
 
 - Dev server runs on 0.0.0.0 with strictPort=true; default port 3000 but respects PORT env or --port via vite.config.js.
-- File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js` and other `*.config.*` files are excluded from watch to prevent self-restarts.
+- File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other `*.config.*` files are excluded from watch to prevent self-restarts.
 - Dist is not served during dev; outDir is only used for builds.
 - A readiness endpoint is available at GET /healthz returning 200 OK.
 - Allowed host configured: vscode-internal-26938-beta.beta01.cloud.kavia.ai
@@ -24,6 +24,11 @@ Tip: To run on a specific port non-interactively (e.g., 3001), do either:
 - npm run dev -- --host 0.0.0.0 --port 3001
 - PORT=3001 npm run dev
 
+Stability guarantees:
+- The dev server ignores changes to `vite.config.js`, docs, and other config files to prevent HMR restart loops.
+- No script or plugin in this repo modifies `vite.config.js` or `.env` at runtime. CLI flags `--host` and `--port` are honored in-memory only; nothing is written to disk.
+- Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai and strictPort=true ensures we don't auto-switch ports.
+
 ## Second screen navigation
 
 After Splash, the second screen (Home) renders a Top menu with four focusable buttons:
@@ -34,12 +39,6 @@ Behavior:
 - Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
 - Buttons are focusable and remote/keyboard accessible (Enter activates).
 - Navigation works without causing render loops; effects are carefully scoped.
-
-Dev server stability notes:
-- The dev server ignores changes to `vite.config.js` and other config/docs to prevent HMR restart loops.
-- No process or script in this repo writes to `vite.config.js` at runtime; CLI flags `--host` and `--port` are respected without persisting anything to disk.
-- To run on the preview env host/port without conflict: `npm run dev -- --host 0.0.0.0 --port 3001` (or `PORT=3001 npm run dev`).
-- Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai and strictPort=true ensures we don't auto-switch ports.
 
 ## Tizen packaging
 

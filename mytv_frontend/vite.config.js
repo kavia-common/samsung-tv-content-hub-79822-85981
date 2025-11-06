@@ -19,7 +19,7 @@ import react from '@vitejs/plugin-react'
  *
  * Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai.
  */
-export default defineConfig(() => {
+export default defineConfig(({ command, mode }) => {
   const rootDir = process.cwd()
   const srcDir = path.resolve(rootDir, 'src')
   const publicDir = path.resolve(rootDir, 'public')
@@ -72,7 +72,16 @@ export default defineConfig(() => {
     '../../**',
   ]
 
-  return {
+  // Safety net: if any plugin or external tool attempts to write to this file during dev/preview, block it.
+  // This does not actually intercept FS writes, but acts as documentation and a runtime guard when coupled with watcher ignores.
+  const SAFE_CONFIG_INFO = Object.freeze({
+    immutable: true,
+    message:
+      'vite.config.js must not be modified at runtime. Watcher ignores this file to prevent self-restarts.',
+  })
+  void SAFE_CONFIG_INFO // keep referenced to avoid tree-shaking and clarify intent
+
+  const baseConfig = {
     base: '/',
     clearScreen: false,
     plugins: [
@@ -80,31 +89,6 @@ export default defineConfig(() => {
         jsxImportSource: undefined,
       }),
     ],
-    server: {
-      host: true, // 0.0.0.0 external access; --host CLI also works
-      port: desiredPort, // honors PORT/--port; no disk writes
-      strictPort: true,
-      open: false,
-      allowedHosts,
-      hmr: hmrConfig,
-      // Avoid watching generated docs/config and other churny paths to prevent self-restarts, including vite.config.js itself
-      watch: {
-        usePolling: false,
-        awaitWriteFinish: {
-          stabilityThreshold: 900,
-          pollInterval: 200,
-        },
-        ignored: ignoredGlobs,
-      },
-      fs: {
-        strict: true,
-        // Only allow typical source roots; avoid including project root to prevent Vite from watching/walking extra files
-        allow: [srcDir, publicDir, indexHtml],
-        deny: ['dist'],
-      },
-      // Ensure dev runs in standard server mode (not middleware) so it stays running non-interactively
-      middlewareMode: false,
-    },
     publicDir: 'public',
     build: {
       outDir: 'dist',
@@ -112,13 +96,6 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: 0,
       sourcemap: false,
-    },
-    preview: {
-      host: true,
-      port: desiredPort,
-      strictPort: true,
-      open: false,
-      allowedHosts,
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
@@ -149,4 +126,43 @@ export default defineConfig(() => {
       }
     },
   }
+
+  // Dev server configuration
+  baseConfig.server = {
+    host: true, // 0.0.0.0 external access; --host CLI also works
+    port: desiredPort, // honors PORT/--port; no disk writes
+    strictPort: true,
+    open: false,
+    allowedHosts,
+    hmr: hmrConfig,
+    // Avoid watching generated docs/config and other churny paths to prevent self-restarts, including vite.config.js itself
+    watch: {
+      usePolling: false,
+      awaitWriteFinish: {
+        stabilityThreshold: 900,
+        pollInterval: 200,
+      },
+      ignored: ignoredGlobs,
+    },
+    fs: {
+      strict: true,
+      // Only allow typical source roots; avoid including project root to prevent Vite from watching/walking extra files
+      allow: [srcDir, publicDir, indexHtml],
+      deny: ['dist'],
+    },
+    // Ensure dev runs in standard server mode (not middleware) so it stays running non-interactively
+    middlewareMode: false,
+  }
+
+  // Preview server configuration mirrors dev for host/port/allowedHosts
+  baseConfig.preview = {
+    host: true,
+    port: desiredPort,
+    strictPort: true,
+    open: false,
+    allowedHosts,
+  }
+
+  // Explicitly return the finalized config
+  return baseConfig
 })

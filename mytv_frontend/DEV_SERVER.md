@@ -6,11 +6,12 @@
 - strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
-- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`, and critically `vite.config.*` and other `*.config.*` files to prevent self-restart loops. Changes to these files will not trigger HMR restarts.
+- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/README.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`, and critically `vite.config.*` and other `*.config.*` files to prevent self-restart loops. Changes to these files will not trigger HMR restarts.
 - Scope: only `src`, `public`, and `index.html` are intended for changes during dev (fs.strict + ignored paths)
 - Readiness: GET /healthz returns 200 OK (side-effect free)
 - Dev does not serve or read from `dist/`; `dist/` is only used for build output (middleware blocks `/dist/*` in dev)
 - Host/Port are centralized in vite.config.js; no runtime writes to config or .env occur.
+- No scripts or plugins in this repository modify vite.config.js at runtime. Runtime edits are prohibited and ignored by the watcher.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai (configured for dev and preview)
@@ -27,14 +28,14 @@ Scripts:
 Quick checks:
 - Verify readiness:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
-- Run on preview env port 3001 (non-interactive):
+- Run on preview env port 3001 (non-interactive, stable and will not self-restart):
   npm run dev -- --host 0.0.0.0 --port 3001
   # or:
   PORT=3001 npm run dev
 
 Operational notes:
 - Absolutely do NOT write to `.env` or `vite.config.js` at runtime. No scripts/plugins in this repo modify these files.
-- The watcher excludes `vite.config.js` and other config patterns; changes to these files will not trigger HMR restarts.
+- The watcher excludes `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other config/docs; changes to these files will not trigger HMR restarts.
 - Avoid adding middleware/plugins that write to files during requests; this causes watch loops.
 - Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist` when running `vite build`.
 - If you observe reload loops: check for file churn in `dist/`, `.git/`, and ensure no process modifies `.env` or `vite.config.js`. Also verify that CI or other agents are not updating `post_process_status.lock` or docs inside watched scopes.
