@@ -1,0 +1,4 @@
+{
+    "command": "npm run dev -- --port <port> --host <host>",
+    "working_directory": "/home/kavia/workspace/code-generation/samsung-tv-content-hub-79822-85981/mytv_frontend"
+}
