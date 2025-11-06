@@ -97,6 +97,47 @@ export default defineConfig(() => {
       react({
         jsxImportSource: undefined,
       }),
+      {
+        name: 'healthz-and-dist-guard',
+        apply: 'serve',
+        configureServer(server) {
+          try {
+            server.middlewares.use('/healthz', (_req, res) => {
+              res.statusCode = 200
+              res.end('OK')
+            })
+            server.middlewares.use((req, res, next) => {
+              if (req.url && req.url.startsWith('/dist/')) {
+                res.statusCode = 404
+                res.end('Not Found')
+                return
+              }
+              next()
+            })
+          } catch (e) {
+            server?.config?.logger?.warn?.(`healthz plugin non-fatal error: ${e?.message || e}`)
+          }
+        },
+        configurePreviewServer(server) {
+          try {
+            server.middlewares.use('/healthz', (_req, res) => {
+              res.statusCode = 200
+              res.end('OK')
+            })
+            server.middlewares.use((req, res, next) => {
+              if (req.url && req.url.startsWith('/dist/')) {
+                res.statusCode = 404
+                res.end('Not Found')
+                return
+              }
+              next()
+            })
+          } catch (e) {
+            // preview logger shape differs; be conservative
+            console.warn?.(`preview healthz plugin non-fatal error: ${e?.message || e}`)
+          }
+        },
+      },
     ],
     publicDir: 'public',
     build: {
@@ -163,13 +204,17 @@ export default defineConfig(() => {
     middlewareMode: false,
   }
 
-  // Preview server configuration mirrors dev for host/port/allowedHosts
+  // Preview server configuration mirrors dev for host/port/allowedHosts and adds a /healthz endpoint for readiness.
   baseConfig.preview = {
     host: resolvedHost,
     port: desiredPort,
     strictPort: true,
     open: false,
     allowedHosts,
+    // Note: preview has limited options vs dev server; we still provide a health check via proxy middleware here.
+    // Vite will pass through middlewares from plugins; we use the same plugin scope to attach a light health handler.
+    // No file watches are configured for preview, but we align behavior by not serving /dist/* paths other than root assets.
+    // This prevents accidental nested dist references during preview in some environments.
   }
 
   // Explicitly return the finalized config

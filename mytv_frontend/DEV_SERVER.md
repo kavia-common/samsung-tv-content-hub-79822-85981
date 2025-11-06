@@ -14,6 +14,7 @@
 - Scope: only `src`, `public`, and `index.html` are intended for changes during dev (fs.strict + ignored paths)
 - Readiness: GET /healthz returns 200 OK (side-effect free)
 - Dev does not serve or read from `dist/`; `dist/` is only used for build output (middleware blocks `/dist/*` in dev)
+- Preview mirrors dev host/port/allowedHosts and exposes a /healthz endpoint via middleware so proxies can check readiness.
 - Host/Port are honored from CLI/env without writing back to config or .env. No runtime writes occur.
 
 Allowed hosts:
