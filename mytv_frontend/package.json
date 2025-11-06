@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "preview:port": "PORT=3000 vite preview",
     "build:tizen": "vite build",
-    "package:tizen": "cd dist && zip -r ../app.wgt * ../config.xml"
+    "package:tizen": "node ./scripts/package-tizen.js",
+    "build-and-package:tizen": "npm run build:tizen && npm run package:tizen"
   },
   "engines": {
     "node": ">=18.0.0 <20.0.0",

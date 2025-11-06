@@ -16,6 +16,9 @@ Scripts:
 - npm run dev:port       -> sets PORT=3000 explicitly (optional)
 - npm run preview        -> preview on port 3000 per vite.config.js
 - npm run preview:port   -> sets PORT=3000 explicitly for preview (optional)
+- npm run build:tizen    -> builds to ./dist (no packaging)
+- npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
+- npm run build-and-package:tizen -> build then package in one command
 
 Operational notes:
 - Do NOT write to `.env` or `vite.config.js` at runtime. No scripts/plugins in this repo modify these files.
@@ -23,3 +26,12 @@ Operational notes:
 - Prefer configuring dev server entirely in `vite.config.js` (avoid duplicate CLI flags like `--host`/`--port`).
 - Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist/` when running `vite build`.
 - If you observe reload loops: check for file churn in `dist/` or `.git/` and ensure no process modifies `.env` or `vite.config.js`.
+
+## Tizen packaging (no external zip)
+The packaging flow no longer uses the system `zip` CLI. Instead, a Node-based zipper writes a valid .wgt file:
+
+Steps:
+1. Run `npm run build:tizen` to produce `./dist`.
+2. Run `npm run package:tizen` to generate `./app.wgt` that includes all files under `dist/` plus `config.xml` at the archive root.
+
+This avoids errors like `zip: not found` in CI and local environments lacking `zip`.

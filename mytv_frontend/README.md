@@ -19,6 +19,14 @@ Commands:
 - npm run dev -> vite (uses vite.config.js)
 - npm run preview -> vite preview (uses vite.config.js)
 
+## Tizen packaging
+
+No external `zip` command is required.
+
+- Build: `npm run build:tizen`
+- Package: `npm run package:tizen` (generates `app.wgt` at project root, includes `dist/**` + `config.xml`)
+- Combined: `npm run build-and-package:tizen`
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
