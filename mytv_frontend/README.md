@@ -13,11 +13,26 @@ Currently, two official plugins are available:
 - File watching is debounced and ignores non-source paths to avoid restart loops.
 - Dist is not served during dev; outDir is only used for builds.
 - A readiness endpoint is available at GET /healthz returning 200 OK.
+- Allowed host configured: vscode-internal-26938-beta.beta01.cloud.kavia.ai
 - See DEV_SERVER.md for full behavior and scripts.
 
 Commands:
 - npm run dev -> vite (uses vite.config.js)
 - npm run preview -> vite preview (uses vite.config.js)
+
+Tip: To run on a specific port non-interactively, do either:
+- npm run dev -- --port 3001
+- PORT=3001 npm run dev
+
+## Second screen navigation
+
+After Splash, the second screen (Home) renders a Top menu with four focusable buttons:
+- Home, Login, Settings, and My Plan
+
+Behavior:
+- Home and Login navigate to /home and /login respectively.
+- Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
+- Buttons are focusable and remote/keyboard accessible (Enter activates).
 
 ## Tizen packaging
 

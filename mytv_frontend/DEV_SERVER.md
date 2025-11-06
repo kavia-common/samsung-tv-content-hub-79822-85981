@@ -5,7 +5,7 @@
 - strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
-- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts
+- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`
 - Scope: only `src`, `public`, and `index.html` are intended for changes during dev (fs.strict + ignored paths)
 - Readiness: GET /healthz returns 200 OK (side-effect free)
 - Dev does not serve or read from `dist/`; `dist/` is only used for build output (middleware blocks `/dist/*` in dev)
@@ -38,7 +38,7 @@ Operational notes:
 - Avoid adding middleware or plugins that write to files on each request; this causes watch loops.
 - Prefer configuring dev server entirely in `vite.config.js` (avoid duplicate CLI flags like `--host`/`--port`).
 - Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist/` when running `vite build`.
-- If you observe reload loops: check for file churn in `dist/` or `.git/` and ensure no process modifies `.env` or `vite.config.js`.
+- If you observe reload loops: check for file churn in `dist/`, `.git/`, and ensure no process modifies `.env` or `vite.config.js`. Also verify that CI or other agents are not updating `post_process_status.lock` or docs inside watched scopes.
 
 ## Tizen packaging (no external zip)
 The packaging flow no longer uses the system `zip` CLI. Instead, a Node-based zipper writes a valid .wgt file:

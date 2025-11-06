@@ -12,7 +12,7 @@ import react from '@vitejs/plugin-react'
  * - Preview mirrors dev host/port.
  * - Adds /healthz for readiness; middleware is side-effect free (no disk writes) and never exits process.
  */
-export default defineConfig(({ mode, command }) => {
+export default defineConfig(() => {
   const rootDir = process.cwd()
   const srcDir = path.resolve(rootDir, 'src')
   const publicDir = path.resolve(rootDir, 'public')
@@ -23,6 +23,7 @@ export default defineConfig(({ mode, command }) => {
     const n = Number(p)
     return Number.isFinite(n) && n > 0 ? n : undefined
   }
+  // Vite sets process.env.PORT when --port is provided on CLI
   const cliOrEnvPort = normalizePort(process.env.PORT)
   const desiredPort = cliOrEnvPort ?? 3000
 
@@ -31,6 +32,9 @@ export default defineConfig(({ mode, command }) => {
   const hmrConfig = hmrHost
     ? { host: hmrHost, overlay: true }
     : { overlay: true } // let Vite infer when not specified
+
+  // Centralize allowedHosts for dev and preview
+  const allowedHosts = ['vscode-internal-26938-beta.beta01.cloud.kavia.ai']
 
   return {
     base: '/',
@@ -45,9 +49,10 @@ export default defineConfig(({ mode, command }) => {
       port: desiredPort,
       strictPort: true,
       open: false,
-      // Allow preview/dev access from the remote VS Code host
-      allowedHosts: ['vscode-internal-26938-beta.beta01.cloud.kavia.ai'],
+      // Explicitly allow the remote VS Code host (stops 400 host check errors)
+      allowedHosts,
       hmr: hmrConfig,
+      // Avoid watching generated docs/config and other churny paths to prevent self-restarts
       watch: {
         usePolling: false,
         awaitWriteFinish: {
@@ -70,16 +75,19 @@ export default defineConfig(({ mode, command }) => {
           '**/package-lock.json',
           '**/pnpm-lock.yaml',
           '**/yarn.lock',
-          // workspace root churn outside this project
+          // Ignore top-level lock/status files that can be written by CI or other processes
+          '**/post_process_status.lock',
+          // Workspace root churn outside this project
           '../../**',
         ],
       },
       fs: {
         strict: true,
+        // Only allow typical source roots; avoid including project root to prevent Vite from watching/walking extra files
         allow: [srcDir, publicDir, indexHtml],
         deny: ['dist'],
       },
-      // Explicitly disable middlewareMode to prevent non-interactive exit behavior
+      // Ensure dev runs in standard server mode (not middleware) so it stays running non-interactively
       middlewareMode: false,
     },
     publicDir: 'public',
@@ -95,8 +103,8 @@ export default defineConfig(({ mode, command }) => {
       port: desiredPort,
       strictPort: true,
       open: false,
-      // Align preview with dev in environments with host restrictions
-      allowedHosts: ['vscode-internal-26938-beta.beta01.cloud.kavia.ai'],
+      // Match dev allowedHosts for preview stability
+      allowedHosts,
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
@@ -109,11 +117,7 @@ export default defineConfig(({ mode, command }) => {
      * Avoids throwing to prevent non-interactive exits.
      */
     configureServer(server) {
-      // Use a no-throw, idempotent registration to avoid exceptions bubbling.
       try {
-        // Register once per server instance
-        server.middlewares.stack = server.middlewares.stack || []
-
         server.middlewares.use('/healthz', (_req, res) => {
           res.statusCode = 200
           res.end('OK')
