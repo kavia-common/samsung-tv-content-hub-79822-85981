@@ -9,6 +9,7 @@ import { useTizenKeys } from '../hooks/useTizenKeys'
  * - Supports 5-way navigation (Left/Right focus; Enter activates).
  * - Visual focus: scale + glow using Ocean Professional theme accents.
  * - Handles hash routes by scrolling to section anchors if present.
+ * - Stability: effects are scoped to pathname/focusIndex only (no infinite loops).
  */
 export default function TopMenu({ items }) {
   const containerRef = useRef(null)

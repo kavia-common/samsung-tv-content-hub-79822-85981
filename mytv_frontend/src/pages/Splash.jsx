@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
  - Keeps a subtle Ocean Professional sub-caption.
  - Auto-navigates to /home after a 5500ms delay.
  - Ensures timer is cleared on unmount to avoid memory leaks or repeated navigations.
+ - Stability: one-time effect; no interval or re-run loops.
 */
 export default function Splash() {
   const navigate = useNavigate()

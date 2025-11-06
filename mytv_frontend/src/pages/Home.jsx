@@ -8,6 +8,7 @@ import Subscriptions from '../components/Subscriptions.jsx'
  Home page with banner, top menu, multiple content rails, and subscriptions section.
  Local sample data uses images under /images.
  Includes anchor sections for Settings and My Plan to support hash navigation.
+ Effects avoid infinite rerenders: rails are memoized; hash scroll runs once on mount.
 */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
