@@ -47,6 +47,7 @@ export default defineConfig(() => {
         deny: ['dist'],
       },
       middlewareMode: false,
+      allowedHosts:["vscode-internal-26158-beta.beta01.cloud.kavia.ai"]
     },
     publicDir: 'public',
     build: {
@@ -55,7 +56,7 @@ export default defineConfig(() => {
     },
     preview: {
       host: true,
-      port: 3000,
+      port: 3001,
       strictPort: true,
     },
     // PUBLIC_INTERFACE

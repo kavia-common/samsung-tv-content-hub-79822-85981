@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:port": "PORT=3000 vite",
+    "dev:port": "PORT=3001 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
