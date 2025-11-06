@@ -47,7 +47,7 @@ export default defineConfig(() => {
         deny: ['dist'],
       },
       middlewareMode: false,
-      allowedHosts:["vscode-internal-26158-beta.beta01.cloud.kavia.ai"]
+      allowedHosts:["vscode-internal-26938-beta.beta01.cloud.kavia.ai"]
     },
     publicDir: 'public',
     build: {

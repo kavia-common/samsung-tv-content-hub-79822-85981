@@ -5,6 +5,10 @@ import { useTizenKeys } from '../hooks/useTizenKeys'
 /**
  * PUBLIC_INTERFACE
  * Top menu component with arrow-key navigation for Samsung TV remotes.
+ * - Renders four buttons: Home, Login, Settings, My Plan.
+ * - Supports 5-way navigation (Left/Right focus; Enter activates).
+ * - Visual focus: scale + glow using Ocean Professional theme accents.
+ * - Handles hash routes by scrolling to section anchors if present.
  */
 export default function TopMenu({ items }) {
   const containerRef = useRef(null)
@@ -12,18 +16,35 @@ export default function TopMenu({ items }) {
   const navigate = useNavigate()
   const location = useLocation()
 
+  // Sync focus to route path (ignoring hash)
   useEffect(() => {
-    // sync focus with current route when route changes
-    const idx = items.findIndex(i => location.pathname.startsWith(i.path.replace(/#.+$/,'')))
+    const basePath = location.pathname
+    const idx = items.findIndex(i => basePath.startsWith(i.path.replace(/#.+$/, '')))
     if (idx >= 0) setFocusIndex(idx)
   }, [location.pathname, items])
+
+  function goTo(item) {
+    if (!item) return
+    navigate(item.path)
+    // If path contains a hash, attempt to scroll the target into view
+    const hash = item.path.split('#')[1]
+    if (hash) {
+      // Delay slightly to allow page content to render
+      setTimeout(() => {
+        const el = document.getElementById(hash)
+        if (el && typeof el.scrollIntoView === 'function') {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+        }
+      }, 50)
+    }
+  }
 
   useTizenKeys({
     onLeft: () => setFocusIndex(i => Math.max(0, i - 1)),
     onRight: () => setFocusIndex(i => Math.min(items.length - 1, i + 1)),
     onEnter: () => {
       const it = items[focusIndex]
-      if (it) navigate(it.path)
+      goTo(it)
     },
   })
 
@@ -60,20 +81,31 @@ export default function TopMenu({ items }) {
             <button
               key={it.label}
               className="focusable"
-              onClick={() => navigate(it.path)}
+              tabIndex={0}
+              onClick={() => goTo(it)}
               style={{
                 height: 48,
-                minWidth: 140,
-                padding: '10px 16px',
-                borderRadius: 10,
-                border: `1px solid ${active ? 'var(--secondary)' : 'rgba(255,255,255,0.1)'}`,
+                minWidth: 160,
+                padding: '10px 18px',
+                borderRadius: 12,
+                border: `1px solid ${active ? 'var(--secondary)' : 'rgba(255,255,255,0.14)'}`,
                 background: active
                   ? 'linear-gradient(180deg, rgba(245,158,11,0.25), rgba(245,158,11,0.12))'
-                  : 'rgba(255,255,255,0.04)',
-                color: active ? '#fff' : '#E5E7EB',
+                  : 'linear-gradient(180deg, rgba(37,99,235,0.18), rgba(37,99,235,0.10))',
+                color: '#fff',
                 fontSize: 18,
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: 'pointer',
+                boxShadow: active
+                  ? '0 0 0 3px rgba(245,158,11,0.35), 0 14px 34px rgba(0,0,0,0.40)'
+                  : '0 10px 24px rgba(0,0,0,0.35)',
+                transform: active ? 'scale(1.05)' : 'scale(1.0)',
+                transition: 'transform 120ms ease, box-shadow 120ms ease, background 120ms ease',
+              }}
+              onKeyDown={(e) => {
+                if (e.keyCode === 13) {
+                  goTo(it)
+                }
               }}
             >
               {it.label}

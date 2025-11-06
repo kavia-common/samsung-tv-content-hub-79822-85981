@@ -46,7 +46,7 @@ function PageLayout({ children }) {
   const sections = useMemo(() => ([
     { label: 'Home', path: '/home' },
     { label: 'Login', path: '/login' },
-    { label: 'Setting', path: '/home#setting' },
+    { label: 'Settings', path: '/home#settings' },
     { label: 'My Plan', path: '/home#plan' },
   ]), [])
   return (

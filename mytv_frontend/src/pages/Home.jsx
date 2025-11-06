@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
@@ -7,9 +7,11 @@ import Subscriptions from '../components/Subscriptions.jsx'
  PUBLIC_INTERFACE
  Home page with banner, top menu, multiple content rails, and subscriptions section.
  Local sample data uses images under /images.
+ Includes anchor sections for Settings and My Plan to support hash navigation.
 */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
+  const scrollAreaRef = useRef(null)
 
   const mkItems = (prefix, count) =>
     Array.from({ length: count }).map((_, i) => ({
@@ -31,6 +33,17 @@ export default function Home() {
     [],
   )
 
+  // If navigated with a hash (e.g., #settings, #plan), ensure we scroll into view on mount
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    if (hash) {
+      const el = document.getElementById(hash)
+      if (el && typeof el.scrollIntoView === 'function') {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' }), 60)
+      }
+    }
+  }, [])
+
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22, height: '100%', overflow: 'hidden' }}>
@@ -51,7 +64,8 @@ export default function Home() {
         </h1>
 
         <Banner image="/images/banner.jpg" />
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+        <div ref={scrollAreaRef} style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+          {/* Content rails */}
           {rails.map((r, idx) => (
             <Rail
               key={r.title}
@@ -62,7 +76,41 @@ export default function Home() {
               setCurrentRail={setCurrentRail}
             />
           ))}
-          <Subscriptions />
+
+          {/* Settings section anchor */}
+          <section id="settings" style={{ marginTop: 24 }}>
+            <div className="section-title">Settings</div>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+              {['Audio', 'Subtitles', 'Parental Controls', 'Network', 'About'].map((label) => (
+                <button
+                  key={label}
+                  className="focusable card"
+                  tabIndex={0}
+                  style={{
+                    height: 56,
+                    minWidth: 220,
+                    padding: '10px 18px',
+                    borderRadius: 12,
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    background: 'linear-gradient(180deg, rgba(37,99,235,0.18), rgba(37,99,235,0.08))',
+                    color: '#fff',
+                    fontSize: 18,
+                    fontWeight: 700,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* My Plan section anchor */}
+          <section id="plan" style={{ marginTop: 28, marginBottom: 16 }}>
+            <div className="section-title">My Plan</div>
+            <Subscriptions />
+          </section>
         </div>
       </div>
     </div>
