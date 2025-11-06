@@ -24,7 +24,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       host: true,
-      port: 3000,
+      // Respect CLI --port or PORT env if provided; fallback to 3000
+      port: Number(process.env.PORT) || 3000,
       strictPort: true,
       open: false,
       hmr: {
@@ -36,13 +37,13 @@ export default defineConfig(({ mode }) => {
           stabilityThreshold: 800,
           pollInterval: 150,
         },
+        // Keep explicit ignores but avoid patterns that match project root inadvertently.
         ignored: [
           '**/dist/**',
           '**/.git/**',
           '**/*.md',
           '**/DEV_SERVER.md',
           '**/node_modules/**',
-          '**/vite.config.js',
           '**/.env*',
           '**/app.wgt',
           '**/scripts/**',
@@ -56,7 +57,6 @@ export default defineConfig(({ mode }) => {
         deny: ['dist'],
       },
       middlewareMode: false,
-      // allowedHosts removed to avoid mismatch with preview domain; default is sufficient
     },
     publicDir: 'public',
     build: {
@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       host: true,
-      port: 3000,
+      port: Number(process.env.PORT) || 3000,
       strictPort: true,
       open: false,
     },

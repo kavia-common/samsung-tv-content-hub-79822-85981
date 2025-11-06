@@ -1,8 +1,8 @@
 # Dev server behavior
 
 - Host: 0.0.0.0 (external access enabled via `server.host: true`)
-- Port: 3000 (centralized in vite.config.js; use `npm run dev:port` to explicitly set PORT=3000)
-- strictPort: true (Vite will NOT auto-pick a new port; it will fail if 3000 is taken)
+- Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js)
+- strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
 - HMR: overlay enabled; host inferred (do not set `hmr.host`)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 800ms, pollInterval: 150ms)
 - Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/vite.config.js`, `**/.env*`
