@@ -14,26 +14,19 @@ import react from '@vitejs/plugin-react'
  * - Adds /healthz middleware returning 200 OK for readiness checks.
  * - Ensures server does not serve from dist during dev.
  */
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   // Resolve port from env but default to 3000
   const port = Number(process.env.PORT || process.env.VITE_PORT || 3000)
 
-  // Directories we care about for dev
-  const WATCH_INCLUDE = [
-    'src/**',
-    'public/**',
-    'vite.config.js',
-    'eslint.config.js',
-    '*.config.js',
-    '**/*.config.js',
-  ]
+  // Watch scope and ignores
   const WATCH_IGNORED = ['**/dist/**', '**/.git/**', '**/node_modules/**']
 
   return {
     base: '/',
     plugins: [react()],
     server: {
-      host: true, // 0.0.0.0
+      // host true binds to 0.0.0.0
+      host: true,
       port,
       strictPort: true,
       // Keep HMR minimal; do not force host to avoid reconnect loops
@@ -41,27 +34,25 @@ export default defineConfig(({ mode }) => {
         clientPort: port,
         overlay: true,
       },
-      // Limit filesystem access
+      // Limit filesystem access - do not serve dist in dev
       fs: {
         strict: true,
-        // Explicitly allow project root only
         allow: ['.'],
-        // Never serve build output as static files in dev
         deny: ['dist'],
       },
       // Reduce file change storms that can cause rapid restarts/reloads.
-      // Use ignored to exclude dist/.git and other heavy paths.
+      // Explicitly ignore heavy dirs; also narrow watch to project root via fs.strict
       watch: {
         usePolling: false,
         awaitWriteFinish: {
-          stabilityThreshold: 600,
-          pollInterval: 100,
+          stabilityThreshold: 800,
+          pollInterval: 150,
         },
         ignored: WATCH_IGNORED,
       },
+      // Health/readiness route and guard against /dist access in dev
+      middlewareMode: false,
     },
-    // Vite watches from the project root; we rely on ignored patterns above to narrow scope.
-    // Ensure build output goes to dist/ and is not used in dev
     publicDir: 'public',
     build: {
       outDir: 'dist',
