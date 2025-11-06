@@ -3,27 +3,35 @@ import react from '@vitejs/plugin-react'
 
 // PUBLIC_INTERFACE
 /**
- * Clean Vite 4 + React configuration compatible with Node 18.
- * - Uses ESM and defineConfig.
- * - Base path at root.
- * - Dev server binds to 0.0.0.0 with strictPort: true on port 3000.
- * - HMR minimal: overlay enabled; do not force host; clientPort inferred by Vite.
- * - Debounced file watching to avoid reload storms; dist/ and .git are ignored.
- * - fs.strict enabled; only allow src, public, index.html, and vite.config.js during dev; deny dist/.
- * - Preview mirrors dev host/port settings.
- * - Adds /healthz middleware returning 200 OK for readiness checks.
- * - Ensures server does not serve from dist during dev.
- * - Does not modify or watch .env aggressively (no plugins that write to files).
+ * Stable Vite 4 + React configuration for Node 18 that avoids restart loops.
+ * - Host/Port pinned in config: host: true, port: 3000 (overridable via env), strictPort: true.
+ * - HMR minimal with overlay only.
+ * - Debounced file watching and explicit ignores to prevent restarts on config or env changes.
+ * - Exclude vite.config.js and .env from watch to avoid auto restarts/reloads.
+ * - fs.strict limits access; dev never serves from dist/.
+ * - Preview mirrors dev host/port.
+ * - Adds /healthz for readiness; middleware has no file writes.
  */
 export default defineConfig(() => {
-  // Centralize port: default 3000, override via PORT or VITE_PORT
+  // Centralize port with default 3000
   const port = Number(process.env.PORT || process.env.VITE_PORT || 3000)
 
-  // Watch ignore patterns
-  const WATCH_IGNORED = ['**/dist/**', '**/.git/**', '**/node_modules/**']
+  // Watch ignore patterns, including config and env to avoid hot restarts
+  const WATCH_IGNORED = [
+    '**/dist/**',
+    '**/.git/**',
+    '**/node_modules/**',
+    '**/*.md',
+    // Explicitly ignore config/env files to prevent restarts caused by external churn
+    '**/vite.config.js',
+    '**/.env',
+    '**/.env.*',
+  ]
 
   return {
     base: '/',
+    clearScreen: false, // keep logs to observe stability and avoid terminal clears
+    configFile: true, // use this config file but don't trigger restarts from changes (handled via watch.ignored)
     plugins: [react()],
     server: {
       host: true,
