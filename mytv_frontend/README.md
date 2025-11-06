@@ -7,6 +7,18 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
+## Dev server and health check
+
+- Dev server runs on 0.0.0.0:3000 with strictPort=true, controlled by vite.config.js (no CLI flags).
+- File watching is debounced and ignores non-source paths to avoid restart loops.
+- Dist is not served during dev; outDir is only used for builds.
+- A readiness endpoint is available at GET /healthz returning 200 OK.
+- See DEV_SERVER.md for full behavior and scripts.
+
+Commands:
+- npm run dev -> vite (uses vite.config.js)
+- npm run preview -> vite preview (uses vite.config.js)
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
