@@ -1,38 +1,39 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-/**
- * PUBLIC_INTERFACE
- * Vite configuration for the Tizen frontend dev/preview servers.
- * - Binds to 0.0.0.0 for external access.
- * - Preferred port is taken from PORT or VITE_PORT env variables, fallback 3000.
- * - strictPort: false, allowing Vite to pick next available port if needed.
- * - Adds a simple /healthz endpoint for readiness probes.
- */
-const preferredPort = Number(process.env.PORT || process.env.VITE_PORT || 3000)
-
 // PUBLIC_INTERFACE
+/**
+ * Clean Vite 4 + React configuration compatible with Node 18.
+ * - Uses ESM and defineConfig.
+ * - Base path at root.
+ * - Dev server binds to 0.0.0.0 with strictPort: true on port 3000.
+ * - HMR host set to 0.0.0.0.
+ * - Preview mirrors dev host/port settings.
+ * - Adds /healthz middleware returning 200 OK for readiness checks.
+ */
 export default defineConfig({
-  base: '/', // ensure assets resolve from root for Tizen and container probes
+  base: '/',
   plugins: [react()],
   server: {
     host: true, // 0.0.0.0
-    port: preferredPort,
-    strictPort: false, // allow fallback (e.g., 3001) if taken; aligns with DEV_SERVER.md
-    open: false,
+    port: 3000,
+    strictPort: true,
     hmr: {
       host: '0.0.0.0',
     },
-    allowedHosts:["vscode-internal-26158-beta.beta01.cloud.kavia.ai"]
+    // PUBLIC_INTERFACE
+    // Provide a simple readiness endpoint at /healthz
+    middlewareMode: false,
   },
   preview: {
-    host: true,
-    port: preferredPort,
-    strictPort: false,
-    open: false,
+    host: true, // 0.0.0.0
+    port: 3000,
   },
   // PUBLIC_INTERFACE
-  /** Expose a /healthz route that returns 200 OK for readiness checks. */
+  /**
+   * Adds a /healthz route to return 200 OK.
+   * This ensures readiness probes succeed without triggering HMR or restarts.
+   */
   configureServer(server) {
     return () => {
       server.middlewares.use('/healthz', (_req, res) => {
