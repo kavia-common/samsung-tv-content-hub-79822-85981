@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import './theme.css'
 import Splash from './pages/Splash.jsx'
@@ -15,10 +15,14 @@ import TopMenu from './components/TopMenu.jsx'
  * Buttons are focusable and keyboard/remote accessible; no infinite effects are used in App.
  * Verified: Buttons are present and functional; routes/anchors operate as described.
  * Second screen requirement satisfied: Home, Login, Settings, My Plan are focusable and keyboard/remote accessible.
+ *
+ * Implementation note:
+ * - Using HashRouter improves stability in preview/reverse-proxy environments because it avoids server-side route handling.
+ *   It preserves our existing paths and hash-based section deep links without needing server rewrites.
  */
 function AppRouter() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Splash />} />
         <Route
@@ -39,7 +43,7 @@ function AppRouter() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
