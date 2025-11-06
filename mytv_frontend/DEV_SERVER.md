@@ -1,15 +1,16 @@
 # Dev server behavior
 
 - Host: 0.0.0.0 (external access enabled via `server.host: true`)
-- Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js)
+- Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js). Example: run on 3001 with:
+  - `npm run dev -- --host 0.0.0.0 --port 3001` or `PORT=3001 npm run dev`
 - strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
-- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`, and importantly `vite.config.*` and other `*.config.*` files to prevent self-restart loops.
+- Ignored watch paths: `**/dist/**`, `**/.git/**`, `**/*.md`, `**/DEV_SERVER.md`, `**/node_modules/**`, `**/.env*`, lockfiles, scripts, `post_process_status.lock`, and critically `vite.config.*` and other `*.config.*` files to prevent self-restart loops. Changes to these files will not trigger HMR restarts.
 - Scope: only `src`, `public`, and `index.html` are intended for changes during dev (fs.strict + ignored paths)
 - Readiness: GET /healthz returns 200 OK (side-effect free)
 - Dev does not serve or read from `dist/`; `dist/` is only used for build output (middleware blocks `/dist/*` in dev)
-- Host/Port are centralized in vite.config.js; avoid passing duplicate CLI flags such as `--host` and `--port` redundantly.
+- Host/Port are centralized in vite.config.js; no runtime writes to config or .env occur.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai (configured for dev and preview)
@@ -24,19 +25,29 @@ Scripts:
 - npm run build-and-package:tizen -> build then package in one command
 
 Quick checks:
-- Use curl to verify readiness:
+- Verify readiness:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
-- Respect external host and port, e.g. port 3001:
+- Run on preview env port 3001 (non-interactive):
   npm run dev -- --host 0.0.0.0 --port 3001
   # or:
   PORT=3001 npm run dev
 
 Operational notes:
-- Do NOT write to `.env` or `vite.config.js` at runtime. No scripts/plugins in this repo modify these files.
-- Avoid adding middleware or plugins that write to files on each request; this causes watch loops.
-- Prefer configuring dev server entirely in `vite.config.js` (avoid duplicate CLI flags like `--host`/`--port`).
-- Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist/` when running `vite build`.
+- Absolutely do NOT write to `.env` or `vite.config.js` at runtime. No scripts/plugins in this repo modify these files.
+- The watcher excludes `vite.config.js` and other config patterns; changes to these files will not trigger HMR restarts.
+- Avoid adding middleware/plugins that write to files during requests; this causes watch loops.
+- Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist` when running `vite build`.
 - If you observe reload loops: check for file churn in `dist/`, `.git/`, and ensure no process modifies `.env` or `vite.config.js`. Also verify that CI or other agents are not updating `post_process_status.lock` or docs inside watched scopes.
+
+## Second screen navigation
+
+After Splash, the second screen (Home) renders a Top menu with four focusable buttons:
+- Home, Login, Settings, and My Plan
+
+Behavior:
+- Home and Login navigate to /home and /login respectively.
+- Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
+- Buttons are focusable and remote/keyboard accessible (Enter activates).
 
 ## Tizen packaging (no external zip)
 The packaging flow no longer uses the system `zip` CLI. Instead, a Node-based zipper writes a valid .wgt file:

@@ -12,10 +12,12 @@ import react from '@vitejs/plugin-react'
  * - Preview mirrors dev host/port.
  * - Adds /healthz for readiness; middleware is side-effect free (no disk writes) and never exits process.
  *
- * Notes on stability in CI/preview:
- * - We ignore vite.config.js and other config/docs files to prevent self-restart loops when the environment touches them.
- * - Host/port are derived from CLI flags or PORT env; no redundant toggles at runtime.
- * - allowedHosts includes vscode-internal-26938-beta.beta01.cloud.kavia.ai for reverse-proxy previews.
+ * Hardening:
+ * - Absolutely no runtime writes to vite.config.js or .env.
+ * - Ensure vite.config.* is excluded from watcher to prevent self-restart loops.
+ * - Respect CLI flags --host/--port and PORT env without writing anything back to disk.
+ *
+ * Allowed host includes vscode-internal-26938-beta.beta01.cloud.kavia.ai.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -41,6 +43,35 @@ export default defineConfig(() => {
   // Centralize allowedHosts for dev and preview (ensure preview hostname is allowed)
   const allowedHosts = ['vscode-internal-26938-beta.beta01.cloud.kavia.ai']
 
+  // Define a conservative set of ignored globs that includes vite.config.* and other churny files.
+  const ignoredGlobs = [
+    '**/dist/**',
+    '**/.git/**',
+    '**/*.md',
+    '**/README.md',
+    '**/DEV_SERVER.md',
+    '**/CHANGELOG*',
+    '**/docs/**',
+    '**/node_modules/**',
+    '**/.env*',
+    '**/app.wgt',
+    '**/scripts/**',
+    '**/*.lock',
+    '**/package-lock.json',
+    '**/pnpm-lock.yaml',
+    '**/yarn.lock',
+    // Critical: ignore Vite and other config files to prevent HMR self-restarts
+    '**/vite.config.*',
+    '**/*eslint*.config.*',
+    '**/*.config.js',
+    '**/*.config.cjs',
+    '**/*.config.mjs',
+    // Ignore top-level lock/status files that can be written by CI or other processes
+    '**/post_process_status.lock',
+    // Workspace root churn outside this project
+    '../../**',
+  ]
+
   return {
     base: '/',
     clearScreen: false,
@@ -50,13 +81,10 @@ export default defineConfig(() => {
       }),
     ],
     server: {
-      // Host as 0.0.0.0; respects CLI flag --host 0.0.0.0 or default true (external)
-      host: true,
-      // Port respects CLI --port (Vite sets process.env.PORT) or PORT env; default 3000
-      port: desiredPort,
+      host: true, // 0.0.0.0 external access; --host CLI also works
+      port: desiredPort, // honors PORT/--port; no disk writes
       strictPort: true,
       open: false,
-      // Explicitly allow the remote VS Code host (stops 400 host check errors)
       allowedHosts,
       hmr: hmrConfig,
       // Avoid watching generated docs/config and other churny paths to prevent self-restarts, including vite.config.js itself
@@ -66,33 +94,7 @@ export default defineConfig(() => {
           stabilityThreshold: 900,
           pollInterval: 200,
         },
-        ignored: [
-          '**/dist/**',
-          '**/.git/**',
-          '**/*.md',
-          '**/README.md',
-          '**/DEV_SERVER.md',
-          '**/CHANGELOG*',
-          '**/docs/**',
-          '**/node_modules/**',
-          '**/.env*',
-          '**/app.wgt',
-          '**/scripts/**',
-          '**/*.lock',
-          '**/package-lock.json',
-          '**/pnpm-lock.yaml',
-          '**/yarn.lock',
-          // Critical: ignore Vite and other config files to prevent HMR self-restarts
-          '**/vite.config.*',
-          '**/*eslint*.config.*',
-          '**/*.config.js',
-          '**/*.config.cjs',
-          '**/*.config.mjs',
-          // Ignore top-level lock/status files that can be written by CI or other processes
-          '**/post_process_status.lock',
-          // Workspace root churn outside this project
-          '../../**',
-        ],
+        ignored: ignoredGlobs,
       },
       fs: {
         strict: true,
@@ -116,7 +118,6 @@ export default defineConfig(() => {
       port: desiredPort,
       strictPort: true,
       open: false,
-      // Match dev allowedHosts for preview stability
       allowedHosts,
     },
     optimizeDeps: {
@@ -135,7 +136,6 @@ export default defineConfig(() => {
           res.statusCode = 200
           res.end('OK')
         })
-
         server.middlewares.use((req, res, next) => {
           if (req.url && req.url.startsWith('/dist/')) {
             res.statusCode = 404
