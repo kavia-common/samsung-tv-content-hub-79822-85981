@@ -6,7 +6,7 @@
 - Readiness: GET /healthz returns 200 OK
 
 Scripts:
-- npm run dev            -> uses ENV PORT if provided
+- npm run dev            -> uses ENV PORT or VITE_PORT if provided (defaults to 3000)
 - npm run dev:port       -> sets PORT=3000 explicitly
-- npm run preview        -> uses ENV PORT if provided
+- npm run preview        -> uses ENV PORT or VITE_PORT if provided (defaults to 3000)
 - npm run preview:port   -> sets PORT=3000 explicitly
