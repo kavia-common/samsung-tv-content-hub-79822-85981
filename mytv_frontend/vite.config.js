@@ -10,7 +10,7 @@ import react from '@vitejs/plugin-react'
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying
  * - Healthz endpoint and /dist guard middleware
  * - Robust watcher ignores config/docs/locks to avoid self-restarts
- * - Single configureServer hook; no custom keepalive to minimize memory
+ * - IMPORTANT: No esbuild-facing options reference HTML or multi-wildcard globs. Multi-wildcards are only used in chokidar watchers (server/preview.watch.ignored).
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -35,7 +35,7 @@ export default defineConfig(() => {
   const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
   const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
 
-  // Keep watcher minimal to reduce memory and prevent self-restarts
+  // Keep watcher minimal to reduce memory and prevent self-restarts (Chokidar patterns only)
   const ignoredGlobs = [
     '**/dist/**',
     '**/.git/**',
@@ -58,8 +58,7 @@ export default defineConfig(() => {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/post_process_status.lock',
-    // Extra ignores to avoid HMR loops from static HTML assets
-    // Any raw HTML placed under public/assets or any assets folder should not trigger reloads.
+    // Raw/exported HTML must only be considered by the file watcher (ignored) — never by esbuild.
     '**/public/assets/**/*.html',
     '**/assets/**/*.html',
     // Ignore everything outside the project to avoid accidental FS scans
@@ -77,11 +76,11 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: 0,
       sourcemap: false,
+      // Do not set build.rollupOptions.external or other patterns that could pass HTML/globs to esbuild.
     },
+    // Do not pass any file path globs to optimizeDeps (esbuild). Limit to npm package names only.
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
-      // Avoid passing non-module paths or invalid wildcard patterns to esbuild.
-      // If specific npm packages need exclusion from optimization, list them here (by package name).
       exclude: [],
     },
   }
@@ -131,8 +130,7 @@ export default defineConfig(() => {
       usePolling: false,
       // debounce fs changes
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
-      // chokidar ignored patterns
-      // Also ignore any reference/design HTML placed under assets-reference (just in case someone moves it)
+      // chokidar ignored patterns ONLY; multi-wildcards belong here (not in esbuild options)
       ignored: [
         ...ignoredGlobs,
         '**/assets-reference/**/*.html',
@@ -163,6 +161,7 @@ export default defineConfig(() => {
     watch: {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
+      // chokidar ignored patterns ONLY
       ignored: [
         '**/dist/**',
         '**/.git/**',
