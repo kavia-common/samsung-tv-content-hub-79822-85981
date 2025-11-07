@@ -1,225 +1,219 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import Banner from '../components/Banner.jsx'
-import Rail from '../components/Rail.jsx'
-import Subscriptions from '../components/Subscriptions.jsx'
-import ShowDetails from '../components/ShowDetails.jsx'
-import { getFeatured, getRail } from '../services/api.js'
+import { useEffect } from 'react'
 
 /**
  PUBLIC_INTERFACE
- Home page consumes API endpoints to render featured and content rails with TV-friendly navigation.
+ Home page that mounts the provided AAF_inicio Copy 2 design.
+ - Uses assets/aafinicio-copy-2-2001-3396.css for pixel-perfect positioning and styles.
+ - Renders markup adapted to JSX, preserving class names and ids so CSS applies exactly.
+ - Safely initializes assets/aafinicio-copy-2-2001-3396.js after mount for keyboard/focus hooks.
+ - Images (if any) should reference exact /assets/figmaimages/* paths; current screen has shape/vector placeholders only.
 */
 export default function Home() {
-  const [currentRail, setCurrentRail] = useState(0)
-
-  // Featured banner state
-  const [featured, setFeatured] = useState(null)
-  const [featuredError, setFeaturedError] = useState(null)
-
-  // Dedicated Trending section state
-  const [trendingItems, setTrendingItems] = useState([])
-  const [trendingLoading, setTrendingLoading] = useState(true)
-  const [trendingError, setTrendingError] = useState(null)
-
-  // Other rails (excluding Trending which is now dedicated)
-  const [rails, setRails] = useState([
-    { key: 'continue', title: 'Continue Watching', items: [], loading: true, error: null, path: '/api/continue_watching' },
-    { key: 'action', title: 'Action', items: [], loading: true, error: null, path: '/api/action' },
-    { key: 'family', title: 'Family', items: [], loading: true, error: null, path: '/api/family' },
-    { key: 'comedy', title: 'Comedy', items: [], loading: true, error: null, path: '/api/comedy' },
-    { key: 'horror', title: 'Horror', items: [], loading: true, error: null, path: '/api/horror' },
-    { key: 'drama', title: 'Drama', items: [], loading: true, error: null, path: '/api/drama' },
-  ])
-  const [detailsId, setDetailsId] = useState(null)
-
-  const scrollAreaRef = useRef(null)
-
-  // Load featured banner
   useEffect(() => {
-    let cancelled = false
-    async function load() {
-      try {
-        setFeaturedError(null)
-        const f = await getFeatured()
-        if (!cancelled) setFeatured(f)
-      } catch (e) {
-        if (!cancelled) setFeaturedError(e)
-      }
-    }
-    load()
-    return () => { cancelled = true }
-  }, [])
-
-  // Load Trending rail explicitly from /api/trending
-  useEffect(() => {
-    let cancelled = false
-    async function loadTrending() {
-      try {
-        setTrendingError(null)
-        setTrendingLoading(true)
-        const items = await getRail('/api/trending')
-        // items are normalized: { id, title, image } from name/poster per services/api.js
-        if (!cancelled) {
-          setTrendingItems(Array.isArray(items) ? items : [])
-        }
-      } catch (e) {
-        if (!cancelled) setTrendingError(e)
-      } finally {
-        if (!cancelled) setTrendingLoading(false)
-      }
-    }
-    loadTrending()
-    return () => { cancelled = true }
-  }, [])
-
-  // Load other rails in parallel (excluding trending)
-  useEffect(() => {
-    let cancelled = false
-    async function loadAll() {
-      try {
-        const results = await Promise.all(
-          rails.map(async (r) => {
-            try {
-              const items = await getRail(r.path)
-              return { ...r, items: Array.isArray(items) ? items : [], loading: false, error: null }
-            } catch (e) {
-              return { ...r, items: [], loading: false, error: e }
-            }
-          })
-        )
-        if (!cancelled) setRails(results)
-      } catch {
-        // swallow, individual rail errors are handled per rail
-      }
-    }
-    loadAll()
-    return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Anchor scrolling on hash
-  useEffect(() => {
-    const raw = typeof window !== 'undefined' ? window.location.hash : ''
-    const hash = raw ? raw.replace('#', '') : ''
-    if (!hash) return
-    const el = document.getElementById(hash)
-    if (el && typeof el.scrollIntoView === 'function') {
-      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' }), 60)
+    // Dynamically load and initialize the screen JS once on mount
+    const script = document.createElement('script')
+    script.src = '/assets/aafinicio-copy-2-2001-3396.js'
+    script.async = true
+    document.head.appendChild(script)
+    return () => {
+      // Cleanup: remove script to avoid duplicate listeners across HMR/page switches
+      document.head.removeChild(script)
     }
   }, [])
 
-  const bannerProps = useMemo(() => {
-    if (!featured) return { image: '/images/banner.svg', title: 'Featured', subtitle: '' }
-    return {
-      image: featured.image || '/images/banner.svg',
-      title: featured.title || 'Featured',
-      subtitle: '',
+  // Import CSS at runtime by adding a link to head to ensure specificity and avoid bundler CSS transformation side-effects
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = '/assets/aafinicio-copy-2-2001-3396.css'
+    document.head.appendChild(link)
+    return () => {
+      document.head.removeChild(link)
     }
-  }, [featured])
+  }, [])
 
-  function handleOpenDetails(item) {
-    setDetailsId(item?.id)
-  }
-
+  // The following markup mirrors assets/aafinicio-copy-2-2001-3396.html body content.
+  // Keep structure, ids, and classes so the CSS positions elements pixel-perfectly.
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 22, height: '100%', overflow: 'hidden' }}>
-        <h1
-          style={{
-            margin: '6px 0 0 6px',
-            padding: '0 2px 0 2px',
-            fontSize: 42,
-            lineHeight: '48px',
-            fontWeight: 900,
-            letterSpacing: 0.6,
-            color: '#ffffff',
-            textShadow: '0 10px 30px rgba(0,0,0,0.45)',
-          }}
-        >
-          MyTV
-        </h1>
-
-        <Banner
-          image={bannerProps.image}
-          title={bannerProps.title}
-          subtitle={bannerProps.subtitle}
-          onWatch={() => {
-            if (featured?.id) setDetailsId(featured.id)
-          }}
-        />
-
-        {featuredError ? (
-          <div style={{ color: 'var(--muted)', marginLeft: 8 }}>
-            Failed to load featured.
-          </div>
-        ) : null}
-
-        <div ref={scrollAreaRef} style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
-          {/* Dedicated Trending section first */}
-          <section id="trending">
-            <Rail
-              title="Trending"
-              items={trendingItems}
-              railIndex={0}
-              currentRail={currentRail}
-              setCurrentRail={setCurrentRail}
-              onOpenDetails={handleOpenDetails}
-              loading={trendingLoading}
-              error={trendingError}
-            />
-          </section>
-
-          {/* The rest of rails follow, with correct railIndex offset for 5-way Up/Down navigation */}
-          {rails.map((r, idx) => (
-            <Rail
-              key={r.key}
-              title={r.title}
-              items={r.items}
-              railIndex={idx + 1}
-              currentRail={currentRail}
-              setCurrentRail={setCurrentRail}
-              onOpenDetails={handleOpenDetails}
-              loading={r.loading}
-              error={r.error}
-            />
-          ))}
-
-          <section id="settings" style={{ marginTop: 24 }}>
-            <div className="section-title">Settings</div>
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-              {['Audio', 'Subtitles', 'Parental Controls', 'Network', 'About'].map((label) => (
-                <button
-                  key={label}
-                  className="focusable card"
-                  tabIndex={0}
-                  style={{
-                    height: 56,
-                    minWidth: 220,
-                    padding: '10px 18px',
-                    borderRadius: 12,
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    background: 'linear-gradient(180deg, rgba(37,99,235,0.18), rgba(37,99,235,0.08))',
-                    color: '#fff',
-                    fontSize: 18,
-                    fontWeight: 700,
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
+      <div id="screen-aafinicio-2001-3396" className="figma-screen">
+        {/* Header */}
+        <div className="header" aria-label="Top Navigation" role="navigation">
+          <div className="header-bg" />
+          <div className="header-content">
+            <div className="logo-claro-video" aria-hidden="true" />
+            <div className="menu-items">
+              <div className="menu-item active">Inicio</div>
+              <div className="menu-item">Películas</div>
+              <div className="menu-item">Series</div>
+              <div className="menu-item">TV en vivo</div>
+              <div className="menu-item">Kids</div>
+              <div className="menu-item">Mis Contenidos</div>
             </div>
-          </section>
-
-          <section id="plan" style={{ marginTop: 28, marginBottom: 16 }}>
-            <div className="section-title">My Plan</div>
-            <Subscriptions />
-          </section>
+            <div className="search-avatar">
+              <div className="search-icon" aria-label="Buscar" role="img" />
+              <div className="avatar-focus" aria-hidden="true" />
+              <div className="avatar" aria-hidden="true" />
+            </div>
+          </div>
         </div>
-      </div>
 
-      {detailsId ? <ShowDetails id={detailsId} onClose={() => setDetailsId(null)} /> : null}
+        {/* Molecules/Highlights (hero strip) */}
+        <div className="highlights" role="region" aria-label="Destacados">
+          <div className="highlight highlight-a" aria-hidden="true">
+            <div className="mask" />
+            <div className="object">
+              {/* If future raster provided, set via CSS background-image using /assets/figmaimages/... */}
+              <div className="image" />
+            </div>
+          </div>
+          <div className="highlight highlight-b">
+            <div className="image" />
+          </div>
+          <div className="highlight highlight-c" aria-hidden="true">
+            <div className="mask" />
+            <div className="object">
+              <div className="image" />
+            </div>
+          </div>
+        </div>
+
+        {/* Seguí viendo (Continue watching) */}
+        <section className="continue-watching" aria-label="Seguí viendo">
+          <h2 className="carousel-title">Seguí viendo</h2>
+
+          {/* Card 1 */}
+          <div className="cw-card">
+            <div className="cw-card-media">
+              <div className="cw-card-image" />
+              <div className="cw-progress">
+                <div className="cw-progress-track" />
+                <div className="cw-progress-bar" />
+              </div>
+            </div>
+            <div className="cw-card-footer">
+              <div className="cw-card-footer-bg" />
+              <div className="cw-title">Rogue One</div>
+              <div className="cw-icon-delete" aria-hidden="true" />
+              <div className="cw-dot-yellow" aria-hidden="true" />
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="cw-card">
+            <div className="cw-card-media">
+              <div className="cw-card-image" />
+              <div className="cw-progress">
+                <div className="cw-progress-track" />
+                <div className="cw-progress-bar" />
+              </div>
+            </div>
+            <div className="cw-card-footer">
+              <div className="cw-card-footer-bg" />
+              <div className="cw-title">Ex Machina</div>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="cw-card">
+            <div className="cw-card-media">
+              <div className="cw-card-image" />
+              <div className="cw-progress">
+                <div className="cw-progress-track" />
+                <div className="cw-progress-bar" />
+              </div>
+            </div>
+            <div className="cw-card-footer">
+              <div className="cw-card-footer-bg" />
+              <div className="cw-title">Sing Street</div>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="cw-card">
+            <div className="cw-card-media">
+              <div className="cw-card-image" />
+              <div className="cw-progress">
+                <div className="cw-progress-track" />
+                <div className="cw-progress-bar" />
+              </div>
+            </div>
+            <div className="cw-card-footer">
+              <div className="cw-card-footer-bg" />
+              <div className="cw-title">2012</div>
+            </div>
+          </div>
+
+          {/* Card 5 */}
+          <div className="cw-card">
+            <div className="cw-card-media">
+              <div className="cw-card-image" />
+              <div className="cw-progress">
+                <div className="cw-progress-track" />
+                <div className="cw-progress-bar" />
+              </div>
+            </div>
+            <div className="cw-card-footer">
+              <div className="cw-card-footer-bg" />
+              <div className="cw-title">Ad Astra</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Canales de TV */}
+        <section className="tv-channels" aria-label="Canales de TV">
+          <div className="channels-title">Canales de TV</div>
+
+          {/* Channel card 1 */}
+          <div className="channel-card">
+            <div className="channel-card-image" />
+            <div className="channel-info">
+              <div className="channel-brand">Marca Claro Radio</div>
+              <div className="channel-number">004 | Claro sports</div>
+              <div className="channel-time">11:30 - 12:30</div>
+              <div className="channel-live-badge">EN VIVO</div>
+              <div className="channel-play tv-play" role="button" aria-label="Reproducir en vivo" />
+            </div>
+            <div className="channel-progress">
+              <div className="channel-progress-track" />
+              <div className="channel-progress-bar" />
+            </div>
+            <div className="channel-tag-alquila" aria-label="Alquilá" />
+          </div>
+
+          {/* Channel card 2 */}
+          <div className="channel-card">
+            <div className="channel-card-image" />
+            <div className="channel-info">
+              <div className="channel-brand">E.T.</div>
+              <div className="channel-number">005 | HBO Channel</div>
+              <div className="channel-time">11:30 - 12:30</div>
+              <div className="channel-live-badge">EN VIVO</div>
+              <div className="channel-play tv-play" role="button" aria-label="Reproducir en vivo" />
+            </div>
+            <div className="channel-progress">
+              <div className="channel-progress-track" />
+              <div className="channel-progress-bar" />
+            </div>
+          </div>
+
+          {/* Channel card 3 */}
+          <div className="channel-card">
+            <div className="channel-card-image" />
+            <div className="channel-info">
+              <div className="channel-brand">Marca Claro Radio</div>
+              <div className="channel-number">004 | Claro sports</div>
+              <div className="channel-time">11:30 - 12:30</div>
+              <div className="channel-live-badge">EN VIVO</div>
+              <div className="channel-play tv-play" role="button" aria-label="Reproducir en vivo" />
+            </div>
+            <div className="channel-progress">
+              <div className="channel-progress-track" />
+              <div className="channel-progress-bar" />
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }
