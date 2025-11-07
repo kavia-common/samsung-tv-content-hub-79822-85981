@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 /**
  PUBLIC_INTERFACE
@@ -13,23 +13,34 @@ import { useNavigate } from 'react-router-dom'
 */
 export default function Splash() {
   const navigate = useNavigate()
+  const location = useLocation()
   // Guard navigate to run only once per mount tree (helps during HMR re-renders)
   const didNavigateRef = useRef(false)
 
   useEffect(() => {
+    // If we're already at /home (e.g., via HMR state), don't schedule another navigation
+    if (location.pathname === '/home') {
+      didNavigateRef.current = true
+      return
+    }
     const timeoutMs = 5500
     let mounted = true
     const t = setTimeout(() => {
-      if (mounted && !didNavigateRef.current) {
+      if (!mounted) return
+      if (didNavigateRef.current) return
+      // Final safety: don't redirect if we've somehow moved to /home already
+      if (window?.location?.hash?.startsWith('#/home') || location.pathname === '/home') {
         didNavigateRef.current = true
-        navigate('/home', { replace: true })
+        return
       }
+      didNavigateRef.current = true
+      navigate('/home', { replace: true })
     }, timeoutMs)
     return () => {
       mounted = false
       clearTimeout(t)
     }
-  }, [navigate])
+  }, [navigate, location.pathname])
 
   const primary = '#2563EB'
   const secondary = '#F59E0B'

@@ -1,16 +1,12 @@
+JPEG placeholder generated via SVG data URL fallback not possible in text; using simple SVG-compatible JPEG-like content is not valid. Instead, provide a small SVG with .jpg name for dev placeholder so the dev server serves it; most browsers render regardless of extension.
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1920" height="360" viewBox="0 0 1920 360" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0B1220"/>
-      <stop offset="100%" stop-color="#111827"/>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0b1220"/>
     </linearGradient>
-    <radialGradient id="glow" cx="60%" cy="40%" r="60%">
-      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="1920" height="360" fill="url(#bg)"/>
-  <rect width="1920" height="360" fill="url(#glow)"/>
-  <text x="72" y="210" font-size="56" font-weight="900" fill="#ffffff" opacity="0.9" font-family="Arial, sans-serif">Featured</text>
+  <rect width="1920" height="360" fill="url(#g)"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="48" font-family="Arial" fill="#cbd5e1">Banner Placeholder</text>
 </svg>

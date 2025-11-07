@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1920" height="360" viewBox="0 0 1920 360" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#0B1220"/>
-      <stop offset="50%" stop-color="#1f2a44"/>
-      <stop offset="100%" stop-color="#0B1220"/>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#1f2937"/>
     </linearGradient>
-    <radialGradient id="rg" cx="35%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="#2563EB" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
-    </radialGradient>
   </defs>
-  <rect width="1920" height="360" fill="url(#g1)"/>
-  <rect width="1920" height="360" fill="url(#rg)"/>
-  <text x="72" y="210" font-size="56" font-weight="900" fill="#e5e7eb" opacity="0.85" font-family="Arial, sans-serif">Ocean Professional</text>
+  <rect width="1920" height="360" fill="url(#g)"/>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="48" font-family="Arial" fill="#e5e7eb">Banner SVG Placeholder</text>
 </svg>
