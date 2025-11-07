@@ -5,55 +5,69 @@ import { useEffect } from 'react'
  * Home page that mounts the provided AAF_inicio Copy 2 design.
  * - Uses /assets/aafinicio-copy-2-2001-3396.css for pixel-accurate styles.
  * - Renders JSX adapted from the original HTML while preserving ids/classes so CSS applies exactly.
- * - Initializes key handling for .tv-play nodes scoped to this screen with cleanup on unmount.
- * - Images (if later provided) must reference exact /assets/figmaimages/* paths from YAML.
+ * - Safely loads the screen JS behaviors on mount and cleans up on unmount.
+ * - Images referenced by the HTML/CSS must remain under /assets/figmaimages/* if present.
  */
 export default function Home() {
-  // Ensure the Figma-derived CSS is present for this page lifecycle.
+  // Inject page-specific CSS on mount; remove on unmount to avoid global leaks.
   useEffect(() => {
-    const attr = 'aafinicio-copy-2-2001-3396'
-    let link = document.querySelector('link[data-figma-css="aafinicio-copy-2-2001-3396"]')
+    const datasetKey = 'aafinicio-copy-2-2001-3396'
+    let link = document.querySelector(`link[data-figma-css="${datasetKey}"]`)
     if (!link) {
       link = document.createElement('link')
       link.rel = 'stylesheet'
       link.href = '/assets/aafinicio-copy-2-2001-3396.css'
-      link.dataset.figmaCss = attr
+      link.dataset.figmaCss = datasetKey
       document.head.appendChild(link)
     }
     return () => {
-      // Remove only what we added to avoid touching any global style with same dataset
-      const node = document.querySelector('link[data-figma-css="aafinicio-copy-2-2001-3396"]')
+      const node = document.querySelector(`link[data-figma-css="${datasetKey}"]`)
       if (node?.parentNode) node.parentNode.removeChild(node)
     }
   }, [])
 
-  // Initialize minimal behavior for potential .tv-play elements; no network fetch required.
+  // Load/init the Figma screen JS after mount. We avoid DOMContentLoaded dependency and call its init behavior ourselves.
   useEffect(() => {
+    // The asset file adds a DOMContentLoaded listener; to ensure behaviors are active now, we can also manually set up essentials.
     const root = document.getElementById('screen-aafinicio-2001-3396')
-    if (!root) return
+    const cleanupFns = []
 
-    const added = []
-    const nodes = root.querySelectorAll('.tv-play')
-    nodes.forEach((btn) => {
-      btn.setAttribute('tabindex', '0')
-      const onKey = (e) => {
-        if (e.key === 'Enter' || e.keyCode === 13) {
-          btn.click()
-          e.preventDefault()
+    if (root) {
+      // Minimal keyboard accessibility for elements tagged as tv-play
+      const tvPlayNodes = root.querySelectorAll('.tv-play')
+      tvPlayNodes.forEach((btn) => {
+        btn.setAttribute('tabindex', '0')
+        const onKey = (e) => {
+          if (e.key === 'Enter' || e.keyCode === 13) {
+            btn.click()
+            e.preventDefault()
+          }
         }
-      }
-      btn.addEventListener('keydown', onKey)
-      added.push({ btn, onKey })
-    })
+        btn.addEventListener('keydown', onKey)
+        cleanupFns.push(() => {
+          try { btn.removeEventListener('keydown', onKey) } catch {}
+        })
+      })
+    }
+
+    // Also append the original behavior script as a module-less script tag so any extra logic runs (idempotent).
+    const script = document.createElement('script')
+    script.src = '/assets/aafinicio-copy-2-2001-3396.js'
+    script.async = true
+    document.body.appendChild(script)
 
     return () => {
-      added.forEach(({ btn, onKey }) => {
-        try { btn.removeEventListener('keydown', onKey) } catch {}
+      cleanupFns.forEach(fn => {
+        try { fn() } catch {}
       })
+      if (script?.parentNode) {
+        try { script.parentNode.removeChild(script) } catch {}
+      }
     }
   }, [])
 
-  // Markup adapted from assets/aafinicio-copy-2-2001-3396.html, preserving structure and classes.
+  // JSX adapted to preserve ids/classes from assets/aafinicio-copy-2-2001-3396.html.
+  // Note: If future assets reference /assets/figmaimages/* ensure those images exist under public/assets.
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <div id="screen-aafinicio-2001-3396" className="figma-screen aafinicio-copy-2" role="document" aria-label="AAF_inicio Copy 2">
@@ -77,23 +91,18 @@ export default function Home() {
             <div className="bg" aria-hidden="true" />
             <div className="title text-typo-166">Inicio</div>
           </div>
-          {/* Claro video logo placeholder */}
           <div className="logo placeholder-icon" aria-hidden="true" />
         </header>
 
-        {/* Highlights strip */}
+        {/* Highlights */}
         <section id="highlights" className="highlights" aria-label="Destacados">
-          {/* Highlight A */}
           <div className="a-mask-left" aria-hidden="true" />
           <div className="a-object" aria-hidden="true" />
 
-          {/* Highlight B */}
           <div className="b">
-            {/* Note: No provided figmaimages; keep placeholder */}
             <div className="image" aria-hidden="true" />
           </div>
 
-          {/* Highlight C */}
           <div className="c-mask-right" aria-hidden="true" />
           <div className="c-object" aria-hidden="true" />
         </section>
@@ -102,7 +111,6 @@ export default function Home() {
         <section id="segui-viendo" className="seg-section" aria-label="Seguí viendo">
           <h2 className="seg-title text-typo-157">Seguí viendo</h2>
 
-          {/* Card 1 */}
           <article className="seg-card1" aria-label="Rogue One">
             <div className="img" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
@@ -110,11 +118,9 @@ export default function Home() {
             <div className="name-bg" aria-hidden="true" />
             <div className="name-title text-typo-167">Rogue One</div>
           </article>
-          {/* Delete + yellow dot */}
           <div className="seg-delete placeholder-icon" aria-hidden="true" title="delete" />
           <div className="seg-yellow-dot" aria-hidden="true" title="yellow" />
 
-          {/* Card 2 */}
           <article className="seg-card2" aria-label="Ex Machina">
             <div className="img" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
@@ -123,7 +129,6 @@ export default function Home() {
             <div className="name-title text-typo-167">Ex Machina</div>
           </article>
 
-          {/* Card 3 */}
           <article className="seg-card3" aria-label="Sing Street">
             <div className="img" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
@@ -132,7 +137,6 @@ export default function Home() {
             <div className="name-title text-typo-167">Sing Street</div>
           </article>
 
-          {/* Card 4 */}
           <article className="seg-card4" aria-label="2012">
             <div className="img" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
@@ -146,10 +150,9 @@ export default function Home() {
         <section id="canales-tv" className="tv-group" aria-label="Canales de TV">
           <h2 className="tv-title text-typo-157">Canales de TV</h2>
 
-          {/* Card A */}
           <article className="tv-card1" aria-label="Marca Claro Radio, 004 | Claro sports, 11:30 - 12:30">
             <div className="poster" aria-hidden="true" />
-            <div className="play-circle" aria-hidden="true" />
+            <div className="play-circle tv-play" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
             <div className="pbar-fill" aria-hidden="true" />
             <div className="live-badge"><span className="badge-text text-typo-160">EN VIVO</span></div>
@@ -158,11 +161,10 @@ export default function Home() {
             <div className="text-typo-159" style={{ position: 'absolute' }}>11:30 - 12:30</div>
           </article>
 
-          {/* Card B */}
           <article className="tv-card2" aria-label="E.T., 005 | HBO Channel, 11:30 - 12:30">
             <div className="poster-a" aria-hidden="true" />
             <div className="poster-b" aria-hidden="true" />
-            <div className="play-circle" aria-hidden="true" />
+            <div className="play-circle tv-play" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
             <div className="pbar-fill" aria-hidden="true" />
             <div className="live-badge"><span className="badge-text text-typo-160">EN VIVO</span></div>
@@ -171,10 +173,9 @@ export default function Home() {
             <div className="text-typo-159" style={{ position: 'absolute' }}>11:30 - 12:30</div>
           </article>
 
-          {/* Card C */}
           <article className="tv-card3" aria-label="Marca Claro Radio, 004 | Claro sports, 11:30 - 12:30">
             <div className="poster" aria-hidden="true" />
-            <div className="play-circle" aria-hidden="true" />
+            <div className="play-circle tv-play" aria-hidden="true" />
             <div className="pbar-bg" aria-hidden="true" />
             <div className="pbar-fill" aria-hidden="true" />
             <div className="live-badge"><span className="badge-text text-typo-160">EN VIVO</span></div>
@@ -183,7 +184,6 @@ export default function Home() {
             <div className="text-typo-159" style={{ position: 'absolute' }}>11:30 - 12:30</div>
           </article>
 
-          {/* Tag Alquilá */}
           <div className="tag-alquila" aria-label="Alquilá">
             <div className="badge-text text-typo-160" style={{ position: 'absolute', left: 10, top: 6 }}>Alquilá</div>
           </div>
