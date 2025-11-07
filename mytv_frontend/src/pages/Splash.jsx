@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 /**
@@ -13,12 +13,17 @@ import { useNavigate } from 'react-router-dom'
 */
 export default function Splash() {
   const navigate = useNavigate()
+  // Guard navigate to run only once per mount tree (helps during HMR re-renders)
+  const didNavigateRef = useRef(false)
 
   useEffect(() => {
     const timeoutMs = 5500
     let mounted = true
     const t = setTimeout(() => {
-      if (mounted) navigate('/home', { replace: true })
+      if (mounted && !didNavigateRef.current) {
+        didNavigateRef.current = true
+        navigate('/home', { replace: true })
+      }
     }, timeoutMs)
     return () => {
       mounted = false
@@ -156,7 +161,7 @@ export default function Splash() {
           '  from { opacity: 0; transform: translateY(12px); }',
           '  to { opacity: 1; transform: translateY(0); }',
           '}'
-        ].join('\\n')
+        ].join('\n')
         return css
       })()}</style>
     </div>
