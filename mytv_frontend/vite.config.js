@@ -28,6 +28,7 @@ export default defineConfig(() => {
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
       'vscode-internal-16837-beta.beta01.cloud.kavia.ai',
+      'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
     ])
   )
 
