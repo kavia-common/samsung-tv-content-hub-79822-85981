@@ -47,7 +47,10 @@ export default defineConfig(() => {
   // Centralize allowedHosts for dev and preview (ensure preview hostname is allowed)
   // Ensure the preview/dev hosts are explicitly allowed (Vite 4 requires this in some proxy contexts)
   const allowedHosts = Array.from(
-    new Set(['vscode-internal-26938-beta.beta01.cloud.kavia.ai'])
+    new Set([
+      'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
+      'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
+    ])
   )
 
   // Define a conservative set of ignored globs that includes vite.config.* and other churny files.
