@@ -21,7 +21,7 @@ export default function Splash() {
       didNavigateRef.current = true
       return
     }
-    const timeoutMs = 5500
+    const timeoutMs = 5000
     let mounted = true
     const t = setTimeout(() => {
       if (!mounted) return

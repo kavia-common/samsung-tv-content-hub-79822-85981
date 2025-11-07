@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react'
  * - Renders JSX adapted from the original HTML while preserving ids/classes so CSS applies exactly.
  * - Ensures absolute-positioned children are inside a transform-scaled wrapper to avoid layout break.
  * - Images use object-fit and max-width:100% for safe scaling.
+ * - Provides #settings and #plan anchor sections for TopMenu hash navigation.
  */
 export default function Home() {
   const scaleInnerRef = useRef(null)
@@ -247,6 +248,17 @@ export default function Home() {
                 <div className="badge-text text-typo-160" style={{ position: 'absolute', left: 10, top: 6 }}>Alquilá</div>
               </div>
             </section>
+          </div>
+
+          {/* Anchor sections for hash navigation targets */}
+          <div id="settings" style={{ marginTop: 24, padding: '18px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 6 }}>Settings</div>
+            <div style={{ color: '#cbd5e1' }}>App preferences and device options will appear here.</div>
+          </div>
+
+          <div id="plan" style={{ marginTop: 18, padding: '18px 24px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', marginBottom: 6 }}>My Plan</div>
+            <div style={{ color: '#cbd5e1' }}>Your current subscription details will appear here.</div>
           </div>
         </div>
       </div>
