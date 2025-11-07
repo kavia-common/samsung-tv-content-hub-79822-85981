@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:3000": "PORT=3000 vite",
-    "dev:mem": "NODE_OPTIONS=--max-old-space-size=384 PORT=3000 vite",
-    "dev:mem:256": "NODE_OPTIONS=--max-old-space-size=256 PORT=3000 vite",
+    "dev:3000": "vite --port 3000",
+    "dev:mem": "NODE_OPTIONS=--max-old-space-size=384 vite",
+    "dev:mem:256": "NODE_OPTIONS=--max-old-space-size=256 vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",

@@ -4,13 +4,13 @@ import react from '@vitejs/plugin-react'
 
 // PUBLIC_INTERFACE
 /**
- * Stable Vite 4 + React configuration for Node 18 that avoids restart loops and keeps the dev server alive.
- * - Host: 0.0.0.0 (host: true) unless overridden by --host
- * - Port: 3000 strict (fail if busy to expose collisions rather than silently switching)
- * - HMR: overlay enabled; clientPort fixed to 3000 to match orchestrator proxying
+ * Stable Vite 4 + React configuration for Node 18 with orchestrator-friendly port/host handling.
+ * - Host: 0.0.0.0 (host: true) unless overridden by --host/HOST
+ * - Port: undefined in config so CLI/env control it; strictPort=true to avoid silent switching
+ * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying
  * - Healthz endpoint and /dist guard middleware
  * - Robust watcher ignores config/docs/locks to avoid self-restarts
- * - Single configureServer hook; lightweight keepalive with proper cleanup
+ * - Single configureServer hook; no custom keepalive to minimize memory
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -25,8 +25,14 @@ export default defineConfig(() => {
     new Set([
       'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
+      'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
     ])
   )
+
+  // Determine port from env if provided (orchestrator may pass --port; Vite will set config.port accordingly).
+  // We only use this to shape HMR clientPort; leaving server.port undefined lets CLI win.
+  const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
+  const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
 
   // Keep watcher minimal to reduce memory and prevent self-restarts
   const ignoredGlobs = [
@@ -58,9 +64,7 @@ export default defineConfig(() => {
   const baseConfig = {
     base: '/',
     clearScreen: false,
-    plugins: [
-      react(),
-    ],
+    plugins: [react()],
     publicDir: 'public',
     build: {
       outDir: 'dist',
@@ -92,26 +96,21 @@ export default defineConfig(() => {
         }
         next()
       })
-
-      // Minimal keepalive tick to keep event loop non-idle in some CI envs.
-      // It is very lightweight and is cleaned up on server close.
-      const keepAlive = setInterval(() => {}, 120_000)
-      server.httpServer?.once('close', () => clearInterval(keepAlive))
     } catch (e) {
       server?.config?.logger?.warn?.(`configureServer non-fatal: ${e?.message || e}`)
     }
   }
 
-  // Dev server: pin to 3000 and reduce watcher pressure
+  // Dev server: let CLI define port; keep strictPort
   baseConfig.server = {
     host: resolvedHost,
-    port: 3000,
+    port: undefined,
     strictPort: true,
     open: false,
     allowedHosts,
     hmr: {
       overlay: true,
-      clientPort: 3000,
+      clientPort: hmrClientPort,
     },
     watch: {
       // polling off to reduce CPU/memory
@@ -129,10 +128,10 @@ export default defineConfig(() => {
     middlewareMode: false,
   }
 
-  // Preview mirrors dev host/port and allowedHosts and exposes /healthz
+  // Preview mirrors dev host and allowedHosts; leave port undefined for CLI control
   baseConfig.preview = {
     host: resolvedHost,
-    port: 3000,
+    port: undefined,
     strictPort: true,
     open: false,
     allowedHosts,
