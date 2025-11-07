@@ -138,6 +138,10 @@ export default defineConfig(() => {
       ignored: [
         ...ignoredGlobs,
         '**/assets-reference/**/*.html',
+        // Extra belt-and-suspenders: ignore any html sitting directly under public/assets,
+        // and any stray reference html under top-level assets-reference copies.
+        'public/assets/**/*.html',
+        'assets-reference/**/*.html',
       ],
     },
     fs: {
@@ -185,8 +189,10 @@ export default defineConfig(() => {
         '**/post_process_status.lock',
         // Ensure any stray raw HTML under static paths don't trigger loops
         '**/public/assets/**/*.html',
+        'public/assets/**/*.html',
         '**/assets/**/*.html',
         '**/assets-reference/**/*.html',
+        'assets-reference/**/*.html',
         '../../**',
       ],
     },
