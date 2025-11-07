@@ -117,6 +117,12 @@ export default defineConfig(() => {
               }
               next()
             })
+
+            // Keepalive: prevent orchestrators from marking the process idle. Cleared on server close.
+            const keepAlive = setInterval(() => {}, 60_000)
+            server.httpServer?.once('close', () => {
+              clearInterval(keepAlive)
+            })
           } catch (e) {
             server?.config?.logger?.warn?.(`healthz plugin non-fatal error: ${e?.message || e}`)
           }
@@ -181,15 +187,18 @@ export default defineConfig(() => {
   }
 
   // Dev server configuration
+  // Orchestrator expects port 3000 to be bound and kept alive; enforce strictPort and provide HMR clientPort alignment.
   baseConfig.server = {
     host: resolvedHost, // honor CLI --host if supplied; otherwise 0.0.0.0
-    port: desiredPort,  // honors PORT/--port; no disk writes
-    // Allow Vite to pick the next free port if desiredPort is busy in this environment,
-    // preventing an early exit after showing "Vite ready" banner.
-    strictPort: false,
+    port: 3000,         // pin to 3000 for orchestrator health checks
+    strictPort: true,   // do not switch ports; fail fast if busy to reveal collision
     open: false,
     allowedHosts,
-    hmr: hmrConfig,
+    hmr: {
+      ...(hmrConfig || {}),
+      // Ensure client connects over the same port in proxied environments
+      clientPort: 3000,
+    },
     // Avoid watching generated docs/config and other churny paths to prevent self-restarts, including vite.config.js itself
     watch: {
       usePolling: false,
@@ -212,14 +221,10 @@ export default defineConfig(() => {
   // Preview server configuration mirrors dev for host/port/allowedHosts and adds a /healthz endpoint for readiness.
   baseConfig.preview = {
     host: resolvedHost,
-    port: desiredPort,
+    port: 3000,
     strictPort: true,
     open: false,
     allowedHosts,
-    // Note: preview has limited options vs dev server; we still provide a health check via proxy middleware here.
-    // Vite will pass through middlewares from plugins; we use the same plugin scope to attach a light health handler.
-    // No file watches are configured for preview, but we align behavior by not serving /dist/* paths other than root assets.
-    // This prevents accidental nested dist references during preview in some environments.
   }
 
   // Explicitly return the finalized config

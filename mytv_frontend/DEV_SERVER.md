@@ -1,9 +1,9 @@
 # Dev server behavior
 
 - Host: 0.0.0.0 by default (server.host: true) AND honors `--host` CLI if provided; we never write host to disk.
-- Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js). Example: run on 3001 with:
-  - `npm run dev -- --host 0.0.0.0 --port 3001` or `PORT=3001 npm run dev`
-- strictPort: false for dev (Vite will auto-pick a new port if the chosen port is taken to remain alive); preview remains strict.
+- Port: 3000 fixed for orchestrator; `--port` is not used by default. We pin dev to 3000 and use `strictPort: true`.
+  - If 3000 is busy, the dev process will exit with an error to reveal the collision.
+- strictPort: true for dev and preview (no auto-switching).
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
 - Ignored watch paths (prevent self-restart loops), including but not limited to:

@@ -9,7 +9,7 @@ Currently, two official plugins are available:
 
 ## Dev server and health check
 
-- Dev server runs on 0.0.0.0 with strictPort=true; default port 3000 but respects PORT env or --port via vite.config.js. Host also honors `--host` CLI if provided.
+- Dev server runs on 0.0.0.0 with strictPort=true; port is pinned to 3000 for orchestrator. Use `npm run dev:3000`.
 - File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other `*.config.*` files are excluded from watch to prevent self-restarts.
 - Dist is not served during dev; outDir is only used for builds.
 - A readiness endpoint is available at GET /healthz returning 200 OK.
