@@ -22,12 +22,13 @@ export default defineConfig(() => {
   const cliHost = process.env.HOST?.trim()
   const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : true
 
+  // Vite v4: allowedHosts is an array<string> of hostnames (no protocol/port).
   const allowedHosts = Array.from(
     new Set([
       'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
-      // Added to allow current preview endpoint
+      // Include the currently used preview domain to prevent HMR reconnect loops
       'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
     ])
   )

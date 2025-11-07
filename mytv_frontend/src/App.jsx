@@ -63,7 +63,13 @@ function AppRouter() {
             </PageLayout>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={
+          // Provide a minimal inline fallback to avoid total blank in pathological cases
+          <div style={{display:'grid',placeItems:'center',minHeight:'60vh',color:'#E5E7EB'}}>
+            <div>Route not found. Redirecting…</div>
+            <Navigate to="/" replace />
+          </div>
+        } />
       </Routes>
     </HashRouter>
   )
