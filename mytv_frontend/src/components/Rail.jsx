@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useTizenKeys } from '../hooks/useTizenKeys'
-import ThumbnailCard from './ThumbnailCard'
+import { useTizenKeys } from '../hooks/useTizenKeys.js'
+import ThumbnailCard from './ThumbnailCard.jsx'
 
 /**
  * PUBLIC_INTERFACE
@@ -14,10 +14,13 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   // focus first card when this rail becomes active
   useEffect(() => {
     if (!isActive) return
-    const el = containerRef.current?.querySelectorAll('[tabindex="0"]')[focusIndex]
-    el?.focus()
-    if (el) {
-      el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+    const nodes = containerRef.current?.querySelectorAll('[tabindex="0"]')
+    const el = nodes && nodes.length > 0 ? nodes[focusIndex] : null
+    if (el && typeof el.focus === 'function') {
+      el.focus()
+      if (typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+      }
     }
   }, [isActive, focusIndex])
 

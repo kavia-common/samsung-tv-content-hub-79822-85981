@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
-import { getInfo, play } from '../services/api'
-import { useTizenKeys } from '../hooks/useTizenKeys'
+import { getInfo, play } from '../services/api.js'
+import { useTizenKeys } from '../hooks/useTizenKeys.js'
 
 /**
  * PUBLIC_INTERFACE

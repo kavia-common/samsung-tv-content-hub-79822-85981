@@ -3,7 +3,7 @@ import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
 import ShowDetails from '../components/ShowDetails.jsx'
-import { getFeatured, getRail } from '../services/api'
+import { getFeatured, getRail } from '../services/api.js'
 
 /**
  PUBLIC_INTERFACE
@@ -46,17 +46,21 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false
     async function loadAll() {
-      const results = await Promise.all(
-        rails.map(async (r) => {
-          try {
-            const items = await getRail(r.path)
-            return { ...r, items, loading: false, error: null }
-          } catch (e) {
-            return { ...r, items: [], loading: false, error: e }
-          }
-        })
-      )
-      if (!cancelled) setRails(results)
+      try {
+        const results = await Promise.all(
+          rails.map(async (r) => {
+            try {
+              const items = await getRail(r.path)
+              return { ...r, items: Array.isArray(items) ? items : [], loading: false, error: null }
+            } catch (e) {
+              return { ...r, items: [], loading: false, error: e }
+            }
+          })
+        )
+        if (!cancelled) setRails(results)
+      } catch {
+        // swallow, individual rail errors are handled per rail
+      }
     }
     loadAll()
     return () => { cancelled = true }
@@ -75,9 +79,9 @@ export default function Home() {
   }, [])
 
   const bannerProps = useMemo(() => {
-    if (!featured) return { image: '/images/banner.jpg', title: 'Featured', subtitle: '' }
+    if (!featured) return { image: '/images/banner.svg', title: 'Featured', subtitle: '' }
     return {
-      image: featured.image || '/images/banner.jpg',
+      image: featured.image || '/images/banner.svg',
       title: featured.title || 'Featured',
       subtitle: '',
     }

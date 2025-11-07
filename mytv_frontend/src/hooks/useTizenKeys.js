@@ -1,5 +1,10 @@
 import { useEffect } from 'react';
 
+/**
+ * PUBLIC_INTERFACE
+ * useTizenKeys
+ * Hook that binds Samsung TV remote key handlers (Left/Right/Up/Down/Enter/Back).
+ */
 export function useTizenKeys(handlers) {
   useEffect(() => {
     function handleKeyDown(e) {

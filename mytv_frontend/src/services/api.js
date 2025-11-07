@@ -1,8 +1,3 @@
-//
-// PUBLIC_INTERFACE
-// Data layer for fetching content rails, featured banner, info and play actions.
-// Uses only same-origin relative paths so proxy prefixes are preserved.
-//
 /**
  * PUBLIC_INTERFACE
  * fetchJSON
@@ -10,10 +5,21 @@
  */
 export async function fetchJSON(path, options = {}) {
   /** Fetches JSON from a relative API path and throws an Error with status and body on failure. */
-  const res = await fetch(path, { headers: { 'Accept': 'application/json' }, ...options });
+  if (!path || typeof path !== 'string' || !path.startsWith('/')) {
+    throw new Error('fetchJSON expects a same-origin relative path starting with "/"');
+  }
+  const res = await fetch(path, { headers: { Accept: 'application/json' }, ...options });
   if (!res.ok) {
     let body;
-    try { body = await res.json(); } catch { body = await res.text(); }
+    try {
+      body = await res.json();
+    } catch {
+      try {
+        body = await res.text();
+      } catch {
+        body = '';
+      }
+    }
     const err = new Error(`Request failed ${res.status} for ${path}`);
     err.status = res.status;
     err.body = body;
@@ -43,6 +49,9 @@ export async function getFeatured() {
  */
 export async function getRail(endpointPath) {
   /** Loads a list of items from an API rail endpoint and maps to UI-friendly fields. */
+  if (!endpointPath || typeof endpointPath !== 'string') {
+    return [];
+  }
   const list = await fetchJSON(endpointPath);
   if (!Array.isArray(list)) return [];
   return list.map(normalizeItem);
@@ -79,7 +88,7 @@ export async function play(id) {
 
 // Helpers
 
-function normalizeItem(raw) {
+function normalizeItem(raw = {}) {
   // Server returns ShowItem with keys like: id, name, poster (absolute or proxied absolute), description?
   // Map to UI fields: id, title, image
   return {
@@ -89,7 +98,7 @@ function normalizeItem(raw) {
   };
 }
 
-function normalizeInfo(raw) {
+function normalizeInfo(raw = {}) {
   // Normalize detail fields for overlay
   return {
     id: raw.id ?? raw._id ?? raw.slug ?? '',

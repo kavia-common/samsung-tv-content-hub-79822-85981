@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useTizenKeys } from '../hooks/useTizenKeys'
+import { useTizenKeys } from '../hooks/useTizenKeys.js'
 
 /**
  * PUBLIC_INTERFACE
