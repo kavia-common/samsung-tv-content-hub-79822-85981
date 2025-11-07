@@ -6,7 +6,7 @@ import { forwardRef, useState } from 'react'
  */
 const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter }, ref) {
   const [errored, setErrored] = useState(false)
-  const fallback = '/images/thumb-placeholder.svg' // optional local placeholder if available
+  const fallback = '/src/assets/thumbs/thumb1.svg'
 
   return (
     <div

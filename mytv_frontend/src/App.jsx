@@ -7,6 +7,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
+import MyPlan from './pages/MyPlan.jsx'
 import TopMenu from './components/TopMenu.jsx'
 
 /**
@@ -65,6 +66,25 @@ function AppRouter() {
             </PageLayout>
           }
         />
+        <Route
+          path="/settings"
+          element={
+            <PageLayout>
+              <div style={{ padding: 24 }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Settings</div>
+                <div style={{ color: '#cbd5e1' }}>Settings page stub. Use the top menu to return Home.</div>
+              </div>
+            </PageLayout>
+          }
+        />
+        <Route
+          path="/my-plan"
+          element={
+            <PageLayout>
+              <MyPlan />
+            </PageLayout>
+          }
+        />
         <Route path="*" element={
           // Provide a minimal inline fallback to avoid total blank in pathological cases
           <div style={{display:'grid',placeItems:'center',minHeight:'60vh',color:'#E5E7EB'}}>
@@ -85,8 +105,8 @@ function PageLayout({ children }) {
   const sections = useMemo(() => ([
     { label: 'Home', path: '/home' },
     { label: 'Login', path: '/login' },
-    { label: 'Settings', path: '/home#settings' },
-    { label: 'My Plan', path: '/home#plan' },
+    { label: 'Settings', path: '/settings' },
+    { label: 'My Plan', path: '/my-plan' },
   ]), [])
   return (
     <div className="app-surface">
