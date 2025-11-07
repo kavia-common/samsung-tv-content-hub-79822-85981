@@ -1,0 +1,105 @@
+Screen: AAF_inicio Copy 2 (figma_id: 2001:3396)
+Canvas dimensions: 1920 x 1080
+Root frame (parent origin): x=-3276, y=35187, width=1920, height=1080
+Background: solid color_ref: color_121212 (will resolve to a dark neutral; map to var(--color-121212) if available, else use existing dark as fallback)
+
+Coordinate conversion rule:
+- For any child: left = child.x - parent.x; top = child.y - parent.y; use absolute positioning and ensure no negative CSS coordinates.
+
+Z-index: later siblings in YAML -> higher z-index.
+
+Design system references noted in this screen:
+- Typography used: typo_157 (carousel title), typo_158 (channel/large label), typo_159 (channel subline/time), typo_165 (top nav item), typo_166 (TopNavigation/Active title), typo_167 (card title)
+- Styles used: style_0 (root container), style_1 (neutral/no-fill group), style_2 (mask rectangles), style_3 (image bg), style_7 (icon/boolean op fill), style_8 (tag rect), style_9 (image rectangle), style_11/12 (progress bg/fill), style_13 (play-circle ellipse), style_14 (tag background), style_15 (tag icon path), style_20/21 (smaller progress), style_23 (top nav background), style_26 (avatar focus ring), style_31/32/33 (search icon layers), style_34 (top nav text style), style_36/37 (logo parts), style_38 (active tab backing), style_41 (card title back), style_78/79 (progress bar variant), style_81 (yellow dot), style_282 (play circle container)
+- Colors referenced: color_121212 (screen background)
+
+High-level layout (all positions relative to root (-3276,35187)):
+1) Molecules/Highlights (x=-3296, y=35339, w=1940, h=444)
+   - left = 20; top = 152
+   - Contains HighlightA (thin 68x444), HighlightB 2 (1744x444), HighlightC (48x444)
+   - These appear to be left/right gradient masks and a main highlight image area. No concrete image paths provided; render as rectangles with styles applied.
+
+2) Seguí viendo (x=-3219, y=35819, w=2251, h=368) → left=57, top=632
+   - Cards horizontally:
+     a) Card 1 at (-3219,35858,w=474,h=329) → left=57, top=671
+        * Image rect 474x267 -> at (left=57, top=671)
+        * Progressbar group at (-3199.4416,36088.1719,w=436.034,h=18.414) → left=76.558, top=901.172
+            - Full bg rect (436.034x18.414) styled style_78
+            - Fill rect at (-3194.8416,36092.7734,w=176.0045,h=9.2069) → left=81.158, top=905.773 → style_79
+        * Name frame at (-3188,36107,w=412,h=80) → left=88, top=920
+            - Background rect style_41
+            - Title text "Rogue One" at (-3172,36131) -> left=104, top=944; typo_167
+     b) Delete icon group at (-2798.9556,36131.2227,w=31.4286,h=34.2858) → left=477.0444, top=944.223 relative to root frame; but this is sibling under Seguí viendo frame, so relative to Seguí viendo (x=-3219, y=35819): left = (-2798.9556)-(-3219)=420.0444; top=(36131.2227-35819)=312.2227. This likely positions over the first card's name area right edge. The icon is a boolean_operation with nested paths; no image path, render a placeholder 31.43x34.29 box; color via style_7.
+     c) Yellow circle Icon at (-2831,36138.1992,20,20) → within Seguí viendo → left=388, top=319.1992; style_81 (yellow fill)
+     d) Card 2 at (-2736,35875,w=412,h=312) → relative to Seguí viendo: left=483, top=56
+        * Image 412x232 at (left=483, top=56) style_9
+        * Progress small at (-2719,36075,w=379,h=16) → left=500, top=256; bg style_20; fill at (-2715,36079,w=153.047,h=8) → left=504, top=260; style_21
+        * Name frame at (-2736,36107,w=412,h=80) → left=483, top=288; background style_41; Title "Ex Machina" at (-2720,36131) → left=499, top=312; typo_167
+     e) Card 3 at (-2284,35875,w=412,h=312) → left=935, top=56
+        * similar structure; title "Sing Street" at (-2268,36131) → left=951, top=312
+     f) Card 4 at (-1832,35875,w=412,h=312) → left=1387, top=56
+        * Title "2012"
+     g) Card 5 at (-1380,35875,w=412,h=312) → left=1839, top=56 (extends beyond root width but belongs to frame; we will still position absolutely; content may overflow hidden by screen)
+   - Section title text "Seguí viendo" at (-3188,35819,182x32) → left=31, top=0 within this section; we will place as absolute in screen: left = (-3188)-(-3276) = 88; top = 35819-35187=632. Typography typo_157.
+
+3) Canales de TV group (x=-3188,y=36227,w=2318,h=277) → left=88, top=1040
+   - Note: top=1040 exceeds screen height 1080, but the group height is 277; only top margin portion visible. We'll still place precisely; overflow hidden by screen.
+   - Title inside (Canales TV frame then text "Canales de TV") at (-3188,36227,205x32) → relative to screen: left=88, top=1040; typo_157.
+   - Multiple "Card" groups: each has a left poster rectangle (377x212) at exact positions and a right text block with logo and "EN VIVO" badge, progress bars, play-circle overlay groups:
+     * Card 1 at (-3187,36283,w=745,h=212) → left=89, top=1096
+       - Right info group at (-2779,36295,w=337,h=186) → left within group=408; top=12
+       - Live badge at (-2727,36399,94x32) relative to screen: left = (-2727)-(-3276)=549; top=(36399-35187)=1212; use style_8 and typo_160
+       - Left rectangle at (-3187,36283,377x212) → left=89, top=1096; style_9
+       - Small progress at (-3172,36475,w=207,h=10.4) → left=104, top=1288; style_11 bg, style_12 fill at left=105, top=1289
+       - Play circle group centered at approx (-2919,36386, ~92x92) -> left=357, top=1199; ellipse style_13
+     * Card 2 at (-2442,36283,w=745,h=221) → left=834, top=1096
+       - Left rectangle at (-2442,36287,377x212) -> left=834, top=1100
+       - Another image rect at (-2440,36283,374.7069x211) -> left=836, top=1096 (overlapping)
+       - Progress at (-2426,36480,w=207,h=10.4) -> left=850, top=1293
+       - Play circle at (-2174,36390,~92) -> left=1102, top=1203
+       - Live badge at (-1982,36403,94x32) -> left=1294, top=1216
+     * Card 3 at (-1615,36283,w=745,h=212) → left=1661, top=1096
+       - Left rectangle at (-1615,36283,377x212) -> left=1661, top=1096
+       - Progress at (-1600,36476) -> left=1676, top=1289
+       - Play circle at (-1347,36386) -> left=1929, top=1199
+       - Live badge at (-1155,36399) -> left=2121, top=1212
+   - Texts inside these cards:
+     - "Marca Claro Radio" typo_158, "004 | Claro sports"/"11:30 - 12:30" typo_159
+     - "E.T.", "005 | HBO Channel", "11:30 - 12:30"
+   - Tag "Alquilá" group at (-2424,36300,w=64.2069,h=32) -> left=852, top=1113; background style_14; vector shape paths with style_15 (render as a small box since no asset)
+
+4) Header group (x=-3187.28,y=35223,w=1466.28,h=74) -> left=88.72, top=36
+   - Top Navigation frame (x=-2880,y=35223, w=1159,h=74) → left=396, top=36
+     * Background rect (x=-2880,y=35227,w=1159,h=64) → left=396, top=40; style_23
+     * Avatar focus ellipse at (-1810,35223,74x74) → left=1466, top=36; style_26; inner avatar at (-1801,35231,56x56)
+     * Search boolean op at (-2856,35241,36x36) → left=420, top=54; style_31 and nested style_32/33 shapes - render as a 36x36 icon container
+     * Navigation items (texts) with typo_165:
+       - Inicio at (-2770,35242) → left=506, top=55
+       - Películas (-2650,35242) → left=626, top=55
+       - Series (-2480,35242) → left=796, top=55
+       - TV en vivo (-2348,35242) → left=928, top=55
+       - Kids (-2163,35242) → left=1113, top=55
+       - Mis Contenidos (-2056,35242) → left=1220, top=55
+   - Active tab frame TopNavigation/Active (x=-2783,35233,w=96,h=53) -> left=493, top=46
+     * Background style_38; Title "Inicio" typo_166 at (-2771.0833,35243) → left=505.917, top=56
+   - Logo group "Claro video" at (-3187.28,35238.8125, ~169.64x34.36) → left=88.72, top=51.8125; composed of boolean ops and icons style_7/36/37; we’ll render as a placeholder container block maintaining size.
+
+Style/typography mapping notes:
+- We will use assets/common.css for base variables. It lacks explicit mappings for color_121212, style_23, style_26, style_31-38, style_41, style_78-81, style_282, typo_157-160, 165-167, etc. For this screen we will extend the screen-specific CSS with classes that approximate these styles using CSS variables and known semantic.
+- Text colors: use white (var(--color-ffffff)) as per typical TV UI on dark background. Section titles and nav items white.
+- Background of screen: very dark gray (hex #121212). Use a CSS variable fallback to #121212.
+
+Element rendering rules applied:
+- All containers become <div> with position relative/absolute as needed (absolute for exact placement).
+- Rectangles without images are divs with background-color derived from style reference placeholders in CSS.
+- Images: none of the rectangles include imagePath/imageUrl, so render as background placeholders (solid blocks). No figmaimages assets needed in this screen.
+- Icons and boolean_operation/groups: since no SVG paths are provided, render as <div> placeholders sized/positioned exactly; apply background-color from corresponding style (style_7 white).
+- Ellipses: div with border-radius:50%; exact size; background-color per style.
+- Progress bars: render bg and fill layers exactly as separate absolutely positioned divs.
+- Z-index: maintain order; later siblings have higher z-index; in CSS we’ll rely on DOM order (append in order) and assign incremental z-index where overlapping matters (e.g., active tab over background).
+
+Accessibility:
+- Header nav items are static text (no interactivity in this spec).
+- Play buttons are groups; we’ll mark as role=button and tabindex=0 for demo JS focus but not required.
+
+End of notes.

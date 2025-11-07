@@ -1,0 +1,91 @@
+Screen: name "35", id screen_4077:14472 → file base "35-4077-14472"
+Canvas: 1920x1080, background color_ref: color_ffffff (use var(--color-ffffff))
+
+Root (FRAME) 17311,23318 size 1920x1080 → main container at (0,0) relative; style_ref: style_4
+
+Children (z-index by order):
+1) image (icon VECTOR) at same size as screen; acts as full-bleed background artwork.
+2) GradientHorizontalFull (component, style_4), covering entire canvas; contains Degradado_abajo (icon VECTOR) same size; overlay gradient on image.
+3) MetadataInfoPanel (component, layout vertical) at 17407,23426 size 1150x590 → relative to root: left=96, top=108.
+   - Frame 29360 (vertical) at same origin as panel, size 1150x227
+     - Frame 29354 (horizontal) x=17407,y=23426, size 529x40
+       - ChannelAdaptable (vertical) x=17407,y=23426 size 56x40
+         - Channel (horizontal) x=17407,y=23427 size 56x38
+           - Text "242" (typography_ref: typo_149)
+       - Channel Small (horizontal) x=17475,y=23426 size 461x40
+         - Text "TNT" (typography_ref: typo_165)
+     - Frame 29359 (vertical) x=17407,y=23493 size 1150x160
+       - Program Name x=17407,y=23493 size 1150x70
+         - Text "Gladiador II" (typo_166)
+       - Frame 29352 (vertical) x=17407,y=23569 size 705x84
+         - Frame 29355 (horizontal) x=17407,y=23569 size 743x32
+           Sequence (with dividers):
+           - "Gladiator II" (typo_167)
+           - "|" (Divider, typo_167)
+           - "2 h 28 min" (typo_167)
+           - "|" (Divider, typo_167)
+           - "Acción, aventura, drama" (typo_167)
+           - "|" (Divider, typo_167)
+           - Tag/AgeRestriction (style_100) x=18026,y=23569 size 124x32
+             - "+ 16 Años" (typo_168)
+         - Frame 29356 (horizontal) x=17407,y=23615 size 487x32
+           - Tag/TimeStamp (style_129) x=17407 size 156x32
+             - "MÁS TARDE" (typo_169)
+           - Group 29374 (x=17585,y=23615 size 143x32)
+             - Hour "20:00" (typo_167)
+             - Hour "22:20" (typo_167)
+             - Bar "-" (typo_167) positioned between hours
+           - Divider32 "|" (typo_170)
+           - Icon (replay) 32x32 at x=17779
+           - Divider32 "|"
+           - Icon (another 32x32) at x=17862
+   - Frame 29355 (vertical) x=17407,y=23702 size 1150x314
+     - TextBox3Lines component x=17407,y=23702 size 925x117
+       - Body text (typo_171):
+         "Lucio es obligado a entrar en el Coliseo después de que su hogar sea conquistado..."
+     - Frame 29354 (vertical) x=17407,y=23860 size 916x156
+       - Group 29353 x=17407,y=23860 size 862x156
+         Repeating PanelButtons (each 142x156), at x positions 17407, 17551, 17695, 17839, 17983, 18127:
+         Each contains a focus option container 104x80 at ~x+19,y+4 (style_35) and icon 40x40 centered with various vectors; and below text label (typo_172).
+         First panel label: "Programar"
+         Others have varying icons (replay, play, etc.) without text entries in YAML except first.
+4) SystemDate component at 19035,23373 size 100x90 → relative to root left=724, top=55
+   - DateHour text "20:44" (typo_173) x=19035,y=23373 size 100x48
+   - Date text "7 abr." (typo_146) x=19054,y=23431 size 81x32
+
+Style references encountered:
+- style_4 (likely transparent/none)
+- style_17 (used on a vector in first panel icon)
+- style_35 (panel focused option background)
+- style_100 (age tag background)
+- style_129 (timestamp tag background)
+
+Typography references:
+- typo_146 (date small)
+- typo_149 (channel big number)
+- typo_165 (channel small name)
+- typo_166 (program title)
+- typo_167 (metadata inline texts)
+- typo_168 (age tag label)
+- typo_169 (timestamp tag label)
+- typo_170 (divider 32)
+- typo_171 (description paragraph)
+- typo_172 (panel button label)
+- typo_173 (DateHour time)
+
+Color references: background color_ref color_ffffff for screen
+
+Position calculations (relative to immediate parent):
+- Root container: position: relative; width:1920; height:1080
+- Full-bleed image and gradient: left=0, top=0
+- MetadataInfoPanel: left=17407-17311=96, top=23426-23318=108
+  Within it, use absolute positioning for pixel precision unless a declared layout is horizontal/vertical (some containers specify layout; maintain flex with calculated gaps if needed).
+- SystemDate: left=19035-17311=724, top=23373-23318=55
+
+Assets:
+- Several VECTOR icons are referenced but no imagePath or filenames provided in YAML; as per rules, treat VECTORs as <img svg> only if an imagePath exists. Since not present, render vector placeholders with divs and background via currentColor or simple shapes; keep sizes and positions exact.
+
+Notes:
+- Since the design system JSON could not be read in this environment due to size, we declare CSS variables for referenced tokens with sensible fallbacks, to be replaced later.
+- Use z-index to preserve document order layering.
+- Use object-fit: cover for any image backgrounds if actual assets provided later.
