@@ -80,11 +80,9 @@ export default defineConfig(() => {
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
-      // Do not attempt to optimize non-modules or raw asset scripts that could be copied into public/assets
-      exclude: [
-        // any stray design/demo scripts that must NOT be treated as modules
-        '/assets/**/*.html',
-      ],
+      // Avoid passing non-module paths or invalid wildcard patterns to esbuild.
+      // If specific npm packages need exclusion from optimization, list them here (by package name).
+      exclude: [],
     },
   }
 
