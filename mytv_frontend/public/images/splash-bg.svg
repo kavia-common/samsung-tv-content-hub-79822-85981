@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="rg" cx="50%" cy="22%" r="60%"><stop offset="0" stop-color="#2563EB" stop-opacity="0.36"/><stop offset="1" stop-color="#0B1220" stop-opacity="0"/></radialGradient><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity="0.10"/><stop offset="1" stop-color="#111827" stop-opacity="0.18"/></linearGradient></defs><rect width="1920" height="1080" fill="#0B1220"/><rect width="1920" height="1080" fill="url(#lg)"/><rect width="1920" height="1080" fill="url(#rg)"/><g opacity="0.08" fill="#FFFFFF"><circle cx="250" cy="180" r="120"/><circle cx="640" cy="360" r="180"/><circle cx="1160" cy="240" r="140"/><circle cx="1600" cy="540" r="220"/></g></svg>````
+Explanation: Add a small readme in public/assets to document the copied figma references and usage.
+````write file="samsung-tv-content-hub-79822-85981/mytv_frontend/public/assets/README.txt"
+Assets in this folder:
+- screen_2001-3396.png: Visual reference of the Home screen from Figma.
+- screen_2001-3396.yaml: Layer/position data captured for reference during layout implementation.
+
+These files are not required at runtime but can help developers validate layout fidelity.
