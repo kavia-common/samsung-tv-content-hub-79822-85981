@@ -83,7 +83,7 @@ export default function Splash() {
             textAlign: 'center',
           }}
           aria-label="MyTV"
-          tabIndex={0} // focus-safe: allows TV remote focus outline without trapping
+          tabIndex={0}
           className="focusable"
         >
           MyTV
@@ -146,16 +146,19 @@ export default function Splash() {
       </div>
 
       {/* Local keyframes for this page */}
-      <style>{`
-        @keyframes splash-bg-fade {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes splash-content-fade {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+      <style>{(function(){ 
+        const css = [
+          '@keyframes splash-bg-fade {',
+          '  from { opacity: 0; }',
+          '  to { opacity: 1; }',
+          '}',
+          '@keyframes splash-content-fade {',
+          '  from { opacity: 0; transform: translateY(12px); }',
+          '  to { opacity: 1; transform: translateY(0); }',
+          '}'
+        ].join('\\n')
+        return css
+      })()}</style>
     </div>
   )
 }
