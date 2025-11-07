@@ -6,6 +6,9 @@
     <meta name="description" content="Tizen TV Application" />
     <link rel="icon" type="image/png" href="/icon.png" />
     <title>mytv_frontend</title>
+    <!-- Preload base styles to avoid first-paint flicker and missing CSS variables -->
+    <link rel="preload" href="/src/theme.css" as="style" />
+    <link rel="stylesheet" href="/src/theme.css" />
     <style>
       body {
         margin: 0;

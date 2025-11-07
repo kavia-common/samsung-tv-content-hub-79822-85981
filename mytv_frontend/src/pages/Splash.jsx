@@ -17,7 +17,8 @@ export default function Splash() {
   const didNavigateRef = useRef(false)
 
   useEffect(() => {
-    if (location.pathname === '/home') {
+    // If already on home, do nothing
+    if (location.pathname === '/home' || window?.location?.hash?.startsWith('#/home')) {
       didNavigateRef.current = true
       return
     }
@@ -26,18 +27,17 @@ export default function Splash() {
     const t = setTimeout(() => {
       if (!mounted) return
       if (didNavigateRef.current) return
-      if (window?.location?.hash?.startsWith('#/home') || location.pathname === '/home') {
-        didNavigateRef.current = true
-        return
-      }
       didNavigateRef.current = true
       navigate('/home', { replace: true })
     }, timeoutMs)
+
     return () => {
       mounted = false
       clearTimeout(t)
     }
-  }, [navigate, location.pathname])
+    // Depend only on `navigate` so HMR/location minor changes don't restart timer unintentionally
+    // navigate is stable from react-router; eslint exhaustive-deps intentionally not applied here
+  }, [navigate])
 
   const primary = '#2563EB'
   const secondary = '#F59E0B'
