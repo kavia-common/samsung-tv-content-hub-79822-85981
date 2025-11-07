@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
  * PUBLIC_INTERFACE
  * Banner displays a hero image with gradient overlay and text.
  */
-export default function Banner({ image = '/images/banner.jpg', title = 'Featured: Ocean Depths', subtitle = 'Immerse in stories from the deep blue' }) {
+export default function Banner({ image = '/images/banner.svg', title = 'Featured: Ocean Depths', subtitle = 'Immerse in stories from the deep blue' }) {
   const btnRef = useRef(null)
 
   useEffect(() => {

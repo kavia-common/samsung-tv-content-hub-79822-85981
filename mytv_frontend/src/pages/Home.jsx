@@ -18,7 +18,7 @@ export default function Home() {
     Array.from({ length: count }).map((_, i) => ({
       id: `${prefix}-${i + 1}`,
       title: `${prefix} ${i + 1}`,
-      image: `/images/thumb${(i % 12) + 1}.jpg`,
+      image: `/images/thumb${(i % 12) + 1}.svg`,
     }))
 
   const rails = useMemo(
