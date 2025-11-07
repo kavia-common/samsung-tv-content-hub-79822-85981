@@ -22,15 +22,30 @@ export default function Home() {
     }))
 
   const rails = useMemo(
-    () => [
-      { title: 'Top Trending', items: mkItems('Trending', 14) },
-      { title: 'Continue Watching', items: mkItems('Continue', 10) },
-      { title: 'Action', items: mkItems('Action', 12) },
-      { title: 'Drama', items: mkItems('Drama', 12) },
-      { title: 'Horror', items: mkItems('Horror', 12) },
-      { title: 'Comedy', items: mkItems('Comedy', 12) },
-      { title: 'Documentary', items: mkItems('Documentary', 12) },
-    ],
+    () => {
+      // Build default rails/items
+      const base = [
+        { title: 'Top Trending', items: mkItems('Trending', 14) },
+        { title: 'Continue Watching', items: mkItems('Continue', 10) },
+        { title: 'Action', items: mkItems('Action', 12) },
+        { title: 'Drama', items: mkItems('Drama', 12) },
+        { title: 'Horror', items: mkItems('Horror', 12) },
+        { title: 'Comedy', items: mkItems('Comedy', 12) },
+        { title: 'Documentary', items: mkItems('Documentary', 12) },
+      ]
+
+      // Minimal override: rename first trending item to "Gladiator" and set its image.
+      // Use Vite public URL convention: /images/gladiator.jpg
+      if (base[0]?.items?.length > 0) {
+        base[0].items[0] = {
+          ...base[0].items[0],
+          title: 'Gladiator',
+          image: '/images/gladiator.jpg',
+        }
+      }
+
+      return base
+    },
     [],
   )
 
