@@ -11,10 +11,18 @@ import { getFeatured, getRail } from '../services/api.js'
 */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
+
+  // Featured banner state
   const [featured, setFeatured] = useState(null)
   const [featuredError, setFeaturedError] = useState(null)
+
+  // Dedicated Trending section state
+  const [trendingItems, setTrendingItems] = useState([])
+  const [trendingLoading, setTrendingLoading] = useState(true)
+  const [trendingError, setTrendingError] = useState(null)
+
+  // Other rails (excluding Trending which is now dedicated)
   const [rails, setRails] = useState([
-    { key: 'trending', title: 'Trending', items: [], loading: true, error: null, path: '/api/trending' },
     { key: 'continue', title: 'Continue Watching', items: [], loading: true, error: null, path: '/api/continue_watching' },
     { key: 'action', title: 'Action', items: [], loading: true, error: null, path: '/api/action' },
     { key: 'family', title: 'Family', items: [], loading: true, error: null, path: '/api/family' },
@@ -42,7 +50,29 @@ export default function Home() {
     return () => { cancelled = true }
   }, [])
 
-  // Load all rails in parallel
+  // Load Trending rail explicitly from /api/trending
+  useEffect(() => {
+    let cancelled = false
+    async function loadTrending() {
+      try {
+        setTrendingError(null)
+        setTrendingLoading(true)
+        const items = await getRail('/api/trending')
+        // items are normalized: { id, title, image } from name/poster per services/api.js
+        if (!cancelled) {
+          setTrendingItems(Array.isArray(items) ? items : [])
+        }
+      } catch (e) {
+        if (!cancelled) setTrendingError(e)
+      } finally {
+        if (!cancelled) setTrendingLoading(false)
+      }
+    }
+    loadTrending()
+    return () => { cancelled = true }
+  }, [])
+
+  // Load other rails in parallel (excluding trending)
   useEffect(() => {
     let cancelled = false
     async function loadAll() {
@@ -125,12 +155,27 @@ export default function Home() {
         ) : null}
 
         <div ref={scrollAreaRef} style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
+          {/* Dedicated Trending section first */}
+          <section id="trending">
+            <Rail
+              title="Trending"
+              items={trendingItems}
+              railIndex={0}
+              currentRail={currentRail}
+              setCurrentRail={setCurrentRail}
+              onOpenDetails={handleOpenDetails}
+              loading={trendingLoading}
+              error={trendingError}
+            />
+          </section>
+
+          {/* The rest of rails follow, with correct railIndex offset for 5-way Up/Down navigation */}
           {rails.map((r, idx) => (
             <Rail
               key={r.key}
               title={r.title}
               items={r.items}
-              railIndex={idx}
+              railIndex={idx + 1}
               currentRail={currentRail}
               setCurrentRail={setCurrentRail}
               onOpenDetails={handleOpenDetails}

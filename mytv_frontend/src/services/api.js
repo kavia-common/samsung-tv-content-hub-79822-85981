@@ -59,6 +59,16 @@ export async function getRail(endpointPath) {
 
 /**
  * PUBLIC_INTERFACE
+ * getTrending
+ * Loads the Trending list from /api/trending and maps to UI-friendly fields.
+ */
+export async function getTrending() {
+  /** Convenience wrapper around getRail('/api/trending') to keep Home cleaner. */
+  return getRail('/api/trending');
+}
+
+/**
+ * PUBLIC_INTERFACE
  * getInfo
  * Fetches detailed info for a show/movie by id.
  */
