@@ -18,11 +18,18 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   useEffect(() => {
     if (!isActive) return
     const nodes = containerRef.current?.querySelectorAll('[tabindex="0"]')
-    const el = nodes && nodes.length > 0 ? nodes[focusIndex] : null
+    const hasNodes = nodes && nodes.length > 0
+    if (!hasNodes) return
+    const safeIndex = Math.min(Math.max(0, focusIndex), nodes.length - 1)
+    const el = nodes[safeIndex]
     if (el && typeof el.focus === 'function') {
-      el.focus()
-      if (typeof el.scrollIntoView === 'function') {
-        el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+      try {
+        el.focus()
+        if (typeof el.scrollIntoView === 'function') {
+          el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+        }
+      } catch {
+        // No-op: focus/scroll can throw if element unmounted during HMR
       }
     }
   }, [isActive, focusIndex])
