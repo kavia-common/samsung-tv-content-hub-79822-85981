@@ -9,16 +9,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
  - Smooth fade-in for background and text.
  - Auto-navigates to /home after ~5.5s; timer cleared on unmount.
  - Focus-safe styling for Tizen TV (no focus traps; outline visible if focused).
- - Reduced visual footprint vs previous version (about 40–60% smaller) via responsive container with max-width and scale.
+ - Fit-to-viewport: content is bounded within the screen without overflow or scrollbars.
 */
 export default function Splash() {
   const navigate = useNavigate()
   const location = useLocation()
-  // Guard navigate to run only once per mount tree (helps during HMR re-renders)
   const didNavigateRef = useRef(false)
 
   useEffect(() => {
-    // If we're already at /home (e.g., via HMR state), don't schedule another navigation
     if (location.pathname === '/home') {
       didNavigateRef.current = true
       return
@@ -28,7 +26,6 @@ export default function Splash() {
     const t = setTimeout(() => {
       if (!mounted) return
       if (didNavigateRef.current) return
-      // Final safety: don't redirect if we've somehow moved to /home already
       if (window?.location?.hash?.startsWith('#/home') || location.pathname === '/home') {
         didNavigateRef.current = true
         return
@@ -45,48 +42,49 @@ export default function Splash() {
   const primary = '#2563EB'
   const secondary = '#F59E0B'
 
-  // Use a responsive container size to scale across 1080p and 4K
-  // - Base "viewport" is 1920x1080; we keep the app fixed there via index.html/meta,
-  //   but still make the splash content container size explicit and centered.
-  // - Max width constrains text size visually and remains centered on all displays.
-  const containerMaxWidth = 720 // Previously ~full width title; now reduced footprint
-  const titleFontSize = 96      // Previously 150; ~36% reduction
-  const subtitleFontSize = 20   // Slightly reduced
+  // Typography scales responsively while remaining within safe bounds.
+  const titleSize = 'clamp(48px, 8vw, 128px)'
+  const subtitleSize = 'clamp(18px, 3vw, 36px)'
 
   return (
     <div
       style={{
-        width: 1920,
-        height: 1080,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        // Grid center ensures content is centered both vertically and horizontally
+        display: 'grid',
+        placeItems: 'center',
+        minHeight: '100vh',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden', // prevent scrollbars
         position: 'relative',
-        overflow: 'hidden',
         background:
           'radial-gradient(900px 680px at 50% 22%, rgba(37,99,235,0.36), rgba(11,18,32,0)) , linear-gradient(180deg, rgba(37,99,235,0.10), rgba(17,24,39,0.18)), #0B1220',
         animation: 'splash-bg-fade 900ms ease-out forwards',
       }}
     >
-      {/* Centered, scaled content wrapper */}
+      {/* Inner bounded container that cannot exceed viewport */}
       <div
         style={{
+          // Constrain the content to stay within screen
+          maxWidth: 'min(80vw, 1200px)',
+          maxHeight: 'min(80vh, 700px)',
           width: '100%',
-          maxWidth: containerMaxWidth,
+          // Maintain natural flow; no explicit scaling beyond bounds
           padding: '0 24px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          transform: 'translateZ(0)',
+          transformOrigin: 'center',
           animation: 'splash-content-fade 950ms ease-out 100ms both',
+          overflow: 'hidden',
         }}
       >
         {/* Middle line "MyTV" (kept as the prominent center line) */}
         <h1
           style={{
             margin: 0,
-            fontSize: titleFontSize,
+            fontSize: titleSize,
             lineHeight: 1,
             fontWeight: 900,
             letterSpacing: 1.2,
@@ -97,6 +95,8 @@ export default function Splash() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             textAlign: 'center',
+            maxWidth: '100%',
+            whiteSpace: 'nowrap',
           }}
           aria-label="MyTV"
           tabIndex={0}
@@ -109,11 +109,12 @@ export default function Splash() {
         <div
           style={{
             marginTop: 10,
-            fontSize: subtitleFontSize,
+            fontSize: subtitleSize,
             color: '#cbd5e1',
             letterSpacing: 0.4,
             position: 'relative',
             textAlign: 'center',
+            maxWidth: '100%',
           }}
         >
           Ocean Professional
@@ -162,7 +163,7 @@ export default function Splash() {
       </div>
 
       {/* Local keyframes for this page */}
-      <style>{(function(){ 
+      <style>{(function(){
         const css = [
           '@keyframes splash-bg-fade {',
           '  from { opacity: 0; }',
