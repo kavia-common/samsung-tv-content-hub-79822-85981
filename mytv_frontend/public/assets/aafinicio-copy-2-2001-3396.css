@@ -2,9 +2,55 @@
 
 :root {
   --screen-bg-121212: #121212;
+  /* Fluid type clamps for TV-safe scaling while preserving base */
+  --ty-clamp-28: clamp(18px, 1.46vw, 28px);
+  --ty-clamp-24: clamp(16px, 1.25vw, 24px);
+  --ty-clamp-22: clamp(14px, 1.15vw, 22px);
+  --ty-clamp-20: clamp(13px, 1.05vw, 20px);
+  --ty-clamp-16: clamp(12px, 0.84vw, 16px);
 }
 
-/* Root canvas */
+/* Scalable wrapper: a 1920x1080 canvas that scales uniformly via transform */
+.figma-responsive-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-width: 640px; /* safe min for small previews */
+  min-height: 360px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--screen-bg-121212);
+}
+
+.figma-scale-outer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.figma-scale-inner {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  /* scale will be set from JS; keep initial at 1 for 1920x1080 */
+  will-change: transform;
+}
+
+/* Ensure any images inside screen scale correctly */
+#screen-aafinicio-2001-3396 img,
+#screen-aafinicio-2001-3396 .image,
+#screen-aafinicio-2001-3396 .poster,
+#screen-aafinicio-2001-3396 .poster-a,
+#screen-aafinicio-2001-3396 .poster-b {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+/* Root canvas remains absolute-pixel based; it will be nested in .figma-scale-inner */
 #screen-aafinicio-2001-3396 {
   width: 1920px;
   height: 1080px;
@@ -49,14 +95,14 @@
 
 /* SEGUÍ VIENDO */
 .seg-section { position: absolute; left: 0; top: 632px; width: 2251px; height: 368px; }
-.seg-title { position: absolute; left: 88px; top: 0; width: 182px; height: 32px; font-size: 28px; font-weight: 700; }
+.seg-title { position: absolute; left: 88px; top: 0; width: 182px; height: 32px; font-size: var(--ty-clamp-28); font-weight: 700; }
 
 .seg-card1 { position: absolute; left: 57px; top: 39px; width: 474px; height: 329px; }
 .seg-card1 .img { position: absolute; left: 0; top: 0; width: 474px; height: 267px; background: #333; border-radius: 6px; }
 .seg-card1 .pbar-bg { position: absolute; left: 19.558px; top: 230.172px; width: 436.034px; height: 18.414px; background: rgba(255,255,255,0.25); border-radius: 10px; }
 .seg-card1 .pbar-fill { position: absolute; left: 24.158px; top: 234.773px; width: 176.004px; height: 9.207px; background: #F59E0B; border-radius: 10px; }
 .seg-card1 .name-bg { position: absolute; left: 31px; top: 249px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
-.seg-card1 .name-title { position: absolute; left: 47px; top: 273px; width: 270px; height: 32px; }
+.seg-card1 .name-title { position: absolute; left: 47px; top: 273px; width: 270px; height: 32px; font-size: var(--ty-clamp-24); }
 
 .seg-delete { position: absolute; left: 477.044px; top: 944.223px; width: 31.429px; height: 34.286px; }
 .seg-yellow-dot { position: absolute; left: 445px; top: 951.199px; width: 20px; height: 20px; border-radius: 50%; background: #F59E0B; }
@@ -66,25 +112,25 @@
 .seg-card2 .pbar-bg { position: absolute; left: 17px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
 .seg-card2 .pbar-fill { position: absolute; left: 21px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
 .seg-card2 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
-.seg-card2 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+.seg-card2 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; font-size: var(--ty-clamp-24); }
 
 .seg-card3 { position: absolute; left: 935px; top: 56px; width: 412px; height: 312px; }
 .seg-card3 .img { position: absolute; left: 0; top: 0; width: 412px; height: 232px; background: #333; border-radius: 6px; }
 .seg-card3 .pbar-bg { position: absolute; left: 16px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
 .seg-card3 .pbar-fill { position: absolute; left: 20px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
 .seg-card3 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
-.seg-card3 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+.seg-card3 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; font-size: var(--ty-clamp-24); }
 
 .seg-card4 { position: absolute; left: 1387px; top: 56px; width: 412px; height: 312px; }
 .seg-card4 .img { position: absolute; left: 0; top: 0; width: 412px; height: 232px; background: #333; border-radius: 6px; }
 .seg-card4 .pbar-bg { position: absolute; left: 16px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
 .seg-card4 .pbar-fill { position: absolute; left: 20px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
 .seg-card4 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
-.seg-card4 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+.seg-card4 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; font-size: var(--ty-clamp-24); }
 
 /* CANALES DE TV */
 .tv-group { position: absolute; left: 0; top: 1040px; width: 2318px; height: 277px; }
-.tv-title { position: absolute; left: 88px; top: 0; width: 205px; height: 32px; font-size: 28px; font-weight: 700; }
+.tv-title { position: absolute; left: 88px; top: 0; width: 205px; height: 32px; font-size: var(--ty-clamp-28); font-weight: 700; }
 
 .tv-card1 { position: absolute; left: 89px; top: 56px; width: 745px; height: 212px; }
 .tv-card1 .poster { position: absolute; left: 0; top: 0; width: 377px; height: 212px; background: #2e2e2e; border-radius: 6px; }
@@ -111,10 +157,23 @@
 /* Tag Alquilá */
 .tag-alquila { position: absolute; left: 852px; top: 73px; width: 64.207px; height: 32px; background: rgba(255,255,255,0.16); border-radius: 6px; }
 
-.text-typo-157 { font-size: 28px; font-weight: 700; line-height: 32px; }
-.text-typo-165 { font-size: 24px; font-weight: 600; }
-.text-typo-166 { font-size: 24px; font-weight: 700; }
-.text-typo-167 { font-size: 24px; font-weight: 500; }
-.text-typo-158 { font-size: 28px; font-weight: 800; }
-.text-typo-159 { font-size: 22px; font-weight: 600; opacity: 0.85; }
-.text-typo-160 { font-size: 16px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+/* Fluid typography mappings for referenced classes, using clamps above */
+.text-typo-157 { font-size: var(--ty-clamp-28); font-weight: 700; line-height: 1.14; }
+.text-typo-165 { font-size: var(--ty-clamp-24); font-weight: 600; }
+.text-typo-166 { font-size: var(--ty-clamp-24); font-weight: 700; }
+.text-typo-167 { font-size: var(--ty-clamp-24); font-weight: 500; }
+.text-typo-158 { font-size: var(--ty-clamp-28); font-weight: 800; }
+.text-typo-159 { font-size: var(--ty-clamp-22); font-weight: 600; opacity: 0.85; }
+.text-typo-160 { font-size: var(--ty-clamp-16); font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+
+/* Common width breakpoints for TVs and browsers */
+@media (min-width: 1280px) and (max-width: 1359.98px) {
+  /* no structural changes; scale is applied via wrapper; keep type slightly smaller via clamps */
+}
+@media (min-width: 1360px) and (max-width: 1439.98px) {
+}
+@media (min-width: 1440px) and (max-width: 1919.98px) {
+}
+@media (min-width: 1920px) {
+  /* base canvas size fits natively; scaling to >=1 may be applied by wrapper if height-bound */
+}
