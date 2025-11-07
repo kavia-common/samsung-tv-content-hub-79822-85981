@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Keep fixed viewport hint for TV while allowing responsive containers -->
     <meta name="viewport" content="width=1920, height=1080" />
     <meta name="description" content="Tizen TV Application" />
     <link rel="icon" type="image/png" href="/icon.png" />
@@ -10,13 +11,16 @@
     <link rel="preload" href="/src/theme.css" as="style" />
     <link rel="stylesheet" href="/src/theme.css" />
     <style>
-      body {
+      /* Let global.css control sizing; avoid hard-clamping here */
+      html, body {
         margin: 0;
         padding: 0;
-        width: 1920px;
-        height: 1080px;
-        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        background: #f9fafb;
+        color: #111827;
       }
+      #root { min-height: 100%; }
     </style>
   </head>
   <body>

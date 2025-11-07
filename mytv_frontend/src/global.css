@@ -1,0 +1,114 @@
+:root {
+  /* Ocean Professional Theme */
+  --op-bg: #f9fafb;       /* background */
+  --op-text: #111827;     /* text */
+  --op-surface: #ffffff;  /* surfaces */
+  --op-shadow: 0 10px 30px rgba(17, 24, 39, 0.12);
+  --op-border: 1px solid rgba(17, 24, 39, 0.06);
+
+  --primary: #2563EB;
+  --secondary: #F59E0B;
+
+  /* Debug toggle via env or fallback flag (JS sets data-debug on body if enabled) */
+}
+
+/* Root sizing and typography smoothing */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--op-text);
+  background: var(--op-bg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Main app wrapper with constrained width, centered layout, and safe-area padding */
+.app-root {
+  max-width: 1920px;
+  min-height: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: calc(24px + env(safe-area-inset-top))
+           calc(24px + env(safe-area-inset-right))
+           calc(24px + env(safe-area-inset-bottom))
+           calc(24px + env(safe-area-inset-left));
+  box-sizing: border-box;
+}
+
+/* Ocean Professional surface containers */
+.container, .surface {
+  background: var(--op-surface);
+  border: var(--op-border);
+  border-radius: 14px;
+  box-shadow: var(--op-shadow);
+}
+
+/* Horizontal content rail with sane item sizing */
+.content-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(200px, 20vw, 360px);
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+
+/* Banners and hero media should not stretch awkwardly */
+.hero, .banner, .banner img, .banner-shadowed img {
+  object-fit: cover;
+}
+
+.hero, .banner {
+  height: clamp(180px, 30vh, 420px);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Prevent common overflow traps */
+img, video, canvas {
+  max-width: 100%;
+}
+
+/* Focus ring utility for keyboard/TV remotes */
+.focusable:focus {
+  outline: 2px dashed rgba(37, 99, 235, 0.6);
+  outline-offset: 2px;
+}
+
+/* Optional debug outlines (enabled via body[data-debug="1"]) */
+body[data-debug="1"] .app-root,
+body[data-debug="1"] .container,
+body[data-debug="1"] .surface,
+body[data-debug="1"] .content-rail,
+body[data-debug="1"] header,
+body[data-debug="1"] main,
+body[data-debug="1"] section,
+body[data-debug="1"] nav {
+  outline: 1px dashed rgba(37,99,235,0.4);
+}
+
+/* Ensure anchor targets are visible and not clipped under fixed headers */
+:target {
+  scroll-margin-top: 16px;
+}
+
+/* Utility spacing for content areas inside .app-root */
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

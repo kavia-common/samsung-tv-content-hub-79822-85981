@@ -2,7 +2,7 @@
   --primary: #2563EB;
   --secondary: #F59E0B;
   --error: #EF4444;
-  --bg: #0B1220; /* dark ocean background */
+  --bg: #0B1220; /* dark ocean background - retained for TV dark scenes */
   --surface: #0f172a; /* slate-900 */
   --surface-2: #111827; /* gray-900 */
   --text: #E5E7EB; /* gray-200 */
@@ -12,22 +12,30 @@
   --shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
 
+/* Ocean-themed dark app surface used in pages; sizing now flows within .app-root */
 .app-surface {
-  width: 1920px;
-  height: 1080px;
-  background: radial-gradient(1200px 800px at 70% 10%, rgba(37,99,235,0.25), rgba(15,23,42,0)) , linear-gradient(180deg, rgba(37,99,235,0.08), rgba(17,24,39,0.2)), var(--bg);
+  width: 100%;
+  min-height: 0;
+  background:
+    radial-gradient(1200px 800px at 70% 10%, rgba(37,99,235,0.25), rgba(15,23,42,0)),
+    linear-gradient(180deg, rgba(37,99,235,0.08), rgba(17,24,39,0.2)),
+    var(--bg);
   color: var(--text);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
 }
 
+/* Page content spacing within app-surface */
 .page-content {
   flex: 1;
   overflow: hidden;
   padding: 24px 40px 28px 40px;
 }
 
+/* Utilities */
 .section-title {
   font-size: 28px;
   font-weight: 700;
