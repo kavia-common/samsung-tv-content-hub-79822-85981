@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
  - Centers a bold "MyTV" line vertically and horizontally.
  - Subtle gradient background with blue/amber accents and soft vignette.
  - Smooth fade-in for background and text.
- - Auto-navigates to /home after ~5.5s; timer cleared on unmount.
+ - Auto-navigates to /home after exactly 5 seconds; timer cleared on unmount.
  - Focus-safe styling for Tizen TV (no focus traps; outline visible if focused).
  - Fit-to-viewport: content is bounded within the screen without overflow or scrollbars.
 */

@@ -58,6 +58,10 @@ export default defineConfig(() => {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/post_process_status.lock',
+    // Extra ignores to avoid HMR loops from static HTML assets
+    // Any raw HTML placed under public/assets or any assets folder should not trigger reloads.
+    '**/public/assets/**/*.html',
+    '**/assets/**/*.html',
     // Ignore everything outside the project to avoid accidental FS scans
     '../../**',
   ]
