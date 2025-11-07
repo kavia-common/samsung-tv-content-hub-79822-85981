@@ -1,3 +1,6 @@
+/**
+ * App entry with routing. No import-time side effects; all effects occur after mount.
+ */
 import React, { useMemo } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 
@@ -20,7 +23,6 @@ import TopMenu from './components/TopMenu.jsx'
  *   It preserves our existing paths and hash-based section deep links without needing server rewrites.
  */
 function AppRouter() {
-  // Avoid dev-only network pings or hot hooks that can create reload churn.
   return (
     <HashRouter>
       {/* Always-visible watermark to confirm render path */}
