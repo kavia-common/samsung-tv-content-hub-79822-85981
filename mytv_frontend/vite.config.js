@@ -134,7 +134,11 @@ export default defineConfig(() => {
       // debounce fs changes
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
       // chokidar ignored patterns
-      ignored: ignoredGlobs,
+      // Also ignore any reference/design HTML placed under assets-reference (just in case someone moves it)
+      ignored: [
+        ...ignoredGlobs,
+        '**/assets-reference/**/*.html',
+      ],
     },
     fs: {
       // Keep strict FS serving to avoid external directory scans and accidental reloads
@@ -182,6 +186,7 @@ export default defineConfig(() => {
         // Ensure any stray raw HTML under static paths don't trigger loops
         '**/public/assets/**/*.html',
         '**/assets/**/*.html',
+        '**/assets-reference/**/*.html',
         '../../**',
       ],
     },

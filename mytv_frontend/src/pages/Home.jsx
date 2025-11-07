@@ -78,6 +78,7 @@ export default function Home() {
   }, [])
 
   // Load/init the Figma screen JS after mount, plus keyboard enrichment for .tv-play.
+  // Note: We intentionally DO NOT reference any raw .html files here to avoid dev server reload triggers.
   useEffect(() => {
     const root = document.getElementById('screen-aafinicio-2001-3396')
     const cleanupFns = []
