@@ -5,83 +5,51 @@ import { useEffect } from 'react'
  * Home page that mounts the provided AAF_inicio Copy 2 design.
  * - Uses /assets/aafinicio-copy-2-2001-3396.css for pixel-accurate styles.
  * - Renders JSX adapted from the original HTML while preserving ids/classes so CSS applies exactly.
- * - Safely initializes /assets/aafinicio-copy-2-2001-3396.js after mount, scoped to the screen root and cleaned up on unmount.
+ * - Initializes key handling for .tv-play nodes scoped to this screen with cleanup on unmount.
  * - Images (if later provided) must reference exact /assets/figmaimages/* paths from YAML.
  */
 export default function Home() {
-  // Inject the Figma-derived CSS during this page lifecycle only.
+  // Ensure the Figma-derived CSS is present for this page lifecycle.
   useEffect(() => {
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = '/assets/aafinicio-copy-2-2001-3396.css'
-    link.dataset.figmaCss = 'aafinicio-copy-2-2001-3396'
-    // Avoid duplicate injection if HMR re-renders
-    const already = document.querySelector('link[data-figma-css="aafinicio-copy-2-2001-3396"]')
-    if (!already) document.head.appendChild(link)
-
+    const attr = 'aafinicio-copy-2-2001-3396'
+    let link = document.querySelector('link[data-figma-css="aafinicio-copy-2-2001-3396"]')
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = '/assets/aafinicio-copy-2-2001-3396.css'
+      link.dataset.figmaCss = attr
+      document.head.appendChild(link)
+    }
     return () => {
-      // Only remove the one we added to not interfere with any global styles
+      // Remove only what we added to avoid touching any global style with same dataset
       const node = document.querySelector('link[data-figma-css="aafinicio-copy-2-2001-3396"]')
       if (node?.parentNode) node.parentNode.removeChild(node)
     }
   }, [])
 
-  // Initialize the screen JS in a safe, scoped way and clean up listeners on unmount.
+  // Initialize minimal behavior for potential .tv-play elements; no network fetch required.
   useEffect(() => {
-    let teardown = () => {}
     const root = document.getElementById('screen-aafinicio-2001-3396')
+    if (!root) return
 
-    // Lazy-load the script text, attach to a sandboxed Function to avoid polluting globals.
-    // Since the asset is an IIFE listening on DOMContentLoaded, simulate its init immediately
-    // in the scope of this component to avoid global event leaks.
-    async function initJS() {
-      try {
-        const res = await fetch('/assets/aafinicio-copy-2-2001-3396.js', { cache: 'no-store' })
-        const js = await res.text()
-
-        // Wrap the asset code so it runs now and exposes an optional teardown if provided.
-        // We intercept DOMContentLoaded usage by invoking the init portion directly where possible.
-        // For our provided asset, it listens to DOMContentLoaded to set tabindex and key handlers on .tv-play.
-        // We re-implement minimal init here to avoid adding global event listeners.
-        const doInit = () => {
-          if (!root) return
-          const nodes = root.querySelectorAll('.tv-play')
-          nodes.forEach((btn) => {
-            btn.setAttribute('tabindex', '0')
-            const onKey = (e) => {
-              if (e.key === 'Enter' || e.keyCode === 13) {
-                btn.click()
-                e.preventDefault()
-              }
-            }
-            btn.addEventListener('keydown', onKey)
-            // track cleanup per node
-            ;(btn)._tvPlayOnKey = onKey
-          })
-
-          // Return a cleanup that removes listeners we added
-          return () => {
-            root.querySelectorAll('.tv-play').forEach((btn) => {
-              const onKey = (btn)._tvPlayOnKey
-              if (onKey) {
-                btn.removeEventListener('keydown', onKey)
-                try { delete (btn)._tvPlayOnKey } catch {}
-              }
-            })
-          }
+    const added = []
+    const nodes = root.querySelectorAll('.tv-play')
+    nodes.forEach((btn) => {
+      btn.setAttribute('tabindex', '0')
+      const onKey = (e) => {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+          btn.click()
+          e.preventDefault()
         }
-
-        // Run our scoped initializer (ignoring the fetched js content but ensuring we attempted to load OK)
-        teardown = doInit() || (() => {})
-      } catch {
-        // If asset fetch fails, continue without interactive bindings
-        teardown = () => {}
       }
-    }
+      btn.addEventListener('keydown', onKey)
+      added.push({ btn, onKey })
+    })
 
-    initJS()
     return () => {
-      try { teardown?.() } catch {}
+      added.forEach(({ btn, onKey }) => {
+        try { btn.removeEventListener('keydown', onKey) } catch {}
+      })
     }
   }, [])
 
