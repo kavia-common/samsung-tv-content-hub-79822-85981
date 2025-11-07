@@ -1,0 +1,195 @@
+:root {
+  /* Colors (placeholders; replace with design_system.colors) */
+  --color-ffffff: #ffffff;
+  --color-000000: #000000;
+  --color-overlay-dark: rgba(0,0,0,0.6);
+  --color-overlay-mid: rgba(0,0,0,0.4);
+  --color-overlay-light: rgba(0,0,0,0.2);
+  --color-brand-1: #e53e3e;
+  --color-brand-2: #38a169;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,0.2);
+
+  /* Typography variables (placeholders for referenced typography) */
+  /* typo_146 - Date small */
+  --typo-146-family: Inter, system-ui, sans-serif;
+  --typo-146-size: 20px;
+  --typo-146-weight: 500;
+  --typo-146-line-height: 1.2;
+  --typo-146-letter: 0px;
+  --typo-146-color: var(--color-ffffff);
+  --typo-146-align: right;
+
+  /* typo_149 - Channel number */
+  --typo-149-family: Inter, system-ui, sans-serif;
+  --typo-149-size: 28px;
+  --typo-149-weight: 700;
+  --typo-149-line-height: 1.2;
+  --typo-149-letter: 0px;
+  --typo-149-color: var(--color-ffffff);
+  --typo-149-align: left;
+
+  /* typo_165 - Channel name */
+  --typo-165-family: Inter, system-ui, sans-serif;
+  --typo-165-size: 24px;
+  --typo-165-weight: 600;
+  --typo-165-line-height: 1.2;
+  --typo-165-letter: 0px;
+  --typo-165-color: var(--color-ffffff);
+  --typo-165-align: left;
+
+  /* typo_166 - Program title */
+  --typo-166-family: Inter, system-ui, sans-serif;
+  --typo-166-size: 54px;
+  --typo-166-weight: 800;
+  --typo-166-line-height: 1.1;
+  --typo-166-letter: 0px;
+  --typo-166-color: var(--color-ffffff);
+  --typo-166-align: left;
+
+  /* typo_167 - Metadata inline text */
+  --typo-167-family: Inter, system-ui, sans-serif;
+  --typo-167-size: 24px;
+  --typo-167-weight: 500;
+  --typo-167-line-height: 1.2;
+  --typo-167-letter: 0px;
+  --typo-167-color: var(--color-ffffff);
+  --typo-167-align: left;
+
+  /* typo_168 - Tag age label */
+  --typo-168-family: Inter, system-ui, sans-serif;
+  --typo-168-size: 20px;
+  --typo-168-weight: 700;
+  --typo-168-line-height: 1.2;
+  --typo-168-letter: 0.5px;
+  --typo-168-color: var(--color-ffffff);
+  --typo-168-align: center;
+
+  /* typo_169 - Timestamp label */
+  --typo-169-family: Inter, system-ui, sans-serif;
+  --typo-169-size: 18px;
+  --typo-169-weight: 700;
+  --typo-169-line-height: 1.2;
+  --typo-169-letter: 0.5px;
+  --typo-169-color: var(--color-000000);
+  --typo-169-align: center;
+
+  /* typo_170 - Divider 32 */
+  --typo-170-family: Inter, system-ui, sans-serif;
+  --typo-170-size: 24px;
+  --typo-170-weight: 600;
+  --typo-170-line-height: 1.2;
+  --typo-170-letter: 0px;
+  --typo-170-color: var(--color-ffffff);
+  --typo-170-align: center;
+
+  /* typo_171 - Paragraph description */
+  --typo-171-family: Inter, system-ui, sans-serif;
+  --typo-171-size: 22px;
+  --typo-171-weight: 400;
+  --typo-171-line-height: 1.4;
+  --typo-171-letter: 0px;
+  --typo-171-color: var(--color-ffffff);
+  --typo-171-align: left;
+
+  /* typo_172 - Panel button label */
+  --typo-172-family: Inter, system-ui, sans-serif;
+  --typo-172-size: 20px;
+  --typo-172-weight: 600;
+  --typo-172-line-height: 1.2;
+  --typo-172-letter: 0px;
+  --typo-172-color: var(--color-ffffff);
+  --typo-172-align: center;
+
+  /* typo_173 - DateHour clock */
+  --typo-173-family: Inter, system-ui, sans-serif;
+  --typo-173-size: 36px;
+  --typo-173-weight: 700;
+  --typo-173-line-height: 1.1;
+  --typo-173-letter: 0px;
+  --typo-173-color: var(--color-ffffff);
+  --typo-173-align: right;
+
+  /* Styles (placeholders) */
+  /* style_4 - likely transparent/no fill */
+  --style-4-bg: transparent;
+  --style-4-radius: 0px;
+  --style-4-border: none;
+  --style-4-shadow: none;
+  --style-4-opacity: 1;
+
+  /* style_17 - icon vector color */
+  --style-17-color: var(--color-ffffff);
+
+  /* style_35 - focused option tile */
+  --style-35-bg: rgba(255,255,255,0.1);
+  --style-35-radius: 12px;
+  --style-35-border: 1px solid rgba(255,255,255,0.2);
+  --style-35-shadow: var(--shadow-md);
+  --style-35-opacity: 1;
+
+  /* style_100 - age tag */
+  --style-100-bg: rgba(255,255,255,0.16);
+  --style-100-radius: 8px;
+  --style-100-border: 1px solid rgba(255,255,255,0.24);
+  --style-100-shadow: none;
+  --style-100-opacity: 1;
+
+  /* style_129 - timestamp tag */
+  --style-129-bg: #ffd54f;
+  --style-129-radius: 8px;
+  --style-129-border: none;
+  --style-129-shadow: none;
+  --style-129-opacity: 1;
+}
+
+* { box-sizing: border-box; }
+
+.figma-screen {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--color-ffffff);
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.abs { position: absolute; }
+.flex-row { display: flex; flex-direction: row; align-items: flex-start; }
+.flex-col { display: flex; flex-direction: column; align-items: flex-start; }
+
+.text-typo-146 { font-family: var(--typo-146-family); font-size: var(--typo-146-size); font-weight: var(--typo-146-weight); line-height: var(--typo-146-line-height); letter-spacing: var(--typo-146-letter); color: var(--typo-146-color); text-align: var(--typo-146-align); }
+.text-typo-149 { font-family: var(--typo-149-family); font-size: var(--typo-149-size); font-weight: var(--typo-149-weight); line-height: var(--typo-149-line-height); letter-spacing: var(--typo-149-letter); color: var(--typo-149-color); text-align: var(--typo-149-align); }
+.text-typo-165 { font-family: var(--typo-165-family); font-size: var(--typo-165-size); font-weight: var(--typo-165-weight); line-height: var(--typo-165-line-height); letter-spacing: var(--typo-165-letter); color: var(--typo-165-color); text-align: var(--typo-165-align); }
+.text-typo-166 { font-family: var(--typo-166-family); font-size: var(--typo-166-size); font-weight: var(--typo-166-weight); line-height: var(--typo-166-line-height); letter-spacing: var(--typo-166-letter); color: var(--typo-166-color); text-align: var(--typo-166-align); }
+.text-typo-167 { font-family: var(--typo-167-family); font-size: var(--typo-167-size); font-weight: var(--typo-167-weight); line-height: var(--typo-167-line-height); letter-spacing: var(--typo-167-letter); color: var(--typo-167-color); text-align: var(--typo-167-align); }
+.text-typo-168 { font-family: var(--typo-168-family); font-size: var(--typo-168-size); font-weight: var(--typo-168-weight); line-height: var(--typo-168-line-height); letter-spacing: var(--typo-168-letter); color: var(--typo-168-color); text-align: var(--typo-168-align); }
+.text-typo-169 { font-family: var(--typo-169-family); font-size: var(--typo-169-size); font-weight: var(--typo-169-weight); line-height: var(--typo-169-line-height); letter-spacing: var(--typo-169-letter); color: var(--typo-169-color); text-align: var(--typo-169-align); }
+.text-typo-170 { font-family: var(--typo-170-family); font-size: var(--typo-170-size); font-weight: var(--typo-170-weight); line-height: var(--typo-170-line-height); letter-spacing: var(--typo-170-letter); color: var(--typo-170-color); text-align: var(--typo-170-align); }
+.text-typo-171 { font-family: var(--typo-171-family); font-size: var(--typo-171-size); font-weight: var(--typo-171-weight); line-height: var(--typo-171-line-height); letter-spacing: var(--typo-171-letter); color: var(--typo-171-color); text-align: var(--typo-171-align); }
+.text-typo-172 { font-family: var(--typo-172-family); font-size: var(--typo-172-size); font-weight: var(--typo-172-weight); line-height: var(--typo-172-line-height); letter-spacing: var(--typo-172-letter); color: var(--typo-172-color); text-align: var(--typo-172-align); }
+.text-typo-173 { font-family: var(--typo-173-family); font-size: var(--typo-173-size); font-weight: var(--typo-173-weight); line-height: var(--typo-173-line-height); letter-spacing: var(--typo-173-letter); color: var(--typo-173-color); text-align: var(--typo-173-align); }
+
+/* Utility tokens mapped from styles */
+.style-4 { background: var(--style-4-bg); border-radius: var(--style-4-radius); border: var(--style-4-border); box-shadow: var(--style-4-shadow); opacity: var(--style-4-opacity); }
+.style-35 { background: var(--style-35-bg); border-radius: var(--style-35-radius); border: var(--style-35-border); box-shadow: var(--style-35-shadow); opacity: var(--style-35-opacity); }
+.style-100 { background: var(--style-100-bg); border-radius: var(--style-100-radius); border: var(--style-100-border); box-shadow: var(--style-100-shadow); opacity: var(--style-100-opacity); }
+.style-129 { background: var(--style-129-bg); border-radius: var(--style-129-radius); border: var(--style-129-border); box-shadow: var(--style-129-shadow); opacity: var(--style-129-opacity); }
+
+/* Icon placeholder color application */
+.icon-white { filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg); image-rendering: -webkit-optimize-contrast; }

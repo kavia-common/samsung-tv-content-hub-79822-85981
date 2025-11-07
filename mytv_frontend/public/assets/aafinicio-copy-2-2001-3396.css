@@ -1,0 +1,120 @@
+@import url("./common.css");
+
+:root {
+  --screen-bg-121212: #121212;
+}
+
+/* Root canvas */
+#screen-aafinicio-2001-3396 {
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  background: var(--screen-bg-121212);
+  color: #ffffff;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.placeholder-icon { background: rgba(255,255,255,0.85); }
+
+/* HEADER */
+.header { position: absolute; left: 88.72px; top: 36px; width: 1466.2799px; height: 74px; }
+.header .top-nav { position: absolute; left: 396px; top: 36px; width: 1159px; height: 74px; }
+.header .top-nav .bg { position: absolute; left: 396px; top: 40px; width: 1159px; height: 64px; background: rgba(255,255,255,0.06); border-radius: 12px; }
+.header .avatar-focus { position: absolute; left: 1466px; top: 36px; width: 74px; height: 74px; border-radius: 50%; background: rgba(255,255,255,0.1); }
+.header .avatar { position: absolute; left: 1475px; top: 44px; width: 56px; height: 56px; border-radius: 50%; background: #999; }
+.header .search { position: absolute; left: 420px; top: 54px; width: 36px; height: 36px; border-radius: 8px; }
+.header .labels { position: absolute; left: 506px; top: 55px; display: block; color: #fff; }
+.header .nav-inicio { position: absolute; left: 506px; top: 55px; width: 72px; height: 34px; }
+.header .nav-peliculas { position: absolute; left: 626px; top: 55px; width: 120px; height: 34px; }
+.header .nav-series { position: absolute; left: 796px; top: 55px; width: 82px; height: 34px; }
+.header .nav-tvenvivo { position: absolute; left: 928px; top: 55px; width: 137px; height: 34px; }
+.header .nav-kids { position: absolute; left: 1113px; top: 55px; width: 58px; height: 34px; }
+.header .nav-mis { position: absolute; left: 1220px; top: 55px; width: 207px; height: 34px; }
+
+.header .active { position: absolute; left: 493px; top: 46px; width: 96px; height: 53px; }
+.header .active .bg { position: absolute; left: 0; top: 0; width: 96px; height: 53px; background: rgba(255,255,255,0.12); border-radius: 10px; }
+.header .active .title { position: absolute; left: 12.917px; top: 10px; width: 74px; height: 32px; }
+
+.header .logo { position: absolute; left: 88.72px; top: 51.8125px; width: 169.637px; height: 34.356px; border-radius: 6px; }
+
+/* HIGHLIGHTS STRIP */
+.highlights { position: absolute; left: 20px; top: 152px; width: 1940px; height: 444px; }
+.highlights .a-mask-left { position: absolute; left: 0; top: 0; width: 68px; height: 444px; background: linear-gradient(90deg, rgba(0,0,0,0.6), rgba(0,0,0,0)); }
+.highlights .a-object { position: absolute; left: 0; top: 0; width: 1211px; height: 444px; background: #222; }
+.highlights .b { position: absolute; left: 108px; top: 0; width: 1744px; height: 444px; }
+.highlights .b .image { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: #2a2a2a; background-position: center; background-size: cover; }
+.highlights .c-mask-right { position: absolute; left: 1892px; top: 0; width: 48px; height: 444px; background: linear-gradient(270deg, rgba(0,0,0,0.6), rgba(0,0,0,0)); }
+.highlights .c-object { position: absolute; left: 1824px; top: 0; width: 1235px; height: 448px; background: #222; }
+
+/* SEGUÍ VIENDO */
+.seg-section { position: absolute; left: 0; top: 632px; width: 2251px; height: 368px; }
+.seg-title { position: absolute; left: 88px; top: 0; width: 182px; height: 32px; font-size: 28px; font-weight: 700; }
+
+.seg-card1 { position: absolute; left: 57px; top: 39px; width: 474px; height: 329px; }
+.seg-card1 .img { position: absolute; left: 0; top: 0; width: 474px; height: 267px; background: #333; border-radius: 6px; }
+.seg-card1 .pbar-bg { position: absolute; left: 19.558px; top: 230.172px; width: 436.034px; height: 18.414px; background: rgba(255,255,255,0.25); border-radius: 10px; }
+.seg-card1 .pbar-fill { position: absolute; left: 24.158px; top: 234.773px; width: 176.004px; height: 9.207px; background: #F59E0B; border-radius: 10px; }
+.seg-card1 .name-bg { position: absolute; left: 31px; top: 249px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
+.seg-card1 .name-title { position: absolute; left: 47px; top: 273px; width: 270px; height: 32px; }
+
+.seg-delete { position: absolute; left: 477.044px; top: 944.223px; width: 31.429px; height: 34.286px; }
+.seg-yellow-dot { position: absolute; left: 445px; top: 951.199px; width: 20px; height: 20px; border-radius: 50%; background: #F59E0B; }
+
+.seg-card2 { position: absolute; left: 483px; top: 56px; width: 412px; height: 312px; }
+.seg-card2 .img { position: absolute; left: 0; top: 0; width: 412px; height: 232px; background: #333; border-radius: 6px; }
+.seg-card2 .pbar-bg { position: absolute; left: 17px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
+.seg-card2 .pbar-fill { position: absolute; left: 21px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
+.seg-card2 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
+.seg-card2 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+
+.seg-card3 { position: absolute; left: 935px; top: 56px; width: 412px; height: 312px; }
+.seg-card3 .img { position: absolute; left: 0; top: 0; width: 412px; height: 232px; background: #333; border-radius: 6px; }
+.seg-card3 .pbar-bg { position: absolute; left: 16px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
+.seg-card3 .pbar-fill { position: absolute; left: 20px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
+.seg-card3 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
+.seg-card3 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+
+.seg-card4 { position: absolute; left: 1387px; top: 56px; width: 412px; height: 312px; }
+.seg-card4 .img { position: absolute; left: 0; top: 0; width: 412px; height: 232px; background: #333; border-radius: 6px; }
+.seg-card4 .pbar-bg { position: absolute; left: 16px; top: 200px; width: 379px; height: 16px; background: rgba(255,255,255,0.25); border-radius: 4px; }
+.seg-card4 .pbar-fill { position: absolute; left: 20px; top: 204px; width: 153.047px; height: 8px; background: #F59E0B; border-radius: 4px; }
+.seg-card4 .name-bg { position: absolute; left: 0; top: 232px; width: 412px; height: 80px; background: rgba(0,0,0,0.6); border-radius: 6px; }
+.seg-card4 .name-title { position: absolute; left: 16px; top: 256px; width: 270px; height: 32px; }
+
+/* CANALES DE TV */
+.tv-group { position: absolute; left: 0; top: 1040px; width: 2318px; height: 277px; }
+.tv-title { position: absolute; left: 88px; top: 0; width: 205px; height: 32px; font-size: 28px; font-weight: 700; }
+
+.tv-card1 { position: absolute; left: 89px; top: 56px; width: 745px; height: 212px; }
+.tv-card1 .poster { position: absolute; left: 0; top: 0; width: 377px; height: 212px; background: #2e2e2e; border-radius: 6px; }
+.tv-card1 .play-circle { position: absolute; left: 268px; top: 103px; width: 91.693px; height: 91.693px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(255,255,255,0.06)); }
+.tv-card1 .pbar-bg { position: absolute; left: 15px; top: 192px; width: 207px; height: 10.4px; background: rgba(255,255,255,0.25); border-radius: 6px; }
+.tv-card1 .pbar-fill { position: absolute; left: 16px; top: 193px; width: 80px; height: 8.8px; background: #F59E0B; border-radius: 5px; }
+.tv-card1 .live-badge { position: absolute; left: 460px; top: 116px; width: 94px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); }
+
+.tv-card2 { position: absolute; left: 834px; top: 56px; width: 745px; height: 221px; }
+.tv-card2 .poster-a { position: absolute; left: 0; top: 4px; width: 377px; height: 212px; background: #2e2e2e; border-radius: 6px; }
+.tv-card2 .poster-b { position: absolute; left: 2px; top: 0; width: 374.707px; height: 211px; background: #333; border-radius: 6px; }
+.tv-card2 .pbar-bg { position: absolute; left: 16px; top: 197px; width: 207px; height: 10.4px; background: rgba(255,255,255,0.25); border-radius: 6px; }
+.tv-card2 .pbar-fill { position: absolute; left: 17px; top: 198px; width: 80px; height: 8.8px; background: #F59E0B; border-radius: 5px; }
+.tv-card2 .play-circle { position: absolute; left: 268px; top: 107px; width: 91.693px; height: 91.693px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(255,255,255,0.06)); }
+.tv-card2 .live-badge { position: absolute; left: 460px; top: 120px; width: 94px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); }
+
+.tv-card3 { position: absolute; left: 1661px; top: 56px; width: 745px; height: 212px; }
+.tv-card3 .poster { position: absolute; left: 0; top: 0; width: 377px; height: 212px; background: #2e2e2e; border-radius: 6px; }
+.tv-card3 .pbar-bg { position: absolute; left: 15px; top: 193px; width: 207px; height: 10.4px; background: rgba(255,255,255,0.25); border-radius: 6px; }
+.tv-card3 .pbar-fill { position: absolute; left: 16px; top: 194px; width: 80px; height: 8.8px; background: #F59E0B; border-radius: 5px; }
+.tv-card3 .play-circle { position: absolute; left: 268px; top: 103px; width: 91.693px; height: 91.693px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(255,255,255,0.06)); }
+.tv-card3 .live-badge { position: absolute; left: 460px; top: 116px; width: 94px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); }
+
+/* Tag Alquilá */
+.tag-alquila { position: absolute; left: 852px; top: 73px; width: 64.207px; height: 32px; background: rgba(255,255,255,0.16); border-radius: 6px; }
+
+.text-typo-157 { font-size: 28px; font-weight: 700; line-height: 32px; }
+.text-typo-165 { font-size: 24px; font-weight: 600; }
+.text-typo-166 { font-size: 24px; font-weight: 700; }
+.text-typo-167 { font-size: 24px; font-weight: 500; }
+.text-typo-158 { font-size: 28px; font-weight: 800; }
+.text-typo-159 { font-size: 22px; font-weight: 600; opacity: 0.85; }
+.text-typo-160 { font-size: 16px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
