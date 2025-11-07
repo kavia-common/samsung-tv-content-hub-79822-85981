@@ -74,15 +74,16 @@ export default defineConfig(() => {
     },
   }
 
-  // Single configureServer hook (avoid duplicates)
+  // Single configureServer hook (avoid duplicates or heavy work)
   baseConfig.configureServer = (server) => {
     try {
-      // readiness
+      // Readiness endpoint for orchestrator health checks
       server.middlewares.use('/healthz', (_req, res) => {
         res.statusCode = 200
         res.end('OK')
       })
-      // prevent serving dist during dev
+
+      // Disallow serving built assets during dev to prevent loops and confusion
       server.middlewares.use((req, res, next) => {
         if (req.url && req.url.startsWith('/dist/')) {
           res.statusCode = 404
@@ -91,10 +92,10 @@ export default defineConfig(() => {
         }
         next()
       })
-      // lightweight keepalive; no heavy work; ensure cleanup
-      const keepAlive = setInterval(() => {
-        // no-op tick to keep event loop active
-      }, 60_000)
+
+      // Minimal keepalive tick to keep event loop non-idle in some CI envs.
+      // It is very lightweight and is cleaned up on server close.
+      const keepAlive = setInterval(() => {}, 120_000)
       server.httpServer?.once('close', () => clearInterval(keepAlive))
     } catch (e) {
       server?.config?.logger?.warn?.(`configureServer non-fatal: ${e?.message || e}`)

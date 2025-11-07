@@ -23,10 +23,15 @@ Scripts:
 - npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 to reduce memory spikes.
 - npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 for tighter limits.
 - npm run preview        -> vite preview (strict on 3000; fails if port is busy).
-- npm run preview:port   -> sets PORT=3000 explicitly for preview.
 - npm run build:tizen    -> builds to ./dist (no packaging)
 - npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
 - npm run build-and-package:tizen -> build then package in one command
+
+Notes:
+- Duplicate CLI flags for --port/--host are intentionally avoided in scripts. Prefer PORT env if changing port.
+- Avoid adding wrapper scripts that pass both PORT and --port/--host redundantly; this can confuse orchestrators.
+- If port 3000 is busy, the process will exit (strictPort=true). Free the port or choose another explicitly (e.g., PORT=3001 npm run dev).
+- The HMR clientPort is fixed to 3000 to match orchestrator proxy; do not override unless proxy port changes.
 
 Quick checks:
 - Verify readiness:
