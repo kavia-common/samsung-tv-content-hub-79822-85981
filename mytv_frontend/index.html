@@ -7,20 +7,9 @@
     <meta name="description" content="Tizen TV Application" />
     <link rel="icon" type="image/png" href="/icon.png" />
     <title>mytv_frontend</title>
-    <!-- Preload base styles to avoid first-paint flicker and missing CSS variables -->
-    <link rel="preload" href="/src/theme.css" as="style" />
-    <link rel="stylesheet" href="/src/theme.css" />
     <style>
-      /* Let global.css control sizing; avoid hard-clamping here */
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        background: #f9fafb;
-        color: #111827;
-      }
-      #root { min-height: 100%; }
+      /* Let CSS files control final visuals */
+      html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; }
     </style>
   </head>
   <body>

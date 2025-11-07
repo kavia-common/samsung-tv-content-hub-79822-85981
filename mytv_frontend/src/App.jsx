@@ -1,7 +1,7 @@
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
-import './theme.css'
+
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
 import Login from './pages/Login.jsx'
@@ -22,12 +22,16 @@ import TopMenu from './components/TopMenu.jsx'
  */
 function AppRouter() {
   // Dev-only health check log to quickly spot server availability without failing app
-  if (import.meta && import.meta.hot) {
-    fetch('/healthz').then(
-      () => console.debug('[dev-healthz] 200 OK'),
-      (err) => console.warn('[dev-healthz] failed', err?.message || err)
-    )
-  }
+  // Move into an effect to avoid running during plugin evaluation/SSR
+  // and to ensure it doesn't execute at module import time.
+  React.useEffect(() => {
+    if (import.meta && import.meta.hot) {
+      fetch('/healthz').then(
+        () => console.debug('[dev-healthz] 200 OK'),
+        (err) => console.warn('[dev-healthz] failed', err?.message || err)
+      )
+    }
+  }, [])
   return (
     <HashRouter>
       <Routes>
