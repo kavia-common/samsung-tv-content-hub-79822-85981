@@ -24,3 +24,7 @@ body {
 button, input {
   font-family: inherit;
 }
+
+/* Guard against accidental hot-reload loops caused by @imports:
+   This file must not @import other project CSS; keep it standalone.
+   (global.css and theme.css are imported directly by main.jsx) */

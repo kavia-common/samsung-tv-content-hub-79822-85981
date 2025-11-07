@@ -26,14 +26,9 @@ export default function Home() {
       document.head.appendChild(link)
     }
 
-    if (import.meta && import.meta.hot) {
-      fetch(cssHref, { method: 'HEAD' }).then(
-        (r) => {
-          if (!r.ok) console.warn('[home] CSS not OK:', cssHref, r.status)
-        },
-        (e) => console.warn('[home] CSS fetch failed:', cssHref, e?.message || e),
-      )
-    }
+    // Avoid coupling to HMR flags; a passive HEAD check is fine but not necessary.
+    // In constrained environments, unnecessary requests can create noise.
+    // fetch(cssHref, { method: 'HEAD' }).catch(() => {})
 
     return () => {
       const node = document.querySelector(`link[data-figma-css="${datasetKey}"]`)

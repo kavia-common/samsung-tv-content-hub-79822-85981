@@ -20,17 +20,7 @@ import TopMenu from './components/TopMenu.jsx'
  *   It preserves our existing paths and hash-based section deep links without needing server rewrites.
  */
 function AppRouter() {
-  // Dev-only health check log to quickly spot server availability without failing app
-  // Move into an effect to avoid running during plugin evaluation/SSR
-  // and to ensure it doesn't execute at module import time.
-  React.useEffect(() => {
-    if (import.meta && import.meta.hot) {
-      fetch('/healthz').then(
-        () => console.debug('[dev-healthz] 200 OK'),
-        (err) => console.warn('[dev-healthz] failed', err?.message || err)
-      )
-    }
-  }, [])
+  // Avoid dev-only network pings or hot hooks that can create reload churn.
   return (
     <HashRouter>
       <Routes>

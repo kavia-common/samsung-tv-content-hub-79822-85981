@@ -56,6 +56,7 @@ export default function TopMenu({ items }) {
 
   useEffect(() => {
     const el = containerRef.current?.querySelectorAll('button')[focusIndex]
+    // Focusing here is safe; avoid any state updates in response to focus to prevent loops
     el?.focus()
   }, [focusIndex])
 

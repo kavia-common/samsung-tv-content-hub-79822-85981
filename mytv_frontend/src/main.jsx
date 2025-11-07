@@ -13,24 +13,11 @@ try {
   }
 } catch { /* non-fatal */ }
 
-/**
- * Simple heartbeat to confirm the app keeps running during dev.
- * Run only in browser after DOM is ready.
- */
-if (typeof window !== 'undefined' && import.meta && import.meta.hot) {
-  const HEARTBEAT_MS = 15000
-  const startHeartbeat = () => {
-    setInterval(() => {
-      console.debug('[dev-heartbeat] app alive')
-    }, HEARTBEAT_MS)
-  }
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    startHeartbeat()
-  } else {
-    window.addEventListener('DOMContentLoaded', startHeartbeat, { once: true })
-  }
-}
+// IMPORTANT: Avoid any dev-only timers or listeners tied to import.meta.hot here,
+// as StrictMode double-invocation and HMR dispose cycles can accumulate intervals
+// and appear as constant updates.
 
+// Mount React app
 const mountEl = document.getElementById('root')
 if (!mountEl) {
   throw new Error('Root element #root not found in index.html')

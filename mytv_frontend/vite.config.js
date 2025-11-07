@@ -119,6 +119,8 @@ export default defineConfig(() => {
   }
 
   // Dev server: let CLI define port; keep strictPort
+  // Note: HMR clientPort is derived from env PORT when provided by orchestrator.
+  // Do not hardcode a different host/port here; mismatch can cause reconnect loops.
   baseConfig.server = {
     host: resolvedHost,
     port: undefined,

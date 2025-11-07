@@ -18,14 +18,12 @@ export default function Splash() {
 
   useEffect(() => {
     // If already on home, do nothing
-    const onHome = location.pathname === '/home' || window?.location?.hash?.startsWith('#/home')
+    if (didNavigateRef.current) return
+    const onHome = location.pathname === '/home'
     if (onHome) {
       didNavigateRef.current = true
       return
     }
-    // ensure we only schedule once per mount even if StrictMode double-invokes effects in dev
-    if (didNavigateRef.current) return
-
     // Exact navigation delay required by spec (5000ms)
     const TIMEOUT_MS = 5000
     let mounted = true
@@ -40,7 +38,7 @@ export default function Splash() {
       mounted = false
       clearTimeout(t)
     }
-    // Include pathname to satisfy lint; logic guards prevent unintended restarts
+    // Depend only on navigate and pathname; guard prevents duplicate schedule in StrictMode
   }, [navigate, location.pathname])
 
   const primary = '#2563EB'
