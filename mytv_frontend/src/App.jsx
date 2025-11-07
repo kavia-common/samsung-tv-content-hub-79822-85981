@@ -21,6 +21,13 @@ import TopMenu from './components/TopMenu.jsx'
  *   It preserves our existing paths and hash-based section deep links without needing server rewrites.
  */
 function AppRouter() {
+  // Dev-only health check log to quickly spot server availability without failing app
+  if (import.meta && import.meta.hot) {
+    fetch('/healthz').then(
+      () => console.debug('[dev-healthz] 200 OK'),
+      (err) => console.warn('[dev-healthz] failed', err?.message || err)
+    )
+  }
   return (
     <HashRouter>
       <Routes>

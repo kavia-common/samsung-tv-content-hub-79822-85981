@@ -184,7 +184,9 @@ export default defineConfig(() => {
   baseConfig.server = {
     host: resolvedHost, // honor CLI --host if supplied; otherwise 0.0.0.0
     port: desiredPort,  // honors PORT/--port; no disk writes
-    strictPort: true,
+    // Allow Vite to pick the next free port if desiredPort is busy in this environment,
+    // preventing an early exit after showing "Vite ready" banner.
+    strictPort: false,
     open: false,
     allowedHosts,
     hmr: hmrConfig,
