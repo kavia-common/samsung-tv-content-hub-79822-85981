@@ -26,5 +26,6 @@ button, input {
 }
 
 /* Guard against accidental hot-reload loops caused by @imports:
-   This file must not @import other project CSS; keep it standalone.
-   (global.css and theme.css are imported directly by main.jsx) */
+   - This file must NOT @import other project CSS; keep it standalone.
+   - Do NOT import index.css from global.css/theme.css (no circular imports).
+   global.css and theme.css are imported directly by main.jsx. */

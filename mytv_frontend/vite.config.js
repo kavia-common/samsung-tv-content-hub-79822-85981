@@ -118,15 +118,15 @@ export default defineConfig(() => {
     }
   }
 
-  // Dev server: let CLI define port; keep strictPort
+  // Dev server: let CLI define port; keep strictPort to avoid silent switching.
   // Note: HMR clientPort is derived from env PORT when provided by orchestrator.
-  // Do not hardcode a different host/port here; mismatch can cause reconnect loops.
+  // Avoid hardcoding host/port to prevent reconnect loops.
   baseConfig.server = {
     host: resolvedHost,
     port: undefined,
     strictPort: true,
     open: false,
-    // Vite v4 supports allowedHosts as an array of hostnames; avoid regex/functions for compatibility.
+    // Vite v4 supports allowedHosts: string[] of hostnames.
     allowedHosts,
     hmr: {
       overlay: true,
@@ -149,7 +149,7 @@ export default defineConfig(() => {
     middlewareMode: false,
   }
 
-  // Preview mirrors dev host and allowedHosts; leave port undefined for CLI control
+  // Preview mirrors dev configuration. Leave port undefined for CLI control.
   baseConfig.preview = {
     host: resolvedHost,
     port: undefined,

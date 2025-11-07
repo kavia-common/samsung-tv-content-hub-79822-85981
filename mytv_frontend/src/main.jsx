@@ -13,7 +13,7 @@ try {
   }
 } catch { /* non-fatal */ }
 
-// Mount React app (single root). Avoid attaching multiple roots during HMR.
+/* Mount React app (single root). Avoid attaching multiple roots during HMR. */
 const mountEl = document.getElementById('root')
 if (!mountEl) {
   throw new Error('Root element #root not found in index.html')

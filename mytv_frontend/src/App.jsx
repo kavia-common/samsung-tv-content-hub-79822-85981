@@ -23,6 +23,28 @@ function AppRouter() {
   // Avoid dev-only network pings or hot hooks that can create reload churn.
   return (
     <HashRouter>
+      {/* Always-visible watermark to confirm render path */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+          zIndex: 1,
+          opacity: 0.12,
+          color: '#ffffff',
+          fontWeight: 900,
+          letterSpacing: 1.2,
+          textAlign: 'center',
+          textShadow: '0 10px 28px rgba(0,0,0,0.75)',
+          userSelect: 'none',
+          fontSize: 'clamp(28px, 6vw, 72px)',
+        }}
+      >
+        mytv_frontend
+      </div>
       <Routes>
         <Route path="/" element={<Splash />} />
         <Route
