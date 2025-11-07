@@ -18,7 +18,8 @@ export default function Splash() {
 
   useEffect(() => {
     // If already on home, do nothing
-    if (location.pathname === '/home' || window?.location?.hash?.startsWith('#/home')) {
+    const onHome = location.pathname === '/home' || window?.location?.hash?.startsWith('#/home')
+    if (onHome) {
       didNavigateRef.current = true
       return
     }
@@ -39,9 +40,8 @@ export default function Splash() {
       mounted = false
       clearTimeout(t)
     }
-    // Depend only on `navigate` so HMR/location minor changes don't restart timer unintentionally
-    // navigate is stable from react-router; eslint exhaustive-deps intentionally not applied here
-  }, [navigate])
+    // Include pathname to satisfy lint; logic guards prevent unintended restarts
+  }, [navigate, location.pathname])
 
   const primary = '#2563EB'
   const secondary = '#F59E0B'

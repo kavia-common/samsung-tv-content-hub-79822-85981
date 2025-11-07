@@ -10,7 +10,8 @@ import react from '@vitejs/plugin-react'
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying
  * - Healthz endpoint and /dist guard middleware
  * - Robust watcher ignores config/docs/locks to avoid self-restarts
- * - IMPORTANT: No esbuild-facing options reference HTML or multi-wildcard globs. Multi-wildcards are only used in chokidar watchers (server/preview.watch.ignored).
+ * - IMPORTANT: Multi-wildcard globs are ONLY used in chokidar watchers (server/preview.watch.ignored).
+ *   No esbuild-facing option (optimizeDeps/build/plugins) references asset HTML paths or any glob patterns.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -58,17 +59,20 @@ export default defineConfig(() => {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/post_process_status.lock',
-    // Raw/exported HTML must only be considered by the file watcher (ignored) — never by esbuild.
-    '**/public/assets/**/*.html',
+    // Raw/exported HTML should never reach esbuild; only ignore via chokidar watcher.
+    'public/assets/**/*.html',
+    'assets-reference/**/*.html',
     '**/assets/**/*.html',
-    // Ignore everything outside the project to avoid accidental FS scans
     '../../**',
   ]
 
   const baseConfig = {
     base: '/',
     clearScreen: false,
-    plugins: [react()],
+    plugins: [
+      // Keep plugin-react without any custom esbuild options that could pass globs
+      react(),
+    ],
     publicDir: 'public',
     build: {
       outDir: 'dist',
@@ -76,11 +80,12 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: 0,
       sourcemap: false,
-      // Do not set build.rollupOptions.external or other patterns that could pass HTML/globs to esbuild.
+      // No rollupOptions.external or esbuild options with globs
     },
-    // Do not pass any file path globs to optimizeDeps (esbuild). Limit to npm package names only.
+    // Ensure optimizeDeps only lists package names; no paths/globs.
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
+      // Keep exclude a plain array with package names only (no globs, no paths)
       exclude: [],
     },
   }
@@ -90,7 +95,6 @@ export default defineConfig(() => {
     try {
       // Readiness endpoint for orchestrator health checks
       server.middlewares.use((req, res, next) => {
-        // Ensure we match exactly /healthz (with or without query string)
         if (req?.url && req.url.split('?')[0] === '/healthz') {
           res.statusCode = 200
           res.setHeader('Content-Type', 'text/plain; charset=utf-8')
@@ -126,22 +130,15 @@ export default defineConfig(() => {
       clientPort: hmrClientPort,
     },
     watch: {
-      // polling off to reduce CPU/memory
       usePolling: false,
-      // debounce fs changes
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
-      // chokidar ignored patterns ONLY; multi-wildcards belong here (not in esbuild options)
+      // Multi-wildcard globs ONLY appear here for chokidar, never for esbuild
       ignored: [
         ...ignoredGlobs,
         '**/assets-reference/**/*.html',
-        // Extra belt-and-suspenders: ignore any html sitting directly under public/assets,
-        // and any stray reference html under top-level assets-reference copies.
-        'public/assets/**/*.html',
-        'assets-reference/**/*.html',
       ],
     },
     fs: {
-      // Keep strict FS serving to avoid external directory scans and accidental reloads
       strict: true,
       allow: [srcDir, publicDir, indexHtml],
       deny: ['dist'],
@@ -150,18 +147,15 @@ export default defineConfig(() => {
   }
 
   // Preview mirrors dev host and allowedHosts; leave port undefined for CLI control
-  // Also keep the same ignored patterns to avoid preview watcher churn in some orchestrators.
   baseConfig.preview = {
     host: resolvedHost,
     port: undefined,
     strictPort: true,
     open: false,
     allowedHosts,
-    // Some environments run preview with a file watcher; align ignore list to avoid reload storms
     watch: {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
-      // chokidar ignored patterns ONLY
       ignored: [
         '**/dist/**',
         '**/.git/**',
@@ -184,12 +178,9 @@ export default defineConfig(() => {
         '**/*.config.cjs',
         '**/*.config.mjs',
         '**/post_process_status.lock',
-        // Ensure any stray raw HTML under static paths don't trigger loops
-        '**/public/assets/**/*.html',
         'public/assets/**/*.html',
-        '**/assets/**/*.html',
-        '**/assets-reference/**/*.html',
         'assets-reference/**/*.html',
+        '**/assets/**/*.html',
         '../../**',
       ],
     },
