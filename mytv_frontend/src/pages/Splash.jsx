@@ -22,6 +22,9 @@ export default function Splash() {
       didNavigateRef.current = true
       return
     }
+    // ensure we only schedule once per mount even if StrictMode double-invokes effects in dev
+    if (didNavigateRef.current) return
+
     const timeoutMs = 5000
     let mounted = true
     const t = setTimeout(() => {

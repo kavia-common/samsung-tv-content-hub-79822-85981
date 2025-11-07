@@ -140,12 +140,45 @@ export default defineConfig(() => {
   }
 
   // Preview mirrors dev host and allowedHosts; leave port undefined for CLI control
+  // Also keep the same ignored patterns to avoid preview watcher churn in some orchestrators.
   baseConfig.preview = {
     host: resolvedHost,
     port: undefined,
     strictPort: true,
     open: false,
     allowedHosts,
+    // Some environments run preview with a file watcher; align ignore list to avoid reload storms
+    watch: {
+      usePolling: false,
+      awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
+      ignored: [
+        '**/dist/**',
+        '**/.git/**',
+        '**/*.md',
+        '**/README.md',
+        '**/DEV_SERVER.md',
+        '**/CHANGELOG*',
+        '**/docs/**',
+        '**/node_modules/**',
+        '**/.env*',
+        '**/app.wgt',
+        '**/scripts/**',
+        '**/*.lock',
+        '**/package-lock.json',
+        '**/pnpm-lock.yaml',
+        '**/yarn.lock',
+        '**/vite.config.*',
+        '**/*eslint*.config.*',
+        '**/*.config.js',
+        '**/*.config.cjs',
+        '**/*.config.mjs',
+        '**/post_process_status.lock',
+        // Ensure any stray raw HTML under static paths don't trigger loops
+        '**/public/assets/**/*.html',
+        '**/assets/**/*.html',
+        '../../**',
+      ],
+    },
   }
 
   return baseConfig

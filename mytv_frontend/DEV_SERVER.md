@@ -10,6 +10,7 @@
   - Critical configs: `**/vite.config.*`, `**/*eslint*.config.*`, and other `**/*.config.*`
   - CI churn: `**/post_process_status.lock`
   - Raw design HTML: `**/public/assets/**/*.html`, `**/assets/**/*.html` (prevents HMR reload storms)
+  - Note: Raw exported HTML belongs in `assets-reference/` only. Do not place `*.html` under `public/assets` or `src/assets` as it can trigger needless reloads. Preview mode inherits the same ignore rules for stability.
 - Scope: only `src`, `public`, and `index.html` are watched during dev (fs.strict + ignored paths).
 - Readiness: GET /healthz returns 200 OK.
 - Dev never serves `/dist/*`; a middleware explicitly 404s those paths.
