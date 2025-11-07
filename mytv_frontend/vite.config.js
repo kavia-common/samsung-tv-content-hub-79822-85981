@@ -80,6 +80,11 @@ export default defineConfig(() => {
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
+      // Do not attempt to optimize non-modules or raw asset scripts that could be copied into public/assets
+      exclude: [
+        // any stray design/demo scripts that must NOT be treated as modules
+        '/assets/**/*.html',
+      ],
     },
   }
 
@@ -132,6 +137,7 @@ export default defineConfig(() => {
       ignored: ignoredGlobs,
     },
     fs: {
+      // Keep strict FS serving to avoid external directory scans and accidental reloads
       strict: true,
       allow: [srcDir, publicDir, indexHtml],
       deny: ['dist'],
