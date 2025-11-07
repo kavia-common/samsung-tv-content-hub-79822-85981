@@ -45,6 +45,8 @@ body {
            calc(24px + env(safe-area-inset-bottom))
            calc(24px + env(safe-area-inset-left));
   box-sizing: border-box;
+  /* Prevent over-stretching on very wide previews */
+  align-self: center;
 }
 
 /* Ocean Professional surface containers */

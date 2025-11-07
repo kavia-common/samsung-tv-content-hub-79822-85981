@@ -13,19 +13,22 @@ try {
   }
 } catch { /* non-fatal */ }
 
-// IMPORTANT: Avoid any dev-only timers or listeners tied to import.meta.hot here,
-// as StrictMode double-invocation and HMR dispose cycles can accumulate intervals
-// and appear as constant updates.
-
-// Mount React app
+// Mount React app (single root). Avoid attaching multiple roots during HMR.
 const mountEl = document.getElementById('root')
 if (!mountEl) {
   throw new Error('Root element #root not found in index.html')
 }
-createRoot(mountEl).render(
+// Reuse an existing root if one was stashed on the element to prevent duplicate mounts on rare HMR edge cases.
+let root = mountEl._reactRoot || null
+if (!root) {
+  root = createRoot(mountEl)
+  // non-enumerable to avoid accidental serialization
+  Object.defineProperty(mountEl, '_reactRoot', { value: root, writable: false })
+}
+root.render(
   <StrictMode>
     <div className="app-root">
       <AppRouter />
     </div>
-  </StrictMode>,
+  </StrictMode>
 )

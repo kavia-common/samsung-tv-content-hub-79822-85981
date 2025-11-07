@@ -101,14 +101,8 @@ export default function Home() {
     script.async = true
     document.body.appendChild(script)
 
-    if (import.meta && import.meta.hot) {
-      fetch(jsSrc, { method: 'HEAD' }).then(
-        (r) => {
-          if (!r.ok) console.warn('[home] JS not OK:', jsSrc, r.status)
-        },
-        (e) => console.warn('[home] JS fetch failed:', jsSrc, e?.message || e),
-      )
-    }
+    // Avoid HMR-specific network pings; unnecessary HEAD fetches can trigger noisy logs or loops.
+    // Any integrity checks should be performed server-side or during build.
 
     return () => {
       cleanupFns.forEach(fn => {

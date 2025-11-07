@@ -27,7 +27,6 @@ export default defineConfig(() => {
       'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
-      'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
     ])
   )
 
@@ -63,7 +62,6 @@ export default defineConfig(() => {
     'public/assets/**/*.html',
     'assets-reference/**/*.html',
     '**/assets/**/*.html',
-    '../../**',
   ]
 
   const baseConfig = {
@@ -126,6 +124,7 @@ export default defineConfig(() => {
     port: undefined,
     strictPort: true,
     open: false,
+    // Vite v4 supports allowedHosts as an array of hostnames; avoid regex/functions for compatibility.
     allowedHosts,
     hmr: {
       overlay: true,
