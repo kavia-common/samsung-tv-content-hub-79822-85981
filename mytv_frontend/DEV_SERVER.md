@@ -3,7 +3,7 @@
 - Host: 0.0.0.0 by default (server.host: true) AND honors `--host` CLI if provided; we never write host to disk.
 - Port: 3000 by default, but respects `PORT` env and `--port` CLI (single source in vite.config.js). Example: run on 3001 with:
   - `npm run dev -- --host 0.0.0.0 --port 3001` or `PORT=3001 npm run dev`
-- strictPort: true (Vite will NOT auto-pick a new port; it will fail if the chosen port is taken)
+- strictPort: false for dev (Vite will auto-pick a new port if the chosen port is taken to remain alive); preview remains strict.
 - HMR: overlay enabled; host inferred by default (set `HMR_HOST` env only if needed behind proxies)
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms)
 - Ignored watch paths (prevent self-restart loops), including but not limited to:
@@ -21,16 +21,18 @@ Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai (configured for dev and preview)
 
 Scripts:
-- npm run dev            -> uses vite.config.js (port 3000 or PORT/--port)
-- npm run dev:port       -> sets PORT=3000 explicitly (optional)
-- npm run preview        -> vite preview (same host/port rules as dev)
-- npm run preview:port   -> sets PORT=3000 explicitly for preview (optional)
+- npm run dev            -> uses vite.config.js (port 3000 or PORT/--port). If port is busy, dev will fall back to an open port to avoid exiting.
+- npm run dev:port       -> sets PORT=3000 explicitly (optional). If 3000 is busy, dev will fall back to another port.
+- npm run preview        -> vite preview (strict on specified port; will fail if port is busy).
+- npm run preview:port   -> sets PORT=3000 explicitly for preview (optional). If 3000 is busy, preview will fail (by design).
 - npm run build:tizen    -> builds to ./dist (no packaging)
 - npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
 - npm run build-and-package:tizen -> build then package in one command
 
 Quick checks:
 - Verify readiness:
+  # If running with dev and 3000 is busy, Vite may choose the next open port (3001+).
+  # Check the terminal banner for the chosen port.
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 - Run on preview env port 3001 (non-interactive, stable and will not self-restart):
   npm run dev -- --host 0.0.0.0 --port 3001
