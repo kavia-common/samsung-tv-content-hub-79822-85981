@@ -1,57 +1,70 @@
-import { useMemo, useRef, useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
+import ShowDetails from '../components/ShowDetails.jsx'
+import { getFeatured, getRail } from '../services/api'
 
 /**
  PUBLIC_INTERFACE
- Home page with banner, top menu, multiple content rails, and subscriptions section.
- Local sample data uses images under /images.
- Includes anchor sections for Settings and My Plan to support hash navigation.
- Effects avoid infinite rerenders: rails are memoized; hash scroll runs once on mount.
+ Home page consumes API endpoints to render featured and content rails with TV-friendly navigation.
 */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
+  const [featured, setFeatured] = useState(null)
+  const [featuredError, setFeaturedError] = useState(null)
+  const [rails, setRails] = useState([
+    { key: 'trending', title: 'Trending', items: [], loading: true, error: null, path: '/api/trending' },
+    { key: 'continue', title: 'Continue Watching', items: [], loading: true, error: null, path: '/api/continue_watching' },
+    { key: 'action', title: 'Action', items: [], loading: true, error: null, path: '/api/action' },
+    { key: 'family', title: 'Family', items: [], loading: true, error: null, path: '/api/family' },
+    { key: 'comedy', title: 'Comedy', items: [], loading: true, error: null, path: '/api/comedy' },
+    { key: 'horror', title: 'Horror', items: [], loading: true, error: null, path: '/api/horror' },
+    { key: 'drama', title: 'Drama', items: [], loading: true, error: null, path: '/api/drama' },
+  ])
+  const [detailsId, setDetailsId] = useState(null)
+
   const scrollAreaRef = useRef(null)
 
-  const mkItems = (prefix, count) =>
-    Array.from({ length: count }).map((_, i) => ({
-      id: `${prefix}-${i + 1}`,
-      title: `${prefix} ${i + 1}`,
-      image: `/images/thumb${(i % 12) + 1}.svg`,
-    }))
-
-  const rails = useMemo(
-    () => {
-      // Build default rails/items
-      const base = [
-        { title: 'Top Trending', items: mkItems('Trending', 14) },
-        { title: 'Continue Watching', items: mkItems('Continue', 10) },
-        { title: 'Action', items: mkItems('Action', 12) },
-        { title: 'Drama', items: mkItems('Drama', 12) },
-        { title: 'Horror', items: mkItems('Horror', 12) },
-        { title: 'Comedy', items: mkItems('Comedy', 12) },
-        { title: 'Documentary', items: mkItems('Documentary', 12) },
-      ]
-
-      // Minimal override: rename first trending item to "Gladiator" and set its image.
-      // Use Vite public URL convention: /images/gladiator.jpg
-      if (base[0]?.items?.length > 0) {
-        base[0].items[0] = {
-          ...base[0].items[0],
-          title: 'Gladiator',
-          image: '/images/gladiator.jpg',
-        }
-      }
-
-      return base
-    },
-    [],
-  )
-
-  // If navigated with a hash (e.g., #settings, #plan), ensure we scroll into view on mount
+  // Load featured banner
   useEffect(() => {
-    // Single-run on mount to handle deep link anchors (e.g., #settings, #plan)
+    let cancelled = false
+    async function load() {
+      try {
+        setFeaturedError(null)
+        const f = await getFeatured()
+        if (!cancelled) setFeatured(f)
+      } catch (e) {
+        if (!cancelled) setFeaturedError(e)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
+
+  // Load all rails in parallel
+  useEffect(() => {
+    let cancelled = false
+    async function loadAll() {
+      const results = await Promise.all(
+        rails.map(async (r) => {
+          try {
+            const items = await getRail(r.path)
+            return { ...r, items, loading: false, error: null }
+          } catch (e) {
+            return { ...r, items: [], loading: false, error: e }
+          }
+        })
+      )
+      if (!cancelled) setRails(results)
+    }
+    loadAll()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Anchor scrolling on hash
+  useEffect(() => {
     const raw = typeof window !== 'undefined' ? window.location.hash : ''
     const hash = raw ? raw.replace('#', '') : ''
     if (!hash) return
@@ -61,10 +74,22 @@ export default function Home() {
     }
   }, [])
 
+  const bannerProps = useMemo(() => {
+    if (!featured) return { image: '/images/banner.jpg', title: 'Featured', subtitle: '' }
+    return {
+      image: featured.image || '/images/banner.jpg',
+      title: featured.title || 'Featured',
+      subtitle: '',
+    }
+  }, [featured])
+
+  function handleOpenDetails(item) {
+    setDetailsId(item?.id)
+  }
+
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22, height: '100%', overflow: 'hidden' }}>
-        {/* Prominent page heading per Ocean Professional theme */}
         <h1
           style={{
             margin: '6px 0 0 6px',
@@ -80,21 +105,36 @@ export default function Home() {
           MyTV
         </h1>
 
-        <Banner image="/images/banner.jpg" />
+        <Banner
+          image={bannerProps.image}
+          title={bannerProps.title}
+          subtitle={bannerProps.subtitle}
+          onWatch={() => {
+            if (featured?.id) setDetailsId(featured.id)
+          }}
+        />
+
+        {featuredError ? (
+          <div style={{ color: 'var(--muted)', marginLeft: 8 }}>
+            Failed to load featured.
+          </div>
+        ) : null}
+
         <div ref={scrollAreaRef} style={{ flex: 1, overflowY: 'auto', paddingRight: 8 }}>
-          {/* Content rails */}
           {rails.map((r, idx) => (
             <Rail
-              key={r.title}
+              key={r.key}
               title={r.title}
               items={r.items}
               railIndex={idx}
               currentRail={currentRail}
               setCurrentRail={setCurrentRail}
+              onOpenDetails={handleOpenDetails}
+              loading={r.loading}
+              error={r.error}
             />
           ))}
 
-          {/* Settings section anchor */}
           <section id="settings" style={{ marginTop: 24 }}>
             <div className="section-title">Settings</div>
             <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
@@ -123,13 +163,14 @@ export default function Home() {
             </div>
           </section>
 
-          {/* My Plan section anchor */}
           <section id="plan" style={{ marginTop: 28, marginBottom: 16 }}>
             <div className="section-title">My Plan</div>
             <Subscriptions />
           </section>
         </div>
       </div>
+
+      {detailsId ? <ShowDetails id={detailsId} onClose={() => setDetailsId(null)} /> : null}
     </div>
   )
 }

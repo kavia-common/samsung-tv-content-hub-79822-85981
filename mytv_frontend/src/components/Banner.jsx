@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
  * PUBLIC_INTERFACE
  * Banner displays a hero image with gradient overlay and text.
  */
-export default function Banner({ image = '/images/banner.svg', title = 'Featured: Ocean Depths', subtitle = 'Immerse in stories from the deep blue' }) {
+export default function Banner({ image = '/images/banner.svg', title = 'Featured', subtitle = '', onWatch }) {
   const btnRef = useRef(null)
 
   useEffect(() => {
@@ -28,6 +28,8 @@ export default function Banner({ image = '/images/banner.svg', title = 'Featured
       <img
         src={image}
         alt="Banner"
+        loading="lazy"
+        onError={(e)=>{ e.currentTarget.style.visibility = 'hidden' }}
         style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.05) contrast(1.05)' }}
       />
       <div
@@ -69,7 +71,8 @@ export default function Banner({ image = '/images/banner.svg', title = 'Featured
               fontWeight: 800,
               cursor: 'pointer',
             }}
-            onClick={() => {}}
+            onClick={() => onWatch?.()}
+            onKeyDown={(e)=>{ if(e.keyCode===13) onWatch?.() }}
           >
             Watch Now
           </button>

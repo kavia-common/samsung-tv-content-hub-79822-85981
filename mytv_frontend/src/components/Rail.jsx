@@ -6,7 +6,7 @@ import ThumbnailCard from './ThumbnailCard'
  * PUBLIC_INTERFACE
  * Rail shows a horizontally scrollable list of thumbnails with remote navigation.
  */
-export default function Rail({ title, items = [], railIndex = 0, currentRail, setCurrentRail }) {
+export default function Rail({ title, items = [], railIndex = 0, currentRail, setCurrentRail, onOpenDetails, loading = false, error = null }) {
   const containerRef = useRef(null)
   const [focusIndex, setFocusIndex] = useState(0)
   const isActive = currentRail === railIndex
@@ -16,7 +16,6 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
     if (!isActive) return
     const el = containerRef.current?.querySelectorAll('[tabindex="0"]')[focusIndex]
     el?.focus()
-    // ensure item is scrolled into view
     if (el) {
       el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
     }
@@ -33,7 +32,29 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
     },
     onUp: () => setCurrentRail((r) => Math.max(0, r - 1)),
     onDown: () => setCurrentRail((r) => r + 1),
+    onEnter: () => {
+      if (!isActive) return
+      const it = items[focusIndex]
+      if (it) onOpenDetails?.(it)
+    }
   })
+
+  const skeletons = useMemo(() => {
+    return Array.from({ length: 8 }).map((_, idx) => (
+      <div
+        key={`s-${idx}`}
+        className="card"
+        style={{
+          width: 260,
+          height: 150,
+          marginRight: 14,
+          background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.05) 63%)',
+          backgroundSize: '400% 100%',
+          animation: 'shimmer 1200ms ease-in-out infinite',
+        }}
+      />
+    ))
+  }, [])
 
   const cards = useMemo(
     () =>
@@ -42,15 +63,20 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
           key={it.id ?? idx}
           src={it.image}
           title={it.title}
-          onEnter={() => {}}
+          onEnter={() => onOpenDetails?.(it)}
         />
       )),
-    [items],
+    [items, onOpenDetails],
   )
 
   return (
     <div style={{ marginTop: 18 }}>
       <div className="section-title">{title}</div>
+      {error ? (
+        <div style={{ color: 'var(--muted)', marginLeft: 8, marginBottom: 8 }}>
+          Failed to load. Please try again later.
+        </div>
+      ) : null}
       <div
         ref={containerRef}
         style={{
@@ -62,8 +88,10 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
           gap: 0,
         }}
       >
-        {cards}
+        {loading ? skeletons : cards}
       </div>
+
+      <style>{`@keyframes shimmer { 0%{background-position: 200% 0} 100%{background-position: -200% 0} }`}</style>
     </div>
   )
 }
