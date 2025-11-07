@@ -82,14 +82,20 @@ export default defineConfig(() => {
   baseConfig.configureServer = (server) => {
     try {
       // Readiness endpoint for orchestrator health checks
-      server.middlewares.use('/healthz', (_req, res) => {
-        res.statusCode = 200
-        res.end('OK')
+      server.middlewares.use((req, res, next) => {
+        // Ensure we match exactly /healthz (with or without query string)
+        if (req?.url && req.url.split('?')[0] === '/healthz') {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.end('OK')
+          return
+        }
+        next()
       })
 
       // Disallow serving built assets during dev to prevent loops and confusion
       server.middlewares.use((req, res, next) => {
-        if (req.url && req.url.startsWith('/dist/')) {
+        if (req?.url && req.url.startsWith('/dist/')) {
           res.statusCode = 404
           res.end('Not Found')
           return
