@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom'
 /**
  PUBLIC_INTERFACE
  Splash screen page with Ocean Professional theme.
- - Centers a large, bold "MyTV" line vertically and horizontally per the provided reference.
+ - Centers a bold "MyTV" line vertically and horizontally.
  - Subtle gradient background with blue/amber accents and soft vignette.
  - Smooth fade-in for background and text.
  - Auto-navigates to /home after ~5.5s; timer cleared on unmount.
- - Allowed host note (dev-only) is shown subtly at the bottom to reflect current allowed host context.
+ - Focus-safe styling for Tizen TV (no focus traps; outline visible if focused).
+ - Reduced visual footprint vs previous version (about 40–60% smaller) via responsive container with max-width and scale.
 */
 export default function Splash() {
   const navigate = useNavigate()
@@ -25,9 +26,16 @@ export default function Splash() {
     }
   }, [navigate])
 
-  // Colors from Ocean Professional theme
-  const primary = '#2563EB' // blue
-  const secondary = '#F59E0B' // amber
+  const primary = '#2563EB'
+  const secondary = '#F59E0B'
+
+  // Use a responsive container size to scale across 1080p and 4K
+  // - Base "viewport" is 1920x1080; we keep the app fixed there via index.html/meta,
+  //   but still make the splash content container size explicit and centered.
+  // - Max width constrains text size visually and remains centered on all displays.
+  const containerMaxWidth = 720 // Previously ~full width title; now reduced footprint
+  const titleFontSize = 96      // Previously 150; ~36% reduction
+  const subtitleFontSize = 20   // Slightly reduced
 
   return (
     <div
@@ -39,15 +47,17 @@ export default function Splash() {
         justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
-        // Layered gradients for depth: blue glow + vertical wash + base bg
         background:
           'radial-gradient(900px 680px at 50% 22%, rgba(37,99,235,0.36), rgba(11,18,32,0)) , linear-gradient(180deg, rgba(37,99,235,0.10), rgba(17,24,39,0.18)), #0B1220',
         animation: 'splash-bg-fade 900ms ease-out forwards',
       }}
     >
-      {/* Centered content */}
+      {/* Centered, scaled content wrapper */}
       <div
         style={{
+          width: '100%',
+          maxWidth: containerMaxWidth,
+          padding: '0 24px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -56,34 +66,38 @@ export default function Splash() {
           animation: 'splash-content-fade 950ms ease-out 100ms both',
         }}
       >
-        {/* Middle line "MyTV" */}
+        {/* Middle line "MyTV" (kept as the prominent center line) */}
         <h1
           style={{
             margin: 0,
-            fontSize: 150,
+            fontSize: titleFontSize,
             lineHeight: 1,
             fontWeight: 900,
-            letterSpacing: 1.4,
+            letterSpacing: 1.2,
             color: '#ffffff',
-            textShadow: '0 28px 72px rgba(0,0,0,0.70)',
+            textShadow: '0 24px 64px rgba(0,0,0,0.70)',
             filter: 'drop-shadow(0 12px 34px rgba(0,0,0,0.45))',
-            // Subtle gradient stroke-like effect using text-fill trick via background-clip
             backgroundImage: `linear-gradient(180deg, #ffffff 0%, #dbeafe 70%)`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            textAlign: 'center',
           }}
           aria-label="MyTV"
+          tabIndex={0} // focus-safe: allows TV remote focus outline without trapping
+          className="focusable"
         >
           MyTV
         </h1>
-        {/* Sub-caption with amber accent underline */}
+
+        {/* Sub-caption with amber/blue underline accent */}
         <div
           style={{
-            marginTop: 14,
-            fontSize: 22,
+            marginTop: 10,
+            fontSize: subtitleFontSize,
             color: '#cbd5e1',
-            letterSpacing: 0.5,
+            letterSpacing: 0.4,
             position: 'relative',
+            textAlign: 'center',
           }}
         >
           Ocean Professional
@@ -131,7 +145,7 @@ export default function Splash() {
         Allowed host: vscode-internal-26938-beta.beta01.cloud.kavia.ai
       </div>
 
-      {/* Keyframes injected inline to keep scope local to Splash */}
+      {/* Local keyframes for this page */}
       <style>{`
         @keyframes splash-bg-fade {
           from { opacity: 0; }
