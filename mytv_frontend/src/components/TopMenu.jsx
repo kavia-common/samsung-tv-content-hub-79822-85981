@@ -11,7 +11,7 @@ import { useTizenKeys } from '../hooks/useTizenKeys.js'
  * - Handles hash routes by scrolling to section anchors if present.
  * - Stability: effects are scoped to pathname/focusIndex only (no infinite loops).
  */
-export default function TopMenu({ items }) {
+export default function TopMenu({ items = [] }) {
   const containerRef = useRef(null)
   const [focusIndex, setFocusIndex] = useState(0)
   const navigate = useNavigate()

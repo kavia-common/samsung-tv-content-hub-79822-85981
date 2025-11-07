@@ -5,13 +5,12 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 with orchestrator-friendly port/host handling.
- * - Host: 0.0.0.0 (host: true) unless overridden by --host/HOST
- * - Port: undefined in config so CLI/env control it; strictPort=true to avoid silent switching
- * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying
- * - Healthz endpoint and /dist guard middleware
- * - Robust watcher ignores config/docs/locks to avoid self-restarts
- * - IMPORTANT: Multi-wildcard globs are ONLY used in chokidar watchers (server/preview.watch.ignored).
- *   No esbuild-facing option (optimizeDeps/build/plugins) references asset HTML paths or any glob patterns.
+ * - Vite v4 supported fields only (e.g., server.allowedHosts as string[]).
+ * - Host: 0.0.0.0 (host: true) unless overridden by --host/HOST.
+ * - Port: controlled by CLI/env; strictPort=true prevents silent port switching.
+ * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying.
+ * - Healthz endpoint and /dist guard middleware.
+ * - Watcher ignores config/docs/locks/raw HTML to avoid self-restart loops.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -28,7 +27,7 @@ export default defineConfig(() => {
       'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
-      // Include the currently used preview domain to prevent HMR reconnect loops
+      // Include the currently used preview domain to prevent HMR reconnect loops.
       'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
     ])
   )
@@ -38,7 +37,7 @@ export default defineConfig(() => {
   const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
   const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
 
-  // Keep watcher minimal to reduce memory and prevent self-restarts (Chokidar patterns only)
+  // Keep watcher minimal to reduce memory and prevent self-restarts (Chokidar patterns only).
   const ignoredGlobs = [
     '**/dist/**',
     '**/.git/**',
@@ -71,7 +70,7 @@ export default defineConfig(() => {
     base: '/',
     clearScreen: false,
     plugins: [
-      // Keep plugin-react without any custom esbuild options that could pass globs
+      // Keep plugin-react without any custom esbuild options that could pass globs.
       react(),
     ],
     publicDir: 'public',
@@ -81,20 +80,18 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1500,
       assetsInlineLimit: 0,
       sourcemap: false,
-      // No rollupOptions.external or esbuild options with globs
     },
     // Ensure optimizeDeps only lists package names; no paths/globs.
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
-      // Keep exclude a plain array with package names only (no globs, no paths)
       exclude: [],
     },
   }
 
-  // Single configureServer hook (avoid duplicates or heavy work)
+  // Single configureServer hook (avoid duplicates or heavy work).
   baseConfig.configureServer = (server) => {
     try {
-      // Readiness endpoint for orchestrator health checks
+      // Readiness endpoint for orchestrator health checks.
       server.middlewares.use((req, res, next) => {
         if (req?.url && req.url.split('?')[0] === '/healthz') {
           res.statusCode = 200
@@ -105,7 +102,7 @@ export default defineConfig(() => {
         next()
       })
 
-      // Disallow serving built assets during dev to prevent loops and confusion
+      // Disallow serving built assets during dev to prevent loops and confusion.
       server.middlewares.use((req, res, next) => {
         if (req?.url && req.url.startsWith('/dist/')) {
           res.statusCode = 404
@@ -127,7 +124,6 @@ export default defineConfig(() => {
     port: undefined,
     strictPort: true,
     open: false,
-    // Vite v4 supports allowedHosts: string[] of hostnames.
     allowedHosts,
     hmr: {
       overlay: true,
@@ -136,7 +132,7 @@ export default defineConfig(() => {
     watch: {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
-      // Multi-wildcard globs ONLY appear here for chokidar, never for esbuild
+      // Multi-wildcard globs ONLY appear here for chokidar, never for esbuild.
       ignored: [
         ...ignoredGlobs,
         '**/assets-reference/**/*.html',
@@ -185,6 +181,7 @@ export default defineConfig(() => {
         'public/assets/**/*.html',
         'assets-reference/**/*.html',
         '**/assets/**/*.html',
+        // Prevent watching outside project (CI bind mounts) to avoid restarts.
         '../../**',
       ],
     },

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// Import CSS files directly; do not @import between CSS files to avoid circular imports and HMR loops.
 import './index.css'
 import './global.css'
 import './theme.css'
@@ -34,7 +35,7 @@ function RootFallback() {
   )
 }
 
-// Enable optional debug outlines via env flag VITE_DEBUG_OUTLINES
+// Enable optional debug outlines via env flag VITE_DEBUG_OUTLINES (non-fatal)
 try {
   const flag = (import.meta?.env?.VITE_DEBUG_OUTLINES ?? '').toString().trim()
   if (flag === '1' || flag.toLowerCase() === 'true') {
@@ -42,16 +43,14 @@ try {
   }
 } catch { /* non-fatal */ }
 
-/* Mount React app (single root). Avoid attaching multiple roots during HMR. */
+// Mount React app (single root). Avoid attaching multiple roots during HMR by reusing a stashed root on the element.
 const mountEl = document.getElementById('root')
 if (!mountEl) {
   throw new Error('Root element #root not found in index.html')
 }
-// Reuse an existing root if one was stashed on the element to prevent duplicate mounts on rare HMR edge cases.
 let root = mountEl._reactRoot || null
 if (!root) {
   root = createRoot(mountEl)
-  // non-enumerable to avoid accidental serialization
   Object.defineProperty(mountEl, '_reactRoot', { value: root, writable: false })
 }
 
@@ -69,6 +68,7 @@ function renderApp() {
       </StrictMode>
     )
   } catch (e) {
+    // Use console.warn, do not throw, to prevent triggering hot reload loops.
     console.warn('Initial App render failed, showing fallback:', e?.message || e)
     root.render(
       <StrictMode>

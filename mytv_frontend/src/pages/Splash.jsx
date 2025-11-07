@@ -161,7 +161,7 @@ export default function Splash() {
           userSelect: 'none',
         }}
       >
-        Allowed host: vscode-internal-26938-beta.beta01.cloud.kavia.ai
+        Allowed hosts: vscode-internal-26938-beta.beta01.cloud.kavia.ai · vscode-internal-33763-beta.beta01.cloud.kavia.ai · vscode-internal-10832-beta.beta01.cloud.kavia.ai · vscode-internal-28347-beta.beta01.cloud.kavia.ai
       </div>
 
       {/* Local keyframes for this page */}

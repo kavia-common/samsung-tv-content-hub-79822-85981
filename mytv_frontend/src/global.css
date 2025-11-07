@@ -1,3 +1,5 @@
+/* NOTE: Do not @import other project CSS from this file and do not import this file from other CSS.
+   All CSS files are imported once in src/main.jsx to avoid circular imports and HMR loops. */
 :root {
   /* Ocean Professional Theme */
   --op-bg: #f9fafb;       /* background */

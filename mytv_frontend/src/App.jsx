@@ -32,7 +32,7 @@ function AppRouter() {
           top: '50%',
           transform: 'translate(-50%, -50%)',
           pointerEvents: 'none',
-          zIndex: 1,
+          zIndex: 0,
           opacity: 0.12,
           color: '#ffffff',
           fontWeight: 900,
