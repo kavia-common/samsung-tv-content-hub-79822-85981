@@ -12,28 +12,40 @@ export default function Home() {
   // Inject page-specific CSS on mount; remove on unmount to avoid global leaks.
   useEffect(() => {
     const datasetKey = 'aafinicio-copy-2-2001-3396'
+    // Ensure common.css import chain resolves: the screen CSS uses @import "./common.css"
+    // When served from /assets/aafinicio..., the relative import expects /assets/common.css to exist.
+    const cssHref = '/assets/aafinicio-copy-2-2001-3396.css'
     let link = document.querySelector(`link[data-figma-css="${datasetKey}"]`)
     if (!link) {
       link = document.createElement('link')
       link.rel = 'stylesheet'
-      link.href = '/assets/aafinicio-copy-2-2001-3396.css'
+      link.href = cssHref
       link.dataset.figmaCss = datasetKey
       document.head.appendChild(link)
     }
+
+    // Light dev check: try fetching the CSS to reveal 404s in console without crashing UI.
+    if (import.meta && import.meta.hot) {
+      fetch(cssHref, { method: 'HEAD' }).then(
+        (r) => {
+          if (!r.ok) console.warn('[home] CSS not OK:', cssHref, r.status)
+        },
+        (e) => console.warn('[home] CSS fetch failed:', cssHref, e?.message || e),
+      )
+    }
+
     return () => {
       const node = document.querySelector(`link[data-figma-css="${datasetKey}"]`)
       if (node?.parentNode) node.parentNode.removeChild(node)
     }
   }, [])
 
-  // Load/init the Figma screen JS after mount. We avoid DOMContentLoaded dependency and call its init behavior ourselves.
+  // Load/init the Figma screen JS after mount, plus keyboard enrichment for .tv-play.
   useEffect(() => {
-    // The asset file adds a DOMContentLoaded listener; to ensure behaviors are active now, we can also manually set up essentials.
     const root = document.getElementById('screen-aafinicio-2001-3396')
     const cleanupFns = []
 
     if (root) {
-      // Minimal keyboard accessibility for elements tagged as tv-play
       const tvPlayNodes = root.querySelectorAll('.tv-play')
       tvPlayNodes.forEach((btn) => {
         btn.setAttribute('tabindex', '0')
@@ -50,11 +62,22 @@ export default function Home() {
       })
     }
 
-    // Also append the original behavior script as a module-less script tag so any extra logic runs (idempotent).
+    // Also append the original behavior script so any extra logic runs (idempotent in page).
+    const jsSrc = '/assets/aafinicio-copy-2-2001-3396.js'
     const script = document.createElement('script')
-    script.src = '/assets/aafinicio-copy-2-2001-3396.js'
+    script.src = jsSrc
     script.async = true
     document.body.appendChild(script)
+
+    // Dev check for script 404s
+    if (import.meta && import.meta.hot) {
+      fetch(jsSrc, { method: 'HEAD' }).then(
+        (r) => {
+          if (!r.ok) console.warn('[home] JS not OK:', jsSrc, r.status)
+        },
+        (e) => console.warn('[home] JS fetch failed:', jsSrc, e?.message || e),
+      )
+    }
 
     return () => {
       cleanupFns.forEach(fn => {
@@ -67,7 +90,7 @@ export default function Home() {
   }, [])
 
   // JSX adapted to preserve ids/classes from assets/aafinicio-copy-2-2001-3396.html.
-  // Note: If future assets reference /assets/figmaimages/* ensure those images exist under public/assets.
+  // Note: If future assets reference /assets/figmaimages/* ensure those images exist under public/assets/figmaimages.
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <div id="screen-aafinicio-2001-3396" className="figma-screen aafinicio-copy-2" role="document" aria-label="AAF_inicio Copy 2">

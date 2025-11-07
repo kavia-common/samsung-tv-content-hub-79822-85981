@@ -1,0 +1,104 @@
+@import url("./common.css");
+
+/* Main screen container */
+#screen-35-4077-14472 {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background-color: var(--color-ffffff);
+}
+
+/* Full-bleed background image placeholder; if figmaimages path is provided in the future, set below: */
+.bg-image {
+  position: absolute; left: 0px; top: 0px;
+  width: 1920px; height: 1080px;
+  background: #000; /* fallback if image not available */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Gradient overlay placeholder (covers canvas) */
+.bg-gradient {
+  position: absolute; left: 0px; top: 0px;
+  width: 1920px; height: 1080px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.00) 40%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.85) 100%);
+  pointer-events: none;
+}
+
+/* MetadataInfoPanel container */
+#metadatainfopanel {
+  position: absolute; left: 96px; top: 108px;
+  width: 1150px; height: 590px;
+}
+
+/* Row: channel + channel small (40px height) */
+#row-channel {
+  position: absolute; left: 0px; top: 0px; width: 529px; height: 40px;
+}
+#channel-number { position: absolute; left: 0px; top: 2px; width: 56px; height: 38px; }
+#channel-name { position: absolute; left: 68px; top: 0px; width: 461px; height: 40px; }
+
+/* Program section top: Program Name at y=23493 => inside panel top offset=23493-23426=67px */
+#program-section { position: absolute; left: 0px; top: 67px; width: 1150px; height: 160px; }
+#program-title { position: absolute; left: 0px; top: 0px; width: 1150px; height: 70px; }
+#meta-inline { position: absolute; left: 0px; top: 76px; width: 743px; height: 32px; }
+
+/* Inline meta bits and dividers (keep exact left via differences from YAML):
+   Starting origin for inline row is at 17407. Elements x minus 17407 yields left.
+*/
+#meta-title-alt { position: absolute; left: 0px; top: 0px; width: 121px; height: 29px; }
+#div1 { position: absolute; left: 137px; top: 0px; width: 6px; height: 29px; }
+#meta-duration { position: absolute; left: 159px; top: 0px; width: 117px; height: 29px; }
+#div2 { position: absolute; left: 292px; top: 0px; width: 6px; height: 29px; }
+#meta-genres { position: absolute; left: 314px; top: 0px; width: 267px; height: 29px; }
+#div3 { position: absolute; left: 597px; top: 0px; width: 6px; height: 29px; }
+#tag-age { position: absolute; left: 619px; top: 0px; width: 124px; height: 32px; padding: 2px 8px; }
+
+/* Second inline row at y=23615 => relative top from panel=189px */
+#meta-times { position: absolute; left: 0px; top: 189px; width: 487px; height: 32px; }
+#tag-later { position: absolute; left: 0px; top: 0px; width: 156px; height: 32px; display: flex; align-items: center; justify-content: center; }
+#hours-group { position: absolute; left: 178px; top: 0px; width: 143px; height: 32px; }
+#hour1 { position: absolute; left: 0px; top: 0px; width: 70px; height: 32px; }
+#bar { position: absolute; left: 68px; top: 0px; width: 7px; height: 32px; }
+#hour2 { position: absolute; left: 81px; top: 0px; width: 70px; height: 32px; }
+#div32-1 { position: absolute; left: 343px; top: 0px; width: 7px; height: 29px; }
+#icon-replay { position: absolute; left: 372px; top: 0px; width: 32px; height: 32px; }
+#div32-2 { position: absolute; left: 426px; top: 0px; width: 7px; height: 29px; }
+#icon-next { position: absolute; left: 455px; top: 0px; width: 32px; height: 32px; }
+
+/* Lower description and buttons. Frame 29355 at y=23702 => panel offset top 276px */
+#lower-section { position: absolute; left: 0px; top: 276px; width: 1150px; height: 314px; }
+#textbox3 { position: absolute; left: 0px; top: 0px; width: 925px; height: 117px; }
+
+/* Buttons row at y=23860 => inside lower-section relative top: 158px */
+#buttons-row { position: absolute; left: 0px; top: 158px; width: 916px; height: 156px; }
+.panel-btn { position: absolute; width: 142px; height: 156px; cursor: pointer; }
+.btn-1 { left: 0px; top: 0px; }
+.btn-2 { left: 144px; top: 0px; }
+.btn-3 { left: 288px; top: 0px; }
+.btn-4 { left: 432px; top: 0px; }
+.btn-5 { left: 576px; top: 0px; }
+.btn-6 { left: 720px; top: 0px; }
+
+.btn-tile { position: absolute; left: 19px; top: 4px; width: 104px; height: 80px; }
+.btn-icon { position: absolute; width: 40px; height: 40px; left: 36px; top: 20px; }
+.btn-label { position: absolute; left: 2px; top: 100px; width: 138px; height: 24px; text-align: center; }
+
+/* SystemDate component at left=724, top=55 */
+#systemdate { position: absolute; left: 724px; top: 55px; width: 100px; height: 90px; }
+#datehour { position: absolute; left: 0px; top: 0px; width: 100px; height: 48px; }
+#date { position: absolute; left: 19px; top: 58px; width: 81px; height: 32px; }
+
+/* Typography application for specific nodes */
+#channel-number .text { white-space: nowrap; }
+#channel-name .text { white-space: nowrap; }
+#program-title .text { white-space: nowrap; }
+#textbox3 .text { white-space: normal; }
+
+#tag-age { display: flex; align-items: center; justify-content: center; }
+#tag-age { background: var(--style-100-bg); border-radius: var(--style-100-radius); border: var(--style-100-border); }
+#tag-later { background: var(--style-129-bg); border-radius: var(--style-129-radius); border: var(--style-129-border); }
+
+.divider { display: flex; align-items: center; justify-content: center; }
