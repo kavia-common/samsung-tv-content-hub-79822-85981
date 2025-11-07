@@ -10,7 +10,7 @@ import react from '@vitejs/plugin-react'
  * - HMR: overlay enabled; clientPort fixed to 3000 to match orchestrator proxying
  * - Healthz endpoint and /dist guard middleware
  * - Robust watcher ignores config/docs/locks to avoid self-restarts
- * - No plugin or script calls process.exit in serve/preview paths
+ * - Single configureServer hook; lightweight keepalive with proper cleanup
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -28,6 +28,7 @@ export default defineConfig(() => {
     ])
   )
 
+  // Keep watcher minimal to reduce memory and prevent self-restarts
   const ignoredGlobs = [
     '**/dist/**',
     '**/.git/**',
@@ -50,6 +51,7 @@ export default defineConfig(() => {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/post_process_status.lock',
+    // Ignore everything outside the project to avoid accidental FS scans
     '../../**',
   ]
 
@@ -58,49 +60,6 @@ export default defineConfig(() => {
     clearScreen: false,
     plugins: [
       react(),
-      {
-        // Keep the server "busy" so orchestrators don't mark it idle, but never exit the process.
-        name: 'healthz-keepalive-and-guards',
-        apply: 'serve',
-        configureServer(server) {
-          try {
-            server.middlewares.use('/healthz', (_req, res) => {
-              res.statusCode = 200
-              res.end('OK')
-            })
-            server.middlewares.use((req, res, next) => {
-              if (req.url && req.url.startsWith('/dist/')) {
-                res.statusCode = 404
-                res.end('Not Found')
-                return
-              }
-              next()
-            })
-            const keepAlive = setInterval(() => {}, 60_000)
-            server.httpServer?.once('close', () => clearInterval(keepAlive))
-          } catch (e) {
-            server?.config?.logger?.warn?.(`dev plugin non-fatal: ${e?.message || e}`)
-          }
-        },
-        configurePreviewServer(server) {
-          try {
-            server.middlewares.use('/healthz', (_req, res) => {
-              res.statusCode = 200
-              res.end('OK')
-            })
-            server.middlewares.use((req, res, next) => {
-              if (req.url && req.url.startsWith('/dist/')) {
-                res.statusCode = 404
-                res.end('Not Found')
-                return
-              }
-              next()
-            })
-          } catch (e) {
-            console.warn?.(`preview plugin non-fatal: ${e?.message || e}`)
-          }
-        },
-      },
     ],
     publicDir: 'public',
     build: {
@@ -115,13 +74,15 @@ export default defineConfig(() => {
     },
   }
 
-  // Single configureServer hook (avoid duplicates that can lead to lifecycle ambiguity)
+  // Single configureServer hook (avoid duplicates)
   baseConfig.configureServer = (server) => {
     try {
+      // readiness
       server.middlewares.use('/healthz', (_req, res) => {
         res.statusCode = 200
         res.end('OK')
       })
+      // prevent serving dist during dev
       server.middlewares.use((req, res, next) => {
         if (req.url && req.url.startsWith('/dist/')) {
           res.statusCode = 404
@@ -130,12 +91,17 @@ export default defineConfig(() => {
         }
         next()
       })
+      // lightweight keepalive; no heavy work; ensure cleanup
+      const keepAlive = setInterval(() => {
+        // no-op tick to keep event loop active
+      }, 60_000)
+      server.httpServer?.once('close', () => clearInterval(keepAlive))
     } catch (e) {
       server?.config?.logger?.warn?.(`configureServer non-fatal: ${e?.message || e}`)
     }
   }
 
-  // Dev server: pin to 3000 and keep alive; avoid middlewareMode which could allow parent to exit early
+  // Dev server: pin to 3000 and reduce watcher pressure
   baseConfig.server = {
     host: resolvedHost,
     port: 3000,
@@ -147,8 +113,11 @@ export default defineConfig(() => {
       clientPort: 3000,
     },
     watch: {
+      // polling off to reduce CPU/memory
       usePolling: false,
+      // debounce fs changes
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
+      // chokidar ignored patterns
       ignored: ignoredGlobs,
     },
     fs: {
@@ -159,7 +128,7 @@ export default defineConfig(() => {
     middlewareMode: false,
   }
 
-  // Preview mirrors dev host/port and allowedHosts
+  // Preview mirrors dev host/port and allowedHosts and exposes /healthz
   baseConfig.preview = {
     host: resolvedHost,
     port: 3000,

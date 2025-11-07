@@ -1,7 +1,7 @@
 # Dev server behavior
 
-- Host: 0.0.0.0 by default (server.host: true) and honors `--host` CLI if provided; never written to disk.
-- Port: 3000 is pinned with `strictPort: true` for both dev and preview. If 3000 is busy the process exits with a clear error (no silent port switching).
+- Host: 0.0.0.0 by default (server.host: true) and honors HOST env/CLI if provided; never written to disk.
+- Port: 3000 is pinned with strictPort: true for both dev and preview. If 3000 is busy the process exits with a clear error (no silent port switching).
 - HMR: overlay enabled; clientPort fixed to 3000 for reliable proxying behind orchestrators.
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms).
 - Ignored watch paths (prevent self-restart loops), including:
@@ -18,8 +18,10 @@ Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai (configured for dev and preview)
 
 Scripts:
-- npm run dev            -> vite (port 3000 strict; if busy the process exits to reveal collision).
-- npm run dev:port       -> sets PORT=3000 for environments that rely on env injection; still strict on 3000.
+- npm run dev            -> vite (port 3000 strict; relies on vite.config.js defaults).
+- npm run dev:3000       -> sets PORT=3000 explicitly; still strict on 3000.
+- npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 to reduce memory spikes.
+- npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 for tighter limits.
 - npm run preview        -> vite preview (strict on 3000; fails if port is busy).
 - npm run preview:port   -> sets PORT=3000 explicitly for preview.
 - npm run build:tizen    -> builds to ./dist (no packaging)
@@ -31,10 +33,10 @@ Quick checks:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 
 - Run on explicit port 3000 (strict) in non-interactive mode:
-  npm run dev -- --host 0.0.0.0 --port 3000
+  npm run dev:3000
 
 Operational notes:
-- No runtime writes to `.env` or `vite.config.js`. No scripts/plugins in this repo modify these files.
+- No runtime writes to `.env` or `vite.config.js`. Defaults are set in the config; scripts avoid duplicate CLI flags.
 - Watcher excludes `vite.config.js`, docs, and lockfiles; these changes will not trigger HMR restarts.
 - Avoid adding middleware/plugins that write to files during requests; this causes watch loops.
 - Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist` when running `vite build`.
@@ -51,8 +53,8 @@ Behavior:
 - Buttons are focusable and remote/keyboard accessible (Enter activates).
 
 Validation checklist:
-1) Start dev server:
-   npm run dev -- --host 0.0.0.0 --port 3000
+1) Start dev server (strict 3000):
+   npm run dev:3000
 2) Open the app and wait for Splash to redirect (~5.5s) to /home.
 3) Confirm top menu shows four buttons: Home, Login, Settings, My Plan.
 4) Use keyboard/remote:
@@ -63,9 +65,7 @@ Validation checklist:
    - Enter on My Plan -> navigates to /home#plan and scrolls the section into view.
 5) Confirm no dev server restart occurs when navigating or interacting with UI.
 
-## Tizen packaging (no external zip)
-The packaging flow uses a Node-based zipper to create a valid .wgt, avoiding a system `zip` dependency.
-
-Steps:
-1. Run `npm run build:tizen` to produce `./dist`.
-2. Run `npm run package:tizen` to generate `./app.wgt` that includes all files under `dist/` plus `config.xml` at the archive root.
+If the orchestrator kills the process due to memory limits (exit 137), prefer:
+- npm run dev:mem:256
+or
+- npm run dev:mem

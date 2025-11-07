@@ -9,7 +9,7 @@ Currently, two official plugins are available:
 
 ## Dev server and health check
 
-- Dev server runs on 0.0.0.0 with strictPort=true; port is pinned to 3000 for orchestrator. Use `npm run dev:3000` or `npm run dev -- --host 0.0.0.0 --port 3000`.
+- Dev server runs on 0.0.0.0 with strictPort=true; port is pinned to 3000 for orchestrator. Use `npm run dev:3000`.
 - File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, and other `*.config.*` files are excluded from watch to prevent HMR self-restarts.
 - Dev never serves `/dist/*`; build output is only used for preview/build. A middleware 404s `/dist/*` during dev.
 - A readiness endpoint is available at GET /healthz returning 200 OK.
@@ -17,13 +17,15 @@ Currently, two official plugins are available:
 - See DEV_SERVER.md for full behavior and scripts.
 
 Stability notes:
-- No runtime process writes to vite.config.js or .env. CLI flags (--host/--port) are respected in-memory only.
+- No runtime process writes to vite.config.js or .env. Defaults are set in the config; scripts avoid duplicate CLI flags.
 - Vite watch ignores vite.config.js and docs/config/lockfiles to prevent HMR restart loops.
 - Strict port (no auto port switching). If 3000 is reserved, run explicitly on another port via CLI, e.g., `--port 3001`.
 - Quick readiness check: curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 
 Commands:
 - npm run dev -> vite (uses vite.config.js on port 3000 strict)
+- npm run dev:mem -> dev with reduced memory cap (NODE_OPTIONS=--max-old-space-size=384)
+- npm run dev:mem:256 -> dev with tighter memory cap (256 MB)
 - npm run preview -> vite preview (uses vite.config.js on port 3000 strict)
 
 Tip: To run on a specific port non-interactively (e.g., 3001), do either:
