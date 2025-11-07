@@ -50,7 +50,12 @@ export default function Home() {
       const parent = stage.getBoundingClientRect()
       const baseW = 1920
       const baseH = 1080
-      const scale = Math.min(parent.width / baseW, parent.height / baseH)
+      let scale = Math.min(parent.width / baseW, parent.height / baseH)
+      if (!Number.isFinite(scale) || scale <= 0) {
+        scale = 1
+      }
+      // Avoid excessive upscaling; cap to 2x for safety
+      scale = Math.max(0.25, Math.min(2, scale))
       inner.style.transform = `scale(${scale}) translateZ(0)`
     }
 
