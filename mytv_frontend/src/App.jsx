@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
-import './index.css'
 
 import Splash from './pages/Splash.jsx'
 import Home from './pages/Home.jsx'
