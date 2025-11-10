@@ -15,24 +15,23 @@ import fs from 'fs'
 */
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
 // Resolve absolute paths used in watch.ignored to be explicit and robust
-const projectRoot = __dirname
+const projectRoot = __dirname // samsung-tv-content-hub-79822-85981/mytv_frontend
 const workspaceRoot = path.resolve(projectRoot, '..') // samsung-tv-content-hub-79822-85981
 const siblingMyTv = path.join(workspaceRoot, 'mytv')
 const thisViteConfig = path.join(projectRoot, 'vite.config.js')
-// Potential sibling/parent vite configs to ignore if present
 const siblingMyTvVite = path.join(siblingMyTv, 'vite.config.js')
-const parentViteGlob = path.join(workspaceRoot, '**/vite.config.*')
 
 // Compose ignore list with both globs and resolved paths.
 // Note: Vite uses chokidar under the hood; ignored accepts globs and functions. Using array of strings is fine.
 const ignoredList = [
-  // Absolute files/dirs
+  // Absolute files/dirs (most important first)
   thisViteConfig,
   siblingMyTv,
   siblingMyTvVite,
   workspaceRoot, // ignore workspace root to avoid parent activity triggering
-  // Glob fallbacks/patterns
+  // Glob fallbacks/patterns inside project
   '**/vite.config.*',
   '**/postcss.config.*',
   '**/tailwind.config.*',
@@ -48,14 +47,13 @@ const ignoredList = [
   '**/.git/**',
   '**/dist/**',
   '**/.vite/**',
-  // Parents/siblings
+  // Parents/siblings (glob)
   '../**',
   '../../**',
   '../../../**',
 ]
 
-// Ensure only one index.html at root: if duplicates under public/assets, we still ignore them via patterns above.
-// Also make sure there is no symlink loop for vite.config.js (defensive): if symlink, resolve target and ignore it explicitly.
+// Defensive: if vite.config.js is a symlink, ignore its real target too.
 try {
   const st = fs.lstatSync(thisViteConfig)
   if (st.isSymbolicLink()) {
@@ -78,8 +76,13 @@ export default defineConfig({
     strictPort: true, // keep port stable during dev; avoids bouncing
     // Only allow our known dev host
     allowedHosts: ['vscode-internal-39544-beta.beta01.cloud.kavia.ai'],
-    // Clear any implicit parent watchers by providing explicit ignores
+    // Stabilize watcher: no polling, debounce writes, and ignore external paths and this config
     watch: {
+      usePolling: false,
+      awaitWriteFinish: {
+        stabilityThreshold: 350,
+        pollInterval: 100,
+      },
       ignored: ignoredList,
     },
     hmr: {
