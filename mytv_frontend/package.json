@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "//note": "dev must remain plain `vite` so the runner can inject --host/--port; do not add flags here.",
     "dev": "vite",
     "dev:ci": "vite",
     "dev:3000": "vite --port 3000",
@@ -15,6 +16,7 @@
     "preview": "vite preview",
     "preview:mem": "NODE_OPTIONS=--max-old-space-size=384 vite preview",
     "healthz": "node -e \"(async()=>{try{const http=require('http');const opts={hostname:'127.0.0.1',port:process.env.PORT||3000,path:'/healthz',timeout:1500};const req=http.request(opts,res=>{if(res.statusCode===200){process.stdout.write('OK\\n');process.exit(0)}else{process.stderr.write('bad status '+res.statusCode+'\\n');process.exit(2)}});req.on('error',()=>{process.stderr.write('not ready\\n');process.exit(3)});req.end()}catch(e){process.stderr.write((e&&e.message)||String(e));process.exit(4)}})()\"",
+    "dev:health": "npm run healthz",
     "build:tizen": "vite build",
     "package:tizen": "node ./scripts/package-tizen.js",
     "build-and-package:tizen": "npm run build:tizen && npm run package:tizen"
