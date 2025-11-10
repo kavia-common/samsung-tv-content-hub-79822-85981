@@ -89,7 +89,7 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   )
 
   return (
-    <div className="mt-4.5">
+    <div className="mt-6 lg:mt-7">
       <div className="section-title">{title}</div>
       {error ? (
         <div className="text-gray-400 ml-2 mb-2">
@@ -98,13 +98,13 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
       ) : null}
       <div
         ref={containerRef}
-        className="flex overflow-x-auto overflow-y-hidden px-2 py-2 pl-2.5 gap-0 [scrollbar-width:none]"
+        className="flex overflow-x-auto overflow-y-hidden px-2 py-2 pl-2.5 gap-0 [scrollbar-width:none] scroll-smooth snap-x snap-mandatory"
       >
         {loading
           ? Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`s-${idx}`}
-                className="card w-[260px] h-[150px] mr-[14px] bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.09)_37%,rgba(255,255,255,0.05)_63%)] bg-[length:400%_100%] animate-shimmer"
+                className="card w-[260px] h-[150px] mr-[14px] bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.09)_37%,rgba(255,255,255,0.05)_63%)] bg-[length:400%_100%] animate-shimmer snap-start"
               />
             ))
           : cards}

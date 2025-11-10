@@ -5,6 +5,8 @@
 /* Minimal base to ensure full-viewport sizing; detailed visuals handled by theme.css/global.css and Tailwind utilities */
 html, body, #root {
   @apply w-full h-full;
+  scroll-behavior: smooth;
+  background-color: #0B1220;
 }
 
 body {

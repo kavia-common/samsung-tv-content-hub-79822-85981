@@ -76,7 +76,7 @@ export default function Splash() {
           }}
           aria-label="MyTV"
           tabIndex={0}
-          className="focusable"
+          className="focusable animate-brand-pulse"
         >
           MyTV
         </h1>
@@ -95,7 +95,7 @@ export default function Splash() {
             className="absolute left-1/2 -translate-x-1/2"
             style={{
               bottom: -8,
-              width: 80,
+              width: 100,
               height: 3,
               borderRadius: 3,
               background: `linear-gradient(90deg, ${secondary}, ${primary})`,

@@ -2,7 +2,7 @@
   --primary: #2563EB;
   --secondary: #F59E0B;
   --error: #EF4444;
-  --bg: #0B1220; /* dark ocean background - retained for TV dark scenes */
+  --bg: #0B1220; /* deep ocean */
   --surface: #0f172a; /* slate-900 */
   --surface-2: #111827; /* gray-900 */
   --text: #E5E7EB; /* gray-200 */
@@ -12,13 +12,14 @@
   --shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
 
-/* Ocean-themed dark app surface used in pages; sizing now flows within .app-root */
+/* Ocean-themed dark app surface with layered accents */
 .app-surface {
   width: 100%;
   min-height: 0;
   background:
-    radial-gradient(1200px 800px at 70% 10%, rgba(37,99,235,0.25), rgba(15,23,42,0)),
-    linear-gradient(180deg, rgba(37,99,235,0.08), rgba(17,24,39,0.2)),
+    radial-gradient(1200px 800px at 70% 10%, rgba(37,99,235,0.22), rgba(15,23,42,0)),
+    radial-gradient(1000px 700px at 10% 90%, rgba(245,158,11,0.14), rgba(15,23,42,0)),
+    linear-gradient(180deg, rgba(37,99,235,0.07), rgba(17,24,39,0.18)),
     var(--bg);
   color: var(--text);
   display: flex;
@@ -37,11 +38,23 @@
 
 /* Utilities */
 .section-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 800;
   letter-spacing: 0.3px;
-  margin: 18px 0 12px 8px;
+  margin: 22px 0 12px 8px;
   color: #e8edf7;
+  position: relative;
+}
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  bottom: -8px;
+  width: 120px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--secondary), var(--primary));
+  opacity: 0.65;
 }
 
 .banner-shadowed {
@@ -52,8 +65,8 @@
   outline: 3px solid var(--focus);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(37,99,235,0.25), 0 14px 34px rgba(0,0,0,0.45);
-  transform: scale(1.03);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transform: translateY(-1px) scale(1.02);
+  transition: transform 160ms cubic-bezier(.22,.61,.36,1), box-shadow 160ms ease;
 }
 
 .card {
@@ -68,7 +81,7 @@
   .card .thumb-title {
     opacity: 0;
     transform: translateY(6px);
-    transition: opacity 160ms ease, transform 160ms ease;
+    transition: opacity 180ms ease, transform 180ms ease;
   }
   .card:hover .thumb-title {
     opacity: 1;

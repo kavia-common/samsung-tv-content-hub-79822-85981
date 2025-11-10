@@ -63,30 +63,30 @@ export default function TopMenu({ items = [] }) {
   return (
     <div
       ref={containerRef}
-      className="h-[88px] px-10 py-[14px] flex items-center justify-between border-b border-white/10 bg-topmenu-gradient backdrop-blur-md"
+      className="h-[88px] px-6 lg:px-10 py-[12px] flex items-center justify-between border-b border-white/10 bg-topmenu-gradient backdrop-blur-md"
+      style={{ backgroundColor: 'rgba(15,23,42,0.55)' }}
     >
       <div className="flex items-center gap-4">
-        <div className="text-white font-extrabold tracking-[0.6px] text-[28px]">
+        <div className="text-white font-extrabold tracking-[0.6px] text-[24px] lg:text-[28px] animate-brand-pulse">
           MyTV
         </div>
-        <div className="w-2" />
-        <div className="text-sm text-gray-400">Ocean Professional</div>
+        <div className="hidden sm:block text-xs lg:text-sm text-gray-400">Ocean Professional</div>
       </div>
-      <nav className="flex gap-3.5">
+      <nav className="flex gap-2.5 lg:gap-3.5">
         {items.map((it, idx) => {
           const active = idx === focusIndex
           return (
             <button
               key={it.label}
-              className={
-                [
-                  'focusable',
-                  'h-12 min-w-[160px] px-[18px] py-[10px] rounded-[12px] text-white text-lg font-extrabold cursor-pointer transition',
-                  active
-                    ? 'border border-secondary shadow-[0_0_0_3px_rgba(245,158,11,0.35),0_14px_34px_rgba(0,0,0,0.40)] scale-[1.05] bg-gradient-to-b from-amber-500/25 to-amber-500/10'
-                    : 'border border-white/20 shadow-[0_10px_24px_rgba(0,0,0,0.35)] bg-gradient-to-b from-blue-600/20 to-blue-600/10'
-                ].join(' ')
-              }
+              className={[
+                'focusable group relative',
+                'h-11 lg:h-12 min-w-[120px] lg:min-w-[160px] px-[14px] lg:px-[18px] py-[8px] lg:py-[10px]',
+                'rounded-[12px] text-white text-base lg:text-lg font-extrabold cursor-pointer transition-transform duration-200 ease-smooth',
+                'backdrop-blur-xs',
+                active
+                  ? 'border border-secondary shadow-glow scale-[1.04] bg-gradient-to-b from-amber-500/20 to-amber-500/10'
+                  : 'border border-white/15 shadow-card bg-gradient-to-b from-blue-600/15 to-blue-600/8 hover:shadow-cardHover hover:scale-[1.03]',
+              ].join(' ')}
               tabIndex={0}
               onClick={() => goTo(it)}
               onKeyDown={(e) => {
@@ -95,7 +95,15 @@ export default function TopMenu({ items = [] }) {
                 }
               }}
             >
-              {it.label}
+              <span className="relative z-10">{it.label}</span>
+              <span
+                aria-hidden
+                className={[
+                  'pointer-events-none absolute left-2 right-2 -bottom-[6px] h-[3px] rounded-full',
+                  'transition-all duration-200 ease-smooth',
+                  active ? 'opacity-100 bg-gradient-to-r from-amber-500 to-blue-500' : 'opacity-0 group-hover:opacity-100 bg-gradient-to-r from-blue-500 to-amber-500',
+                ].join(' ')}
+              />
             </button>
           )
         })}

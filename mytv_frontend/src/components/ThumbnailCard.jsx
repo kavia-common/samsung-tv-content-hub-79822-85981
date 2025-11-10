@@ -23,7 +23,12 @@ const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter },
     <div
       ref={ref}
       tabIndex={0}
-      className="focusable card w-[260px] h-[150px] mr-[14px] overflow-hidden relative cursor-pointer"
+      className={[
+        'focusable group relative cursor-pointer mr-[14px] snap-start',
+        'w-[260px] aspect-video overflow-hidden rounded-xl',
+        'ring-1 ring-slate-700/60 hover:ring-2 hover:ring-slate-400/60',
+        'shadow-card hover:shadow-cardHover transition-all duration-200 ease-smooth',
+      ].join(' ')}
       role="button"
       aria-label={title}
       onKeyDown={(e) => {
@@ -36,12 +41,14 @@ const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter },
         alt={title}
         loading="lazy"
         onError={() => setErrored(true)}
-        className="w-full h-full object-cover bg-[#0a0f1f]"
+        className="w-full h-full object-cover bg-[#0a0f1f] group-hover:scale-[1.03] transition-transform duration-300 ease-smooth"
       />
       <div
-        className="thumb-title absolute left-0 right-0 bottom-0 px-[10px] py-[6px] text-sm font-bold text-gray-200 bg-gradient-to-b from-[rgba(2,6,23,0)] to-[rgba(2,6,23,0.85)] [text-shadow:0_2px_6px_rgba(0,0,0,0.6)]"
+        className="thumb-title absolute left-0 right-0 bottom-0 px-[10px] py-[6px] text-[13px] font-bold text-gray-100 bg-gradient-to-b from-[rgba(2,6,23,0)] to-[rgba(2,6,23,0.85)] [text-shadow:0_2px_6px_rgba(0,0,0,0.6)]"
       >
-        {title}
+        <span className="inline-block translate-y-1 opacity-90 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 ease-smooth">
+          {title}
+        </span>
       </div>
     </div>
   )

@@ -19,32 +19,35 @@ export default function Banner({
   }, [])
 
   return (
-    <div className="banner-shadowed relative w-full h-[360px] rounded-[18px] overflow-hidden border border-white/10 bg-[#0a0f1f]">
+    <div className="banner-shadowed relative w-full h-[360px] lg:h-[420px] rounded-[18px] overflow-hidden border border-white/10 bg-[#0a0f1f]">
       <img
         src={image}
         alt="Banner"
         loading="lazy"
         onError={(e)=>{ e.currentTarget.style.visibility = 'hidden' }}
-        className="w-full h-full object-cover [filter:saturate(1.05)_contrast(1.05)]"
+        className="w-full h-full object-cover [filter:saturate(1.05)_contrast(1.05)] will-change-transform"
+        style={{ transform: 'translateY(-2%) scale(1.02)' }}
       />
+      {/* Layered gradients for readability */}
       <div className="absolute inset-0 bg-banner-gradient" />
-      <div className="absolute left-9 top-8 flex flex-col gap-2.5 max-w-[820px]">
-        <div className="text-blue-300 font-bold tracking-wider">MyTV ORIGINAL</div>
-        <div className="text-white font-black text-[42px] [text-shadow:0_6px_18px_rgba(0,0,0,0.65)]">
+      <div className="absolute inset-0 bg-layered-radial pointer-events-none" />
+      <div className="absolute left-6 lg:left-9 top-7 lg:top-10 flex flex-col gap-2.5 max-w-[92%] lg:max-w-[820px] pr-6">
+        <div className="text-blue-300 font-bold tracking-wider">MYTV ORIGINAL</div>
+        <div className="text-white font-black text-headline lg:text-[42px] [text-shadow:0_6px_18px_rgba(0,0,0,0.65)]">
           {title}
         </div>
-        <div className="text-gray-300 text-[20px]">{subtitle}</div>
+        <div className="text-gray-300 text-subhead lg:text-[20px]">{subtitle}</div>
         <div className="flex gap-3 mt-2.5">
           <button
             ref={btnRef}
-            className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-primary text-white text-lg font-extrabold cursor-pointer bg-gradient-to-b from-blue-600/30 to-blue-600/20"
+            className="focusable h-[52px] lg:h-[54px] min-w-[150px] lg:min-w-[160px] px-[16px] lg:px-[18px] py-[10px] rounded-[12px] border border-primary text-white text-base lg:text-lg font-extrabold cursor-pointer bg-gradient-to-b from-blue-600/30 to-blue-600/20 hover:shadow-glow transition-shadow"
             onClick={() => onWatch?.()}
             onKeyDown={(e)=>{ if(e.keyCode===13) onWatch?.() }}
           >
             Watch Now
           </button>
           <button
-            className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-white/20 bg-white/10 text-white text-lg font-bold cursor-pointer"
+            className="focusable h-[52px] lg:h-[54px] min-w-[150px] lg:min-w-[160px] px-[16px] lg:px-[18px] py-[10px] rounded-[12px] border border-white/20 bg-white/10 text-white text-base lg:text-lg font-bold cursor-pointer hover:border-white/30 transition"
             onClick={() => {}}
           >
             Add to List
