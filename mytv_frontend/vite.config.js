@@ -22,12 +22,15 @@ export default defineConfig(() => {
   const cliHost = process.env.HOST?.trim()
   const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : true
 
+  // IMPORTANT: include all orchestrator proxy hosts that may be used in CI/preview
   const allowedHosts = Array.from(
     new Set([
       'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
       'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
       'vscode-internal-16837-beta.beta01.cloud.kavia.ai',
+      // Required for this environment/session
+      'vscode-internal-39544-beta.beta01.cloud.kavia.ai',
     ])
   )
 
