@@ -4,7 +4,13 @@ import { useEffect, useRef } from 'react'
  * PUBLIC_INTERFACE
  * Banner displays a hero image with gradient overlay and text.
  */
-export default function Banner({ image = '/images/banners/banner1.jpg', title = 'Featured', subtitle = '', onWatch }) {
+export default function Banner({
+  image = 'data:image/svg+xml;utf8,'
+    + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="360"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="%231e3a8a"/><stop offset="1" stop-color="%230b1220"/></linearGradient></defs><rect width="100%" height="100%" fill="url(%23g)"/><text x="48" y="220" fill="%23ffffff" font-family="Arial" font-weight="900" font-size="64">MyTV Banner</text></svg>`),
+  title = 'Featured',
+  subtitle = '',
+  onWatch
+}) {
   const btnRef = useRef(null)
 
   useEffect(() => {

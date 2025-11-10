@@ -85,19 +85,21 @@ export async function fetchTrending() {
   return local.slice(0, 12);
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ */
 export async function getBanner() {
-  /** Return banner candidate for the hero area. */
+  /** Return banner candidate for the hero area. Uses inline data URL image to avoid missing files. */
   const items = buildLocalItems();
   const first = items[0] || {
     id: 'banner-1',
     title: 'Welcome to MyTV',
-    image: '/images/banners/banner1.jpg',
+    image: dataBanner(),
     genre: 'Action',
   };
   return {
     ...first,
-    backdrop: '/images/banners/banner1.jpg',
+    backdrop: dataBanner(),
     subtitle: 'Experience the calm power of the deep.',
   };
 }
@@ -111,6 +113,29 @@ function groupBy(arr, keyGetter) {
     acc[key].push(item);
     return acc;
   }, {});
+}
+
+function dataThumb(label = '') {
+  const bg = '#1f2937'; // slate-800
+  const fg = '#e5e7eb'; // gray-200
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="260" height="150">`
+    + `<rect width="100%" height="100%" fill="${bg}"/>`
+    + `<text x="12" y="84" fill="${fg}" font-family="Arial" font-size="16" font-weight="700">${String(label).slice(0,18)}</text>`
+    + `</svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+function dataBanner() {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="360">`
+    + `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0">`
+    + `<stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0b1220"/>`
+    + `</linearGradient></defs>`
+    + `<rect width="100%" height="100%" fill="url(#g)"/>`
+    + `<text x="48" y="220" fill="#ffffff" font-family="Arial" font-weight="900" font-size="64">Ocean Professional</text>`
+    + `</svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
 function localHomeRails() {
@@ -141,59 +166,58 @@ function localHomeRails() {
 }
 
 function buildLocalItems() {
-  // Local placeholder catalog (title on hover is supported by Thumbnail component)
-  // Images expected under public/images/thumbs/*.jpg and grouped by genre.
+  // Local placeholder catalog rendered with inline SVG data URLs to avoid filesystem dependencies.
   const genres = {
     Action: [
-      { t: 'Gladiator II', f: 'action1.jpg' },
-      { t: 'Skyfall', f: 'action2.jpg' },
-      { t: 'Mad Max', f: 'action3.jpg' },
-      { t: 'Atomic Blonde', f: 'action4.jpg' },
-      { t: 'John Wick', f: 'action5.jpg' },
-      { t: 'The Raid', f: 'action6.jpg' },
+      { t: 'Gladiator II' },
+      { t: 'Skyfall' },
+      { t: 'Mad Max' },
+      { t: 'Atomic Blonde' },
+      { t: 'John Wick' },
+      { t: 'The Raid' },
     ],
     Drama: [
-      { t: 'The Revenant', f: 'drama1.jpg' },
-      { t: 'Moonlight', f: 'drama2.jpg' },
-      { t: 'Whiplash', f: 'drama3.jpg' },
-      { t: 'Parasite', f: 'drama4.jpg' },
-      { t: 'Nomadland', f: 'drama5.jpg' },
-      { t: 'The Father', f: 'drama6.jpg' },
+      { t: 'The Revenant' },
+      { t: 'Moonlight' },
+      { t: 'Whiplash' },
+      { t: 'Parasite' },
+      { t: 'Nomadland' },
+      { t: 'The Father' },
     ],
     Horror: [
-      { t: 'Hereditary', f: 'horror1.jpg' },
-      { t: 'It Follows', f: 'horror2.jpg' },
-      { t: 'The Witch', f: 'horror3.jpg' },
-      { t: 'A Quiet Place', f: 'horror4.jpg' },
-      { t: 'Get Out', f: 'horror5.jpg' },
-      { t: 'Us', f: 'horror6.jpg' },
+      { t: 'Hereditary' },
+      { t: 'It Follows' },
+      { t: 'The Witch' },
+      { t: 'A Quiet Place' },
+      { t: 'Get Out' },
+      { t: 'Us' },
     ],
     Comedy: [
-      { t: 'The Nice Guys', f: 'comedy1.jpg' },
-      { t: 'Palm Springs', f: 'comedy2.jpg' },
-      { t: 'Game Night', f: 'comedy3.jpg' },
-      { t: 'Superbad', f: 'comedy4.jpg' },
-      { t: '21 Jump Street', f: 'comedy5.jpg' },
-      { t: 'Free Guy', f: 'comedy6.jpg' },
+      { t: 'The Nice Guys' },
+      { t: 'Palm Springs' },
+      { t: 'Game Night' },
+      { t: 'Superbad' },
+      { t: '21 Jump Street' },
+      { t: 'Free Guy' },
     ],
     'Other Genres': [
-      { t: 'Free Solo', f: 'other1.jpg' },
-      { t: 'Planet Earth', f: 'other2.jpg' },
-      { t: 'Chef\'s Table', f: 'other3.jpg' },
-      { t: 'Drive to Survive', f: 'other4.jpg' },
-      { t: 'Abstract', f: 'other5.jpg' },
-      { t: 'Explained', f: 'other6.jpg' },
+      { t: 'Free Solo' },
+      { t: 'Planet Earth' },
+      { t: "Chef's Table" },
+      { t: 'Drive to Survive' },
+      { t: 'Abstract' },
+      { t: 'Explained' },
     ],
   };
 
   const out = [];
   let c = 0;
   for (const [genre, arr] of Object.entries(genres)) {
-    for (const { t, f } of arr) {
+    for (const { t } of arr) {
       out.push({
         id: `local-${c++}`,
         title: t,
-        image: `/images/thumbs/${f}`,
+        image: dataThumb(t),
         genre,
       });
     }

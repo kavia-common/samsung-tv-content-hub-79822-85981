@@ -23,11 +23,11 @@ Allowed hosts:
 - vscode-internal-28347-beta.beta01.cloud.kavia.ai
 
 Scripts:
-- npm run dev            -> vite (uses CLI/env to choose port; strictPort=true).
-- npm run dev:3000       -> runs vite with --port 3000; strictPort=true.
-- npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 to reduce memory spikes.
-- npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 for tighter limits.
-- npm run preview        -> vite preview (port controlled by CLI; strictPort=true).
+- npm run dev            -> vite --host 0.0.0.0 (uses CLI/env to choose port; strictPort=true).
+- npm run dev:3000       -> runs vite with --host 0.0.0.0 --port 3000; strictPort=true.
+- npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 and --host 0.0.0.0 to reduce memory spikes.
+- npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 and --host 0.0.0.0 for tighter limits.
+- npm run preview        -> vite preview --host 0.0.0.0 (port controlled by CLI; strictPort=true).
 - npm run build:tizen    -> builds to ./dist (no packaging)
 - npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
 - npm run build-and-package:tizen -> build then package in one command

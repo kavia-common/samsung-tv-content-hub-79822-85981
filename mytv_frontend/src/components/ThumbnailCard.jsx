@@ -6,7 +6,8 @@ import { forwardRef, useState } from 'react'
  */
 const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter }, ref) {
   const [errored, setErrored] = useState(false)
-  const fallback = '/images/thumbs/other1.jpg'
+  const fallback = 'data:image/svg+xml;utf8,'
+    + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="260" height="150"><rect width="100%" height="100%" fill="#0a0f1f"/><rect x="0" y="0" width="260" height="150" fill="#1f2937"/><text x="12" y="84" fill="#e5e7eb" font-family="Arial" font-size="16" font-weight="700">${(title||'').toString().slice(0,18)}</text></svg>`)
 
   return (
     <div

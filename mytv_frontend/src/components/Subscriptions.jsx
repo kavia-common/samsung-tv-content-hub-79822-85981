@@ -5,10 +5,15 @@ import React from 'react'
  * Shows available subscription plans.
  */
 export default function Subscriptions() {
+  const mkLogo = (label, bg) =>
+    'data:image/svg+xml;utf8,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><rect width="100%" height="100%" rx="12" ry="12" fill="${bg}"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#0b1220" font-family="Arial" font-weight="900" font-size="18">${label}</text></svg>`
+    )
+
   const plans = [
-    { id: 'basic', name: 'Basic', price: '$4.99/mo', features: ['720p', '1 device'], color: '#60A5FA', logo: '/images/thumbs/other2.jpg' },
-    { id: 'standard', name: 'Standard', price: '$9.99/mo', features: ['1080p', '2 devices'], color: '#22D3EE', logo: '/images/thumbs/other3.jpg' },
-    { id: 'premium', name: 'Premium', price: '$14.99/mo', features: ['4K + HDR', '4 devices'], color: '#F59E0B', logo: '/images/thumbs/other4.jpg' },
+    { id: 'basic', name: 'Basic', price: '$4.99/mo', features: ['720p', '1 device'], color: '#60A5FA', logo: mkLogo('Basic', '#93C5FD') },
+    { id: 'standard', name: 'Standard', price: '$9.99/mo', features: ['1080p', '2 devices'], color: '#22D3EE', logo: mkLogo('Std', '#A5F3FC') },
+    { id: 'premium', name: 'Premium', price: '$14.99/mo', features: ['4K + HDR', '4 devices'], color: '#F59E0B', logo: mkLogo('Pro', '#FDE68A') },
   ]
   return (
     <div id="subscriptions" style={{ marginTop: 28, marginBottom: 24 }}>
