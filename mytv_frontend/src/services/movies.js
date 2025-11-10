@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////
+//
 // PUBLIC_INTERFACE
 // movies.js
 // Data service for Home rails and banner, integrating with
@@ -8,14 +8,15 @@
 // - fetchMovies(): fetches from API, normalizes { id, name, poster, genre }, and returns grouped rails
 // - fetchHomeData(): alias that delegates to fetchMovies() for backwards-compat
 // - fetchTrending(): returns Top Trending (subset) with fallback
- // - mapApiToItem(): maps API item to normalized shape { id, name, poster, genre }
+// - mapApiToItem(): maps API item to normalized shape { id, name, poster, genre }
 // - getBanner(): returns a featured banner candidate
+// - getRailsData(items): groups a flat normalized list into rails
 //
 // Behavior:
 // - Network first: tries the mock API; on error, falls back to local inline placeholders.
 // - Grouped rails: Top Trending, Continue Watching, Action, Drama, Horror, Other Genres (+ remaining).
-// - No environment variables are used; API base is fixed per request.
-///////////////////////////////////////////////////////////////
+// - No JSX in this file. No invalid tokens at top-of-file.
+//
 
 const API_BASE = 'https://5bc9cfc0.api.kavia.app';
 
@@ -26,7 +27,7 @@ function normGenres(rawGenres) {
   if (!rawGenres) return [];
   if (Array.isArray(rawGenres)) return rawGenres.map(String);
   if (typeof rawGenres === 'string') {
-    const parts = rawGenres.split(/[,|/]/g).map(s => s.trim()).filter(Boolean);
+    const parts = rawGenres.split(/[,|/]/g).map((s) => s.trim()).filter(Boolean);
     return parts.length ? parts : [rawGenres.trim()];
   }
   return [];
@@ -69,12 +70,13 @@ async function tryFetchJson(url, opts) {
 // PUBLIC_INTERFACE
 export async function fetchMovies() {
   /**
-   * Fetches from mock API and returns grouped rails:
+   * Fetches from API_BASE and returns grouped rails:
    * [{ title: 'Top Trending', items }, { title: 'Continue Watching', items }, 'Action', 'Drama', 'Horror', 'Other Genres', ...]
    * Falls back to local placeholders on error.
    * Items are normalized to { id, name, poster, genre }.
    */
   try {
+    // The root endpoint returns an array or an object with results/items.
     const data = await tryFetchJson(`${API_BASE}/`);
     const list = Array.isArray(data)
       ? data
@@ -85,32 +87,7 @@ export async function fetchMovies() {
       : [];
 
     const mapped = list.map(mapApiToItem);
-    const groups = groupBy(mapped, (x) => x.genre || 'Other Genres');
-
-    // Rails: trending first 12, continue watching next 8, then preferred genre order, then rest alphabetically.
-    const trending = mapped.slice(0, 12);
-    const continueWatching = mapped.slice(12, 20);
-
-    const preferredOrder = ['Action', 'Drama', 'Horror', 'Other Genres'];
-    const genreNames = Object.keys(groups);
-
-    const sortedGenres = [
-      ...preferredOrder.filter((g) => genreNames.includes(g)),
-      ...genreNames
-        .filter((g) => !preferredOrder.includes(g))
-        .sort((a, b) => a.localeCompare(b)),
-    ];
-
-    const genreRails = sortedGenres.map((g) => ({
-      title: g,
-      items: groups[g] || [],
-    }));
-
-    return [
-      { title: 'Top Trending', items: trending },
-      { title: 'Continue Watching', items: continueWatching },
-      ...genreRails,
-    ];
+    return getRailsData(mapped);
   } catch {
     // Fallback to local rails
     return localHomeRails();
@@ -176,6 +153,41 @@ export async function getBanner() {
   };
 }
 
+// PUBLIC_INTERFACE
+export function getRailsData(items = []) {
+  /**
+   * Groups a flat list of normalized items ({id,name,poster,genre}) into the standard rails shape:
+   * - Top Trending: first 12
+   * - Continue Watching: next 8
+   * - Then rails by genre in preferred order, followed by the rest alphabetically
+   */
+  const safe = Array.isArray(items) ? items : [];
+  const mapped = safe.map((x, i) => mapApiToItem(x, i)); // ensure normalized shape
+  const groups = groupBy(mapped, (x) => x.genre || 'Other Genres');
+
+  // Rails: trending first 12, continue watching next 8
+  const trending = mapped.slice(0, 12);
+  const continueWatching = mapped.slice(12, 20);
+
+  const preferredOrder = ['Action', 'Drama', 'Horror', 'Other Genres'];
+  const genreNames = Object.keys(groups);
+  const sortedGenres = [
+    ...preferredOrder.filter((g) => genreNames.includes(g)),
+    ...genreNames.filter((g) => !preferredOrder.includes(g)).sort((a, b) => a.localeCompare(b)),
+  ];
+
+  const genreRails = sortedGenres.map((g) => ({
+    title: g,
+    items: groups[g] || [],
+  }));
+
+  return [
+    { title: 'Top Trending', items: trending },
+    { title: 'Continue Watching', items: continueWatching },
+    ...genreRails,
+  ];
+}
+
 // Helpers
 
 function groupBy(arr, keyGetter) {
@@ -191,50 +203,28 @@ function dataThumb(label = '') {
   const bg = '#1f2937'; // slate-800
   const fg = '#e5e7eb'; // gray-200
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="260" height="150">`
-    + `<rect width="100%" height="100%" fill="${bg}"/>`
-    + `<text x="12" y="84" fill="${fg}" font-family="Arial" font-size="16" font-weight="700">${String(label).slice(0,18)}</text>`
-    + `</svg>`;
+    `<svg xmlns="http://www.w3.org/2000/svg" width="260" height="150">` +
+    `<rect width="100%" height="100%" fill="${bg}"/>` +
+    `<text x="12" y="84" fill="${fg}" font-family="Arial" font-size="16" font-weight="700">${String(label).slice(0, 18)}</text>` +
+    `</svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
 function dataBanner() {
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="360">`
-    + `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0">`
-    + `<stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0b1220"/>`
-    + `</linearGradient></defs>`
-    + `<rect width="100%" height="100%" fill="url(#g)"/>`
-    + `<text x="48" y="220" fill="#ffffff" font-family="Arial" font-weight="900" font-size="64">Ocean Professional</text>`
-    + `</svg>`;
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="360">` +
+    `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0">` +
+    `<stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0b1220"/>` +
+    `</linearGradient></defs>` +
+    `<rect width="100%" height="100%" fill="url(#g)"/>` +
+    `<text x="48" y="220" fill="#ffffff" font-family="Arial" font-weight="900" font-size="64">Ocean Professional</text>` +
+    `</svg>`;
   return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
 }
 
 function localHomeRails() {
   const items = buildLocalItems();
-  const groups = groupBy(items, (x) => x.genre);
-  const trending = items.slice(0, 12);
-  const continueWatching = items.slice(12, 16);
-
-  const sections = [
-    { title: 'Top Trending', items: trending },
-    { title: 'Continue Watching', items: continueWatching },
-  ];
-
-  const preferredOrder = ['Action', 'Drama', 'Horror', 'Comedy', 'Other Genres'];
-  const byName = Object.keys(groups).sort((a, b) => {
-    const ai = preferredOrder.indexOf(a);
-    const bi = preferredOrder.indexOf(b);
-    if (ai === -1 && bi === -1) return a.localeCompare(b);
-    if (ai === -1) return 1;
-    if (bi === -1) return -1;
-    return ai - bi;
-  });
-
-  for (const g of byName) {
-    sections.push({ title: g, items: groups[g] });
-  }
-  return sections;
+  return getRailsData(items);
 }
 
 function buildLocalItems() {
