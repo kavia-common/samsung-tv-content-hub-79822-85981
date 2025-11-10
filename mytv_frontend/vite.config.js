@@ -4,53 +4,32 @@ import react from '@vitejs/plugin-react'
 /**
  PUBLIC_INTERFACE
  Vite config for React app with stable dev server and HMR.
- - Prevents reload storms by ignoring writes to public/ except whitelisted folders.
- - Ensures no plugins/middleware write to index.html or touch watched files.
- - Ignores sibling projects and workspace-wide noisy paths.
+ - Explicitly sets root to the project directory to ensure only this app is watched.
+ - Prevents reload storms by ignoring siblings and workspace-level noisy paths.
+ - Ignores HTML under public/assets and assets, and any .env changes.
 */
 export default defineConfig({
+  root: process.cwd(),
   plugins: [react()],
+  publicDir: 'public',
   server: {
     host: true,
-    // Let orchestrator choose/override; don't fail if 3000 is busy
-    strictPort: false,
     allowedHosts: ['vscode-internal-39544-beta.beta01.cloud.kavia.ai'],
-    hmr: {
-      // Use a stable default 3000; allow override via PORT
-      clientPort: process.env.PORT ? Number(process.env.PORT) : 3000,
-      // Stable overlay defaults; no forced reconnect spam
-      overlay: true,
-    },
-    // Explicitly ignore file changes that can be updated by external processes
     watch: {
-      // Strong ignore patterns to avoid reload storms
       ignored: [
-        // Core noisy paths
+        '../**',
+        '../../**',
+        '**/public/assets/**/*.html',
+        '**/assets/**/*.html',
+        '**/.env*',
         '**/node_modules/**',
         '**/.git/**',
         '**/dist/**',
         '**/.vite/**',
-
-        // HTML asset reload reducers
-        '**/public/assets/**/*.html',
-        '**/assets/**/*.html',
-
-        // Sibling project - ensure single Vite root
-        '../mytv/**',
-
-        // Env files should not trigger restarts/HMR
-        '**/.env*',
-
-        // Logs and locks
-        '**/*.lock',
-        '**/*.log',
-        '**/post_process_status.lock',
       ],
     },
-  },
-  preview: {
-    host: true,
-    strictPort: false,
-    allowedHosts: ['vscode-internal-39544-beta.beta01.cloud.kavia.ai'],
+    hmr: {
+      clientPort: 3000,
+    },
   },
 })

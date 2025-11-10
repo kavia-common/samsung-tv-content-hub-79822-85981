@@ -9,13 +9,16 @@ Currently, two official plugins are available:
 
 ## Dev server and health check
 
-- Dev server runs on 0.0.0.0 with strictPort=false; the port is controlled by CLI/env (e.g., `--port 3000` or `--port 3005`). Use `npm run dev` or `npm run dev:3000`.
-- A readiness endpoint is served by Vite at `/` and the app also logs a dev heartbeat; no custom middleware is required.
-- Allowed hosts configured: vscode-internal-39544-beta.beta01.cloud.kavia.ai
+- Root is explicitly set to this project directory; only `mytv_frontend/` is watched/served.
+- Dev server runs on 0.0.0.0; port is controlled by CLI/env (e.g., `--port 3000`). Use `npm run dev` or `npm run dev:3000`.
+- Allowed host: vscode-internal-39544-beta.beta01.cloud.kavia.ai
 
 Stability notes:
-- No runtime process writes to vite.config.js or .env. Defaults are set in the config; scripts avoid duplicate CLI flags.
-- Watcher ignores only dist/.git/node_modules and lockfiles to avoid reload storms without skipping source updates.
+- Strict watch ignores prevent reload storms:
+  - Ignore siblings/workspace: `../**`, `../../**`
+  - Ignore HTML under `public/assets` and `assets`: `**/public/assets/**/*.html`, `**/assets/**/*.html`
+  - Ignore `.env*`, `dist`, `.git`, `node_modules`, `.vite`
+- No runtime process writes to vite.config.js, index.html, or `.env`.
 
 Commands:
 - npm run dev -> vite (port controlled by CLI/env)
