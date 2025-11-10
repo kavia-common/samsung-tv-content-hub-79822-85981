@@ -7,7 +7,7 @@
     <meta name="description" content="Tizen TV Application" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>mytv_frontend</title>
-    <!-- Theme CSS is imported via JS entry; avoid duplicate preload/injections that may cause redundant HMR triggers -->
+    <!-- Only inline styles for body size; all CSS is imported via JS entry to avoid extra watched files -->
     <style>
       body {
         margin: 0;
@@ -20,7 +20,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Single entry module only -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

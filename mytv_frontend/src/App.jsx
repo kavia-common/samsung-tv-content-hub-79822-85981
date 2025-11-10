@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import './index.css'
 import './theme.css'
 import Splash from './pages/Splash.jsx'
@@ -8,63 +8,48 @@ import Login from './pages/Login.jsx'
 import TopMenu from './components/TopMenu.jsx'
 
 /**
- * PUBLIC_INTERFACE
- * Root App wiring router and layout. Splash is initial route and auto-navigates to Home.
- * Second screen (after Splash) shows a TopMenu with four focusable buttons: Home, Login, Settings, My Plan.
- * Navigation works via click/Enter and routes to /home, /login, or scrolls to #settings/#plan on Home.
- * Buttons are focusable and keyboard/remote accessible; no infinite effects are used in App.
- * Verified: Buttons are present and functional; routes/anchors operate as described.
- * Second screen requirement satisfied: Home, Login, Settings, My Plan are focusable and keyboard/remote accessible.
- *
- * Implementation note:
- * - Using HashRouter improves stability in preview/reverse-proxy environments because it avoids server-side route handling.
- *   It preserves our existing paths and hash-based section deep links without needing server rewrites.
- */
+ PUBLIC_INTERFACE
+ Root App: defines routes Splash -> Home -> Login with a shared layout for non-splash pages.
+*/
 function AppRouter() {
-  // Dev-only health check log to quickly spot server availability without failing app
-  if (import.meta && import.meta.hot) {
-    fetch('/healthz').then(
-      () => console.debug('[dev-healthz] 200 OK'),
-      (err) => console.warn('[dev-healthz] failed', err?.message || err)
-    )
-  }
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Splash />} />
-        <Route
-          path="/home"
-          element={
-            <PageLayout>
-              <Home />
-            </PageLayout>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <PageLayout>
-              <Login />
-            </PageLayout>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </HashRouter>
+    <Routes>
+      <Route path="/" element={<Splash />} />
+      <Route
+        path="/home"
+        element={
+          <PageLayout>
+            <Home />
+          </PageLayout>
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <PageLayout>
+            <Login />
+          </PageLayout>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 
 /**
- * PUBLIC_INTERFACE
- * PageLayout provides the persistent top menu and themed container.
- */
+ PUBLIC_INTERFACE
+ PageLayout provides the persistent top menu and themed container.
+*/
 function PageLayout({ children }) {
-  const sections = useMemo(() => ([
-    { label: 'Home', path: '/home' },
-    { label: 'Login', path: '/login' },
-    { label: 'Settings', path: '/home#settings' },
-    { label: 'My Plan', path: '/home#plan' },
-  ]), [])
+  const sections = useMemo(
+    () => [
+      { label: 'Home', path: '/home' },
+      { label: 'Login', path: '/login' },
+      { label: 'Settings', path: '/home#settings' },
+      { label: 'My Plan', path: '/home#plan' },
+    ],
+    []
+  )
   return (
     <div className="app-surface">
       <TopMenu items={sections} />
