@@ -23,8 +23,8 @@ Stability notes:
 - Quick readiness check: curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 
 Commands:
-- npm run dev -> vite --host 0.0.0.0 (port controlled by CLI/env; strictPort=true)
-- npm run dev:3000 -> vite --host 0.0.0.0 --port 3000
+- npm run dev -> vite (port controlled by CLI/env; strictPort=true, host defaults to 0.0.0.0)
+- npm run dev:3000 -> vite --port 3000
 - npm run dev:mem -> dev with reduced memory cap (NODE_OPTIONS=--max-old-space-size=384)
 - npm run dev:mem:256 -> dev with tighter memory cap (256 MB)
 - npm run preview -> vite preview (port controlled by CLI/env; strictPort=true)

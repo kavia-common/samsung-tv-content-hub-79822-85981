@@ -1,6 +1,6 @@
 # Dev server behavior
 
-- Host: 0.0.0.0 by default (server.host: true) and honors HOST env/CLI if provided; never written to disk.
+- Host: 0.0.0.0 by default (server.host is set to 0.0.0.0) and honors HOST env/CLI if provided; never written to disk.
 - Port: Controlled by CLI/env. server.port is undefined with strictPort: true so orchestrator --port (e.g., 3000 or 3005) is authoritative. If the chosen port is busy the process exits with a clear error (no silent port switching).
 - HMR: overlay enabled; clientPort is derived from PORT/CLI when provided to match orchestrator proxying.
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms).

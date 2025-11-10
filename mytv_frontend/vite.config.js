@@ -19,7 +19,7 @@ export default defineConfig(() => {
   const indexHtml = path.resolve(rootDir, 'index.html')
 
   const cliHost = process.env.HOST?.trim()
-  const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : true
+  const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : '0.0.0.0'
 
   // Vite v4: allowedHosts is an array<string> of hostnames (no protocol/port).
   const allowedHosts = Array.from(
