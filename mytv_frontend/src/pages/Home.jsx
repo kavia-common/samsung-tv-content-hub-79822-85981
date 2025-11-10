@@ -1,33 +1,42 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
 import ShowDetails from '../components/ShowDetails.jsx'
-import { fetchHomeData, getBanner } from '../services/movies.js'
+import { fetchMovies, fetchHomeData, getBanner } from '../services/movies.js'
 
 /**
  * PUBLIC_INTERFACE
- * Home page: Top banner, multiple rails populated by local images, and subscriptions at bottom.
+ * Home page: Top banner, multiple rails populated by API (with local fallback), and subscriptions at bottom.
  * - Uses keyboard-friendly rails with focusable thumbnail cards.
- * - Local placeholders from /public/images are used now; service prepared for API.
+ * - Thumbnails use the provided Poster URL when available.
  */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
   const [details, setDetails] = useState(null)
   const [rails, setRails] = useState([])
-  const [banner, setBanner] = useState({ backdrop: '/images/banners/banner1.jpg', title: 'Welcome to MyTV', subtitle: 'Enjoy your favorites' })
+  const [banner, setBanner] = useState({ backdrop: '', title: 'Welcome to MyTV', subtitle: 'Enjoy your favorites' })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     async function load() {
       try {
-        const [r, b] = await Promise.all([fetchHomeData(), getBanner()])
+        setLoading(true)
+        setError(null)
+        // fetchMovies() is the new API-aware loader; fetchHomeData() remains for backward-compat.
+        const [r, b] = await Promise.all([fetchMovies().catch(() => fetchHomeData()), getBanner()])
         if (!cancelled) {
           setRails(r || [])
           setBanner(b || banner)
         }
-      } catch {
-        // keep defaults on error
+      } catch (e) {
+        if (!cancelled) {
+          setError(e)
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
     load()
@@ -53,7 +62,9 @@ export default function Home() {
           railIndex={idx}
           currentRail={currentRail}
           setCurrentRail={setCurrentRail}
-          onOpenDetails={(it) => setDetails({ ...it, description: 'Local demo item' })}
+          onOpenDetails={(it) => setDetails({ ...it, description: 'Selection' })}
+          loading={loading}
+          error={error}
         />
       ))}
 

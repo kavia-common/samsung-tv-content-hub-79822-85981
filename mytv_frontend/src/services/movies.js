@@ -1,32 +1,66 @@
 ///////////////////////////////////////////////////////////////
 // PUBLIC_INTERFACE
 // movies.js
-// Lightweight service prepared for future integration with
-// https://5bc9cfc0.api.kavia.app/
+// Data service for Home rails and banner, integrating with
+// https://5bc9cfc0.api.kavia.app/ with graceful local fallback.
 //
 // Exposes:
-// - fetchHomeData(): returns grouped rails by genre with title and items
-// - fetchTrending(): returns a flat trending list
-// - mapApiToItem(): maps API { name, image, genre } to UI { id, title, image, genre }
+// - fetchMovies(): fetches from API, normalizes {id, title, genres[], Poster}, and returns grouped rails
+// - fetchHomeData(): alias that delegates to fetchMovies() for backwards-compat
+// - fetchTrending(): returns Top Trending (subset) with fallback
+// - mapApiToItem(): maps API item to UI item shape with Poster support
 // - getBanner(): returns a featured banner candidate
 //
 // Behavior:
-// - Attempts to fetch remote data (disabled by default with shouldTryNetwork=false).
-// - Falls back to local placeholder images from /public/images.
-// - Groups by genre and produces Netflix-like rails.
-// - Designed to be swapped to remote by setting shouldTryNetwork=true later.
+// - Network first: tries the mock API; on error, falls back to local inline placeholders.
+// - Grouped rails: Top Trending, Continue Watching, Action, Drama, Horror, Other Genres (+ remaining).
+// - No environment variables are used; API base is fixed per request.
 ///////////////////////////////////////////////////////////////
 
 const API_BASE = 'https://5bc9cfc0.api.kavia.app';
 
+/**
+ * Normalize API genres to an array of strings.
+ */
+function normGenres(rawGenres) {
+  if (!rawGenres) return [];
+  if (Array.isArray(rawGenres)) return rawGenres.map(String);
+  if (typeof rawGenres === 'string') {
+    // Split common delimiters
+    const parts = rawGenres.split(/[,|/]/g).map(s => s.trim()).filter(Boolean);
+    return parts.length ? parts : [rawGenres.trim()];
+  }
+  return [];
+}
+
 // PUBLIC_INTERFACE
 export function mapApiToItem(raw = {}, idx = 0) {
-  /** Map API item { name, image, genre } into UI item { id, title, image, genre } */
+  /** Map API item into UI item with Poster support. */
+  const id =
+    raw.id ??
+    raw._id ??
+    raw.slug ??
+    `api-${idx}-${String(raw.name || raw.title || 'unknown').toLowerCase().replace(/\s+/g, '-')}`;
+
+  const title = raw.title ?? raw.name ?? 'Untitled';
+
+  // Respect Poster field explicitly; also accept common alternates.
+  const Poster =
+    raw.Poster ??
+    raw.poster ??
+    raw.image ??
+    raw.thumbnail ??
+    '';
+
+  const genres = normGenres(raw.genres ?? raw.genre ?? raw.category);
+
   return {
-    id: raw.id ?? raw._id ?? `api-${idx}-${(raw.name || 'unknown').toLowerCase().replace(/\s+/g, '-')}`,
-    title: raw.name ?? raw.title ?? 'Untitled',
-    image: raw.image ?? raw.thumbnail ?? '',
-    genre: raw.genre ?? 'Other',
+    id,
+    title,
+    image: Poster, // keep legacy 'image' for ThumbnailCard
+    Poster,
+    genres,
+    genre: genres[0] || 'Other Genres',
   };
 }
 
@@ -37,49 +71,71 @@ async function tryFetchJson(url, opts) {
 }
 
 // PUBLIC_INTERFACE
-export async function fetchHomeData() {
+export async function fetchMovies() {
   /**
-   * Return rails shaped for Home:
-   * [{ title: 'Top Trending', items: [...] }, { title: 'Action', items: [...] }, ...]
-   * Local placeholders are used when network is disabled or fails.
+   * Fetches from mock API and returns grouped rails:
+   * [{ title: 'Top Trending', items }, { title: 'Continue Watching', items }, 'Action', 'Drama', 'Horror', 'Other Genres', ...]
+   * Falls back to local placeholders on error.
    */
-  const shouldTryNetwork = false; // flip to true when wiring the real API
-  if (shouldTryNetwork) {
-    try {
-      const data = await tryFetchJson(`${API_BASE}/movies`);
-      // Expecting array of { name, image, genre }
-      const mapped = Array.isArray(data) ? data.map(mapApiToItem) : [];
-      const groups = groupBy(mapped, (x) => x.genre || 'Other');
-      // Prepare sections: Trending, Continue Watching (first few), then genres
-      const trending = mapped.slice(0, 12);
-      const continueWatching = mapped.slice(12, 20);
-      const genreRails = Object.keys(groups).sort().map((g) => ({
-        title: g,
-        items: groups[g],
-      }));
-      return [
-        { title: 'Top Trending', items: trending },
-        { title: 'Continue Watching', items: continueWatching },
-        ...genreRails,
-      ];
-    } catch {
-      // fallthrough to local
-    }
+  try {
+    const data = await tryFetchJson(`${API_BASE}/`);
+    // Expect the API to return an array or object with a list. Try common shapes.
+    const list = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.results)
+      ? data.results
+      : Array.isArray(data?.items)
+      ? data.items
+      : [];
+
+    const mapped = list.map(mapApiToItem);
+    const groups = groupBy(mapped, (x) => x.genre || 'Other Genres');
+
+    // Rails: trending first 12, continue watching next 8, then preferred genre order, then rest alphabetically.
+    const trending = mapped.slice(0, 12);
+    const continueWatching = mapped.slice(12, 20);
+
+    const preferredOrder = ['Action', 'Drama', 'Horror', 'Other Genres'];
+    const genreNames = Object.keys(groups);
+
+    const sortedGenres = [
+      ...preferredOrder.filter((g) => genreNames.includes(g)),
+      ...genreNames
+        .filter((g) => !preferredOrder.includes(g))
+        .sort((a, b) => a.localeCompare(b)),
+    ];
+
+    const genreRails = sortedGenres.map((g) => ({
+      title: g,
+      items: groups[g] || [],
+    }));
+
+    return [
+      { title: 'Top Trending', items: trending },
+      { title: 'Continue Watching', items: continueWatching },
+      ...genreRails,
+    ];
+  } catch {
+    // Fallback to local rails
+    return localHomeRails();
   }
-  return localHomeRails();
+}
+
+// PUBLIC_INTERFACE
+export async function fetchHomeData() {
+  /** Alias to fetchMovies() to keep existing imports working. */
+  return fetchMovies();
 }
 
 // PUBLIC_INTERFACE
 export async function fetchTrending() {
   /** Return trending list; local fallback. */
-  const shouldTryNetwork = false;
-  if (shouldTryNetwork) {
-    try {
-      const data = await tryFetchJson(`${API_BASE}/trending`);
-      return Array.isArray(data) ? data.map(mapApiToItem) : [];
-    } catch {
-      // ignore and fallback
-    }
+  try {
+    const rails = await fetchMovies();
+    const top = rails.find((r) => r?.title === 'Top Trending');
+    if (top?.items?.length) return top.items;
+  } catch {
+    // ignore and fallback
   }
   const local = buildLocalItems();
   return local.slice(0, 12);
@@ -90,6 +146,23 @@ export async function fetchTrending() {
  */
 export async function getBanner() {
   /** Return banner candidate for the hero area. Uses inline data URL image to avoid missing files. */
+  // Try to reuse first item from API if available for better realism
+  try {
+    const rails = await fetchMovies();
+    const firstRail = rails?.[0];
+    const firstItem = firstRail?.items?.[0];
+    if (firstItem) {
+      return {
+        id: firstItem.id,
+        title: firstItem.title,
+        backdrop: firstItem.Poster || firstItem.image || dataBanner(),
+        subtitle: 'Handpicked selection for you.',
+      };
+    }
+  } catch {
+    // ignore and use local
+  }
+
   const items = buildLocalItems();
   const first = items[0] || {
     id: 'banner-1',
@@ -214,10 +287,13 @@ function buildLocalItems() {
   let c = 0;
   for (const [genre, arr] of Object.entries(genres)) {
     for (const { t } of arr) {
+      const poster = dataThumb(t);
       out.push({
         id: `local-${c++}`,
         title: t,
-        image: dataThumb(t),
+        image: poster,
+        Poster: poster,
+        genres: [genre],
         genre,
       });
     }
