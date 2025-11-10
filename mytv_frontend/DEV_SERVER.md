@@ -9,24 +9,26 @@ Watcher hardening:
 - Polling disabled: `server.watch.usePolling = false`
 - Debounce writes: `awaitWriteFinish.stabilityThreshold=350ms`
 - Absolute ignores added (resolved at runtime):
-  - This project’s vite.config.js
+  - This project’s vite.config.js (and its realpath if symlinked)
   - Workspace root directory
   - Sibling project `mytv/` and its vite config
+  - Any `vite.config.js` in parent workspace
 - Glob ignores:
   - `**/vite.config.*`, `**/postcss.config.*`, `**/tailwind.config.*`, `**/DEV_SERVER.md`
-  - `.env` files: `**/.env`, `**/.env.*`
+  - `.env` files: `**/.env`, `**/.env.*` (env changes do not restart dev server)
   - HTML under `public/assets` and `assets`: `**/public/assets/**/*.html`, `**/assets/**/*.html`
   - Build/cache/SCM: `**/node_modules/**`, `**/.git/**`, `**/dist/**`, `**/.vite/**`
   - Parents/siblings: `../**`, `../../**`, `../../../**`
 
 Index/Assets:
-- Ensure a single `index.html` exists at the project root (`mytv_frontend/index.html`).
+- Ensure a single `index.html` exists at the project root (`mytv_frontend/index.html`) and it contains exactly one module script to `/src/main.jsx`.
 - Do not place HTML files in `public/assets/`. Raw HTML design exports belong in `assets-reference/` only.
 
 Environment variables:
 - Use `.env.local` for local overrides. Watcher ignores `.env*`, so changes do not auto-restart. Never write to `.env*` from scripts.
 
 Scripts/Tools:
+- Dev scripts: `"dev": "vite"` (no hooks that modify files).
 - No postinstall/dev hooks or format-on-save modify `vite.config.js` during dev. `lint-staged` is disabled to avoid write-backs.
 
 Commands:

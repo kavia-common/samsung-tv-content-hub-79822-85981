@@ -30,6 +30,8 @@ const ignoredList = [
   thisViteConfig,
   siblingMyTv,
   siblingMyTvVite,
+  // also ignore any vite config in parent workspace
+  path.join(workspaceRoot, 'vite.config.js'),
   workspaceRoot, // ignore workspace root to avoid parent activity triggering
   // Glob fallbacks/patterns inside project
   '**/vite.config.*',

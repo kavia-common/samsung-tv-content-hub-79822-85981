@@ -12,6 +12,7 @@ Currently, two official plugins are available:
 - Root is explicitly set to this project directory; only `mytv_frontend/` is watched/served.
 - Dev server runs on 0.0.0.0; port is controlled by CLI/env (e.g., `--port 3000`). Use `npm run dev` or `npm run dev:3000`.
 - Allowed host: vscode-internal-39544-beta.beta01.cloud.kavia.ai
+- Note: Watcher ignores `.env*`, any HTML under `public/assets` or `assets`, sibling/workspace paths, and all `vite.config.*` changes to prevent restarts.
 
 Stability notes:
 - Strict watch ignores prevent reload storms:
