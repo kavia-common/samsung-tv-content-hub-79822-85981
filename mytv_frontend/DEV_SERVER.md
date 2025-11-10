@@ -41,7 +41,7 @@ Quick checks:
 - Verify readiness:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 
-- Run on explicit port 3000 (strict) in non-interactive mode:
+- Run on explicit port 3000 (strict, 0.0.0.0 host) in non-interactive mode:
   npm run dev:3000
 
 - Run on orchestrator-provided port 3005:
