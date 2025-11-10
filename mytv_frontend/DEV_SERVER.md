@@ -6,9 +6,10 @@
 - Port: Controlled by CLI/env; HMR clientPort fixed to 3000 for stability.
 
 Watch ignores (strict):
-- Sibling and workspace paths: `../**`, `../../**` (prevents picking up `mytv/` or workspace `assets/`).
+- This config and sibling configs: `**/vite.config.js`, `**/postcss.config.js`, `**/tailwind.config.js`, `**/DEV_SERVER.md`
+- Sibling and workspace parents: `../**`, `../../**`, `../../../**` (prevents picking up `mytv/` or workspace `assets/`).
 - HTML under public/assets and assets: `**/public/assets/**/*.html`, `**/assets/**/*.html`
-- Environment files: `**/.env*` (env changes won’t restart; restart manually if needed)
+- Environment files: `**/.env`, `**/.env.*` (env changes won’t restart; restart manually if needed)
 - Build/cache/SCM: `**/node_modules/**`, `**/.git/**`, `**/dist/**`, `**/.vite/**`
 
 Index/Assets:
@@ -16,7 +17,7 @@ Index/Assets:
 - Do not place HTML files in `public/assets/`. Raw HTML design exports belong in `assets-reference/` only.
 
 Environment variables:
-- Use `.env.local` for local overrides. Watcher ignores `.env*`, so changes do not auto-restart.
+- Use `.env.local` for local overrides. Watcher ignores `.env*`, so changes do not auto-restart. Never write to `.env*` from scripts.
 
 Scripts:
 - npm run dev            -> vite
@@ -33,9 +34,9 @@ Validation checklist:
    npm run dev -- --host 0.0.0.0 --port 3000
 2) Splash renders and auto-navigates to /home (~5s).
 3) Top menu routes: Home → /home, Login → /login, anchors for Settings/My Plan.
-4) Terminal shows Vite ready; no repeated reload/restart loops.
+4) Terminal shows Vite ready; no repeated reload/restart loops (no "vite.config.js changed, restarting server..." spam).
 5) HMR updates work without full reloads or exits.
 
 Notes:
-- No script writes to vite.config.js, index.html, or `.env*` during dev.
+- No script writes to vite.config.js, index.html, or any `.env*` during dev.
 - If CI/memory constraints cause termination, use `npm run dev:mem:256` or `npm run dev:mem`.
