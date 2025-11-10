@@ -47,11 +47,17 @@ Troubleshooting:
   npm run dev -- --port 3001
 - If /healthz returns 404 from a foreign process, ensure you are hitting the Vite instance configured in this repo (our Vite adds /healthz in both dev and preview).
 
+- Recommended in CI/preview runners:
+  npm run dev        # plain vite; runner injects --host/--port
+  # or memory-capped:
+  npm run dev:ci     # same as dev, plain vite (no flags)
+  npm run dev:ci:mem # plain vite with NODE_OPTIONS=--max-old-space-size=384
+
 - Run on explicit port 3000 (strict) in non-interactive mode:
   npm run dev:3000
 
-- Run on orchestrator-provided port 3005 (or other):
-  npm run dev -- --port 3005
+- Run on orchestrator-provided port 3005 (or other) from CLI:
+  npm run dev -- --host 0.0.0.0 --port 3005
 
 Operational notes:
 - No runtime writes to `.env` or `vite.config.js`. Defaults are set in the config; scripts avoid duplicate CLI flags.
