@@ -6,8 +6,8 @@ import react from '@vitejs/plugin-react'
 /**
  * Stable Vite 5 + React configuration with orchestrator-friendly behavior.
  * - Host: 0.0.0.0 (host: true) unless overridden by --host/HOST
- * - Port: undefined in config so CLI/env control it; strictPort=true to avoid silent switching
- * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying
+ * - Port: undefined in config so CLI/env control it; strict switching disabled (strictPort: false) to avoid premature exit
+ * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying; defaults to 3000 to match preview
  * - Healthz endpoint and /dist guard middleware
  * - Robust watcher ignores config/docs/locks to avoid self-restarts
  */
@@ -32,9 +32,9 @@ export default defineConfig(() => {
     ])
   )
 
-  // Use env PORT for HMR clientPort when provided by orchestrator
+  // Use env PORT for HMR clientPort when provided by orchestrator; default to 3000 for preview system
   const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
-  const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
+  const hmrClientPort = Number.isFinite(cliPort) ? cliPort : 3000
 
   // Chokidar watch ignores (do not pass to esbuild or rollup)
   const ignoredGlobs = [
@@ -112,8 +112,8 @@ export default defineConfig(() => {
 
   baseConfig.server = {
     host: resolvedHost,
-    port: undefined, // CLI controls; strictPort prevents silent switching
-    strictPort: true,
+    port: undefined, // CLI controls; allow fallback if busy
+    strictPort: false, // do not exit on port contention; preview will still proxy to selected port
     open: false,
     allowedHosts,
     hmr: {
@@ -135,7 +135,7 @@ export default defineConfig(() => {
   baseConfig.preview = {
     host: resolvedHost,
     port: undefined,
-    strictPort: true,
+    strictPort: false,
     open: false,
     allowedHosts,
     watch: {
