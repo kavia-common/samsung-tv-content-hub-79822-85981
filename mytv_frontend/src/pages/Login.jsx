@@ -54,7 +54,7 @@ export default function Login() {
           />
           <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
             <button
-              className="focusable"
+              className="focusable transition transform hover:scale-[1.02]"
               style={{
                 height: 54,
                 minWidth: 160,
@@ -67,12 +67,25 @@ export default function Login() {
                 fontWeight: 800,
                 cursor: 'pointer',
               }}
+              onClick={() => {
+                const inputs = document.querySelectorAll('input');
+                const [email, pass] = inputs;
+                if (!email?.value || !pass?.value) {
+                  alert('Please enter email and password.');
+                  return;
+                }
+                alert('Signed in (demo)');
+              }}
             >
               Sign In
             </button>
-            <button
-              className="focusable"
+            <a
+              href="#/home"
+              className="focusable transition transform hover:scale-[1.02]"
               style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 height: 54,
                 minWidth: 160,
                 padding: '10px 18px',
@@ -82,11 +95,12 @@ export default function Login() {
                 color: '#fff',
                 fontSize: 18,
                 fontWeight: 700,
+                textDecoration: 'none',
                 cursor: 'pointer',
               }}
             >
-              Create Account
-            </button>
+              Back to Home
+            </a>
           </div>
         </div>
       </div>

@@ -13,6 +13,27 @@ export default function Home() {
   const scaleInnerRef = useRef(null)
   const stageRef = useRef(null)
 
+  // Hero banner using /public/images/banner.jpg with gradient fallback
+  const Hero = () => (
+    <section className="mb-6">
+      <div className="relative w-full h-[360px] rounded-xl overflow-hidden border border-white/10 shadow-xl">
+        <img
+          src="/images/banner.jpg"
+          alt="Featured Banner"
+          className="w-full h-full object-cover"
+          onError={(e) => { e.currentTarget.style.opacity = 0; }}
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 via-neutral-900/50 to-transparent" />
+        <div className="absolute left-9 top-8 max-w-[820px]">
+          <p className="text-blue-300 font-bold tracking-widest">FEATURED</p>
+          <h2 className="mt-2 text-4xl font-extrabold text-white drop-shadow-xl">Welcome to MyTV</h2>
+          <p className="mt-1 text-neutral-300">A modern streaming experience with rails and smooth navigation.</p>
+        </div>
+      </div>
+    </section>
+  )
+
   // Inject page-specific CSS on mount; remove on unmount to avoid global leaks.
   useEffect(() => {
     const datasetKey = 'aafinicio-copy-2-2001-3396'
@@ -131,6 +152,7 @@ export default function Home() {
     <div className="figma-responsive-stage" ref={stageRef}>
       <div className="figma-scale-outer">
         <div className="figma-scale-inner" ref={scaleInnerRef}>
+          <Hero />
           <div id="screen-aafinicio-2001-3396" className="figma-screen aafinicio-copy-2" role="document" aria-label="AAF_inicio Copy 2">
             {/* Header */}
             <header id="header" className="header" aria-label="Header">
@@ -205,6 +227,36 @@ export default function Home() {
                 <div className="name-bg" aria-hidden="true" />
                 <div className="name-title text-typo-167">2012</div>
               </article>
+            </section>
+
+            {/* Simple MyTV rails using local placeholders */}
+            <section id="rails" className="abs" style={{ left: 88, top: 1540, width: 1744 }}>
+              <div className="section-title">Top Trending</div>
+              <div className="flex overflow-x-auto space-x-3 no-scrollbar pb-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={`t-${i}`} className="card focusable" tabIndex={0} style={{ width: 260, height: 150, overflow: 'hidden' }}>
+                    <img src={`/images/movie${(i % 8) + 1}.jpg`} alt={`Trending ${i + 1}`} className="w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.opacity=0.2 }} />
+                  </div>
+                ))}
+              </div>
+
+              <div className="section-title">Continue Watching</div>
+              <div className="flex overflow-x-auto space-x-3 no-scrollbar pb-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={`c-${i}`} className="card focusable" tabIndex={0} style={{ width: 260, height: 150, overflow: 'hidden' }}>
+                    <img src={`/images/movie${((i+2) % 8) + 1}.jpg`} alt={`Continue ${i + 1}`} className="w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.opacity=0.2 }} />
+                  </div>
+                ))}
+              </div>
+
+              <div className="section-title">Action</div>
+              <div className="flex overflow-x-auto space-x-3 no-scrollbar pb-2">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={`a-${i}`} className="card focusable" tabIndex={0} style={{ width: 260, height: 150, overflow: 'hidden' }}>
+                    <img src={`/images/movie${((i+3) % 8) + 1}.jpg`} alt={`Action ${i + 1}`} className="w-full h-full object-cover" onError={(e)=>{ e.currentTarget.style.opacity=0.2 }} />
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* Canales de TV */}

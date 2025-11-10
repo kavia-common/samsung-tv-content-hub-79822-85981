@@ -1,2 +1,1 @@
-This is a text placeholder for banner.jpg. Actual binary images cannot be written in this environment.
-The app uses /images/banner.svg by default. If you add a real banner.jpg, place it here and update references if needed.
+Placeholder banner image for MyTV (text file placeholder to satisfy path); replace with actual asset if available.

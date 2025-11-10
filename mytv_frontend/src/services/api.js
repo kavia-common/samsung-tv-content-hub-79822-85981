@@ -1,4 +1,21 @@
 /**
+ * Placeholder fetch for future backend:
+ * Example:
+ * // const API = "https://5bc9cfc0.api.kavia.app/";
+ * // export async function getCatalog() {
+ * //   const data = await fetch(`${API}catalog`).then(r => r.json());
+ * //   // map name->title, image->thumbnail, group by genre
+ * //   const byGenre = data.reduce((acc, item) => {
+ * //     const genre = item.genre || "Other";
+ * //     const norm = { id: item.id, title: item.name, image: item.image };
+ * //     (acc[genre] ||= []).push(norm);
+ * //     return acc;
+ * //   }, {});
+ * //   return byGenre;
+ * // }
+ */
+
+/**
  * PUBLIC_INTERFACE
  * fetchJSON
  * Fetch helper that throws a structured error on non-OK responses and returns parsed JSON.
