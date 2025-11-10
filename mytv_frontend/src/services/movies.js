@@ -5,10 +5,10 @@
 // https://5bc9cfc0.api.kavia.app/ with graceful local fallback.
 //
 // Exposes:
-// - fetchMovies(): fetches from API, normalizes {id, title, genres[], Poster}, and returns grouped rails
+// - fetchMovies(): fetches from API, normalizes { id, name, poster, genre }, and returns grouped rails
 // - fetchHomeData(): alias that delegates to fetchMovies() for backwards-compat
 // - fetchTrending(): returns Top Trending (subset) with fallback
-// - mapApiToItem(): maps API item to UI item shape with Poster support
+// - mapApiToItem(): maps API item to normalized shape { id, name, poster, genre }
 // - getBanner(): returns a featured banner candidate
 //
 // Behavior:
@@ -26,7 +26,6 @@ function normGenres(rawGenres) {
   if (!rawGenres) return [];
   if (Array.isArray(rawGenres)) return rawGenres.map(String);
   if (typeof rawGenres === 'string') {
-    // Split common delimiters
     const parts = rawGenres.split(/[,|/]/g).map(s => s.trim()).filter(Boolean);
     return parts.length ? parts : [rawGenres.trim()];
   }
@@ -35,33 +34,30 @@ function normGenres(rawGenres) {
 
 // PUBLIC_INTERFACE
 export function mapApiToItem(raw = {}, idx = 0) {
-  /** Map API item into UI item with Poster support. */
+  /**
+   * Map API item into UI item with exact keys: { id, name, poster, genre }.
+   * Accept common alternates to populate 'name' and 'poster', but the returned object uses lowercase keys.
+   */
   const id =
     raw.id ??
     raw._id ??
     raw.slug ??
     `api-${idx}-${String(raw.name || raw.title || 'unknown').toLowerCase().replace(/\s+/g, '-')}`;
 
-  const title = raw.title ?? raw.name ?? 'Untitled';
+  const name = raw.name ?? raw.title ?? 'Untitled';
 
-  // Respect Poster field explicitly; also accept common alternates.
-  const Poster =
-    raw.Poster ??
+  // poster must be lowercase; accept alternates but output 'poster'
+  const poster =
     raw.poster ??
+    raw.Poster ??
     raw.image ??
     raw.thumbnail ??
     '';
 
   const genres = normGenres(raw.genres ?? raw.genre ?? raw.category);
+  const genre = genres[0] || 'Other Genres';
 
-  return {
-    id,
-    title,
-    image: Poster, // keep legacy 'image' for ThumbnailCard
-    Poster,
-    genres,
-    genre: genres[0] || 'Other Genres',
-  };
+  return { id, name, poster, genre };
 }
 
 async function tryFetchJson(url, opts) {
@@ -76,10 +72,10 @@ export async function fetchMovies() {
    * Fetches from mock API and returns grouped rails:
    * [{ title: 'Top Trending', items }, { title: 'Continue Watching', items }, 'Action', 'Drama', 'Horror', 'Other Genres', ...]
    * Falls back to local placeholders on error.
+   * Items are normalized to { id, name, poster, genre }.
    */
   try {
     const data = await tryFetchJson(`${API_BASE}/`);
-    // Expect the API to return an array or object with a list. Try common shapes.
     const list = Array.isArray(data)
       ? data
       : Array.isArray(data?.results)
@@ -145,8 +141,10 @@ export async function fetchTrending() {
  * PUBLIC_INTERFACE
  */
 export async function getBanner() {
-  /** Return banner candidate for the hero area. Uses inline data URL image to avoid missing files. */
-  // Try to reuse first item from API if available for better realism
+  /**
+   * Return banner candidate for the hero area.
+   * Uses normalized fields; falls back to inline data URL if missing.
+   */
   try {
     const rails = await fetchMovies();
     const firstRail = rails?.[0];
@@ -154,8 +152,8 @@ export async function getBanner() {
     if (firstItem) {
       return {
         id: firstItem.id,
-        title: firstItem.title,
-        backdrop: firstItem.Poster || firstItem.image || dataBanner(),
+        title: firstItem.name,
+        backdrop: firstItem.poster || dataBanner(),
         subtitle: 'Handpicked selection for you.',
       };
     }
@@ -166,13 +164,14 @@ export async function getBanner() {
   const items = buildLocalItems();
   const first = items[0] || {
     id: 'banner-1',
-    title: 'Welcome to MyTV',
-    image: dataBanner(),
+    name: 'Welcome to MyTV',
+    poster: dataBanner(),
     genre: 'Action',
   };
   return {
-    ...first,
-    backdrop: dataBanner(),
+    id: first.id,
+    title: first.name,
+    backdrop: first.poster || dataBanner(),
     subtitle: 'Experience the calm power of the deep.',
   };
 }
@@ -290,10 +289,8 @@ function buildLocalItems() {
       const poster = dataThumb(t);
       out.push({
         id: `local-${c++}`,
-        title: t,
-        image: poster,
-        Poster: poster,
-        genres: [genre],
+        name: t,
+        poster,
         genre,
       });
     }

@@ -5,7 +5,7 @@ import ThumbnailCard from './ThumbnailCard.jsx'
 /**
  * PUBLIC_INTERFACE
  * Rail shows a horizontally scrollable list of thumbnails with remote navigation.
- * - Expects items normalized as { id, title, image } but tolerates raw { id, name, poster }.
+ * - Expects items normalized as { id, name, poster } (strict) and will gracefully handle missing fields.
  * - Keyboard: Left/Right moves within the rail; Up/Down changes rail; Enter opens details for the focused card.
  * - Images are lazy-loaded in ThumbnailCard and gracefully handle proxied absolute poster URLs via fallback in the card.
  */
@@ -73,8 +73,8 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   const cards = useMemo(
     () =>
       items.map((it, idx) => {
-        const titleText = it?.title ?? it?.name ?? ''
-        const imgSrc = it?.image ?? it?.poster ?? ''
+        const titleText = it?.name ?? ''
+        const imgSrc = it?.poster ?? ''
         return (
           <ThumbnailCard
             key={it?.id ?? idx}

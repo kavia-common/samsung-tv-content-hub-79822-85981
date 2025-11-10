@@ -62,7 +62,7 @@ export default function Home() {
           railIndex={idx}
           currentRail={currentRail}
           setCurrentRail={setCurrentRail}
-          onOpenDetails={(it) => setDetails({ ...it, description: 'Selection' })}
+          onOpenDetails={(it) => setDetails({ ...it, title: it?.name ?? it?.title, poster: it?.poster, description: 'Selection' })}
           loading={loading}
           error={error}
         />
