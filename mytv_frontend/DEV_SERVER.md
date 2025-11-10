@@ -1,6 +1,6 @@
 # Dev server behavior
 
-- Host: 0.0.0.0 by default (server.host is set to 0.0.0.0) and honors HOST env/CLI if provided; never written to disk.
+- Host: 0.0.0.0 by default (server.host=true resolves to 0.0.0.0) and honors HOST env/CLI if provided; never written to disk.
 - Port: Controlled by CLI/env. server.port is undefined with strictPort: true so orchestrator --port (e.g., 3000 or 3005) is authoritative. If the chosen port is busy the process exits with a clear error (no silent port switching).
 - HMR: overlay enabled; clientPort is derived from PORT/CLI when provided to match orchestrator proxying.
 - Watch: polling disabled; awaitWriteFinish debounce enabled (stabilityThreshold: 900ms, pollInterval: 200ms).
@@ -23,11 +23,11 @@ Allowed hosts:
 - vscode-internal-28347-beta.beta01.cloud.kavia.ai
 
 Scripts:
-- npm run dev            -> vite --host 0.0.0.0 (uses CLI/env to choose port; strictPort=true).
-- npm run dev:3000       -> runs vite with --host 0.0.0.0 --port 3000; strictPort=true.
-- npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 and --host 0.0.0.0 to reduce memory spikes.
-- npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 and --host 0.0.0.0 for tighter limits.
-- npm run preview        -> vite preview --host 0.0.0.0 (port controlled by CLI; strictPort=true).
+- npm run dev            -> vite (uses CLI/env to choose port; server.host is set in vite.config; strictPort=true).
+- npm run dev:3000       -> runs vite with --port 3000; strictPort=true.
+- npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 to reduce memory spikes.
+- npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 for tighter limits.
+- npm run preview        -> vite preview (port controlled by CLI; strictPort=true).
 - npm run build:tizen    -> builds to ./dist (no packaging)
 - npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
 - npm run build-and-package:tizen -> build then package in one command
@@ -42,11 +42,16 @@ Quick checks:
 - Verify readiness:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
 
+Troubleshooting:
+- If you see "Port 3000 is already in use" when starting, it means another instance (orchestrator-run) is already bound. Use the health probe above to confirm readiness or choose another port:
+  npm run dev -- --port 3001
+- If /healthz returns 404 from a foreign process, ensure you are hitting the Vite instance configured in this repo (our Vite adds /healthz in both dev and preview).
+
 - Run on explicit port 3000 (strict) in non-interactive mode:
   npm run dev:3000
 
-- Run on orchestrator-provided port 3005:
-  npm run dev -- --host 0.0.0.0 --port 3005
+- Run on orchestrator-provided port 3005 (or other):
+  npm run dev -- --port 3005
 
 Operational notes:
 - No runtime writes to `.env` or `vite.config.js`. Defaults are set in the config; scripts avoid duplicate CLI flags.
