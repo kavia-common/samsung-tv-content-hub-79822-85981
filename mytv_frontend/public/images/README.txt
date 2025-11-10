@@ -1,4 +1,7 @@
-This folder contains lightweight placeholder images used by the app during development.
-Files are static and should not be modified at runtime to avoid watch loops.
+Public images used by the MyTV demo rails and banner.
 
-You can replace these with optimized assets as needed. Keep sizes small to maintain fast HMR.
+Structure:
+- /images/banners/banner1.jpg
+- /images/thumbs/{action*.jpg, drama*.jpg, horror*.jpg, comedy*.jpg, other*.jpg}
+
+These are simple placeholder images intended for local preview. Replace with real artwork when integrating the API.

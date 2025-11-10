@@ -6,7 +6,7 @@ import { forwardRef, useState } from 'react'
  */
 const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter }, ref) {
   const [errored, setErrored] = useState(false)
-  const fallback = '/src/assets/thumbs/thumb1.svg'
+  const fallback = '/images/thumbs/other1.jpg'
 
   return (
     <div
@@ -36,6 +36,7 @@ const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter },
         style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#0a0f1f' }}
       />
       <div
+        className="thumb-title"
         style={{
           position: 'absolute',
           left: 0,

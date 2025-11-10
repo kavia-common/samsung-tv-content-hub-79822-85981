@@ -24,8 +24,8 @@ export default function Splash() {
       didNavigateRef.current = true
       return
     }
-    // Exact navigation delay required by spec (5000ms)
-    const TIMEOUT_MS = 5000
+    // Auto navigate in ~3 seconds for this requirement
+    const TIMEOUT_MS = 3000
     let mounted = true
     const t = setTimeout(() => {
       if (!mounted) return

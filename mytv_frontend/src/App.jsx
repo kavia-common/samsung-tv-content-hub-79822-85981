@@ -105,8 +105,8 @@ function PageLayout({ children }) {
   const sections = useMemo(() => ([
     { label: 'Home', path: '/home' },
     { label: 'Login', path: '/login' },
-    { label: 'Settings', path: '/settings' },
-    { label: 'My Plan', path: '/my-plan' },
+    { label: 'Settings', path: '/home#settings' },
+    { label: 'My Plan', path: '/home#plan' },
   ]), [])
   return (
     <div className="app-surface">

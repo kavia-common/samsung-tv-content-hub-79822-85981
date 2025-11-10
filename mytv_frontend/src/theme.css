@@ -62,3 +62,27 @@
   border-radius: 14px;
   box-shadow: var(--shadow);
 }
+
+/* Thumbnail hover/active title reveal for pointer devices */
+@media (hover:hover) and (pointer:fine) {
+  .card .thumb-title {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .card:hover .thumb-title {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 16px;
+  }
+  .section-title {
+    font-size: 22px;
+    margin: 12px 0 8px 4px;
+  }
+}

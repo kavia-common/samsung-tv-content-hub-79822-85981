@@ -6,9 +6,9 @@ import React from 'react'
  */
 export default function Subscriptions() {
   const plans = [
-    { id: 'basic', name: 'Basic', price: '$4.99/mo', features: ['720p', '1 device'], color: '#60A5FA', logo: '/src/assets/subs/sub1.svg' },
-    { id: 'standard', name: 'Standard', price: '$9.99/mo', features: ['1080p', '2 devices'], color: '#22D3EE', logo: '/src/assets/subs/sub2.svg' },
-    { id: 'premium', name: 'Premium', price: '$14.99/mo', features: ['4K + HDR', '4 devices'], color: '#F59E0B', logo: '/src/assets/subs/sub3.svg' },
+    { id: 'basic', name: 'Basic', price: '$4.99/mo', features: ['720p', '1 device'], color: '#60A5FA', logo: '/images/thumbs/other2.jpg' },
+    { id: 'standard', name: 'Standard', price: '$9.99/mo', features: ['1080p', '2 devices'], color: '#22D3EE', logo: '/images/thumbs/other3.jpg' },
+    { id: 'premium', name: 'Premium', price: '$14.99/mo', features: ['4K + HDR', '4 devices'], color: '#F59E0B', logo: '/images/thumbs/other4.jpg' },
   ]
   return (
     <div id="subscriptions" style={{ marginTop: 28, marginBottom: 24 }}>

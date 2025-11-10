@@ -21,7 +21,7 @@ export default function Login() {
         paddingTop: 60,
       }}
     >
-      <div className="card" style={{ width: 720, padding: 28 }}>
+      <div className="card" style={{ width: 720, padding: 28, color: '#E5E7EB' }}>
         <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 18, color: '#fff' }}>Login</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <input

@@ -1,44 +1,47 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
 import ShowDetails from '../components/ShowDetails.jsx'
+import { fetchHomeData, getBanner } from '../services/movies.js'
 
 /**
  * PUBLIC_INTERFACE
  * Home page: Top banner, multiple rails populated by local images, and subscriptions at bottom.
  * - Uses keyboard-friendly rails with focusable thumbnail cards.
- * - Local assets under src/assets are used for banner and thumbnails.
+ * - Local placeholders from /public/images are used now; service prepared for API.
  */
 export default function Home() {
   const [currentRail, setCurrentRail] = useState(0)
   const [details, setDetails] = useState(null)
+  const [rails, setRails] = useState([])
+  const [banner, setBanner] = useState({ backdrop: '/images/banners/banner1.jpg', title: 'Welcome to MyTV', subtitle: 'Enjoy your favorites' })
 
-  // Build local demo items
-  const thumbs = [
-    { id: 't1', title: 'Blue Horizon', image: '/src/assets/thumbs/thumb1.svg' },
-    { id: 't2', title: 'Amber Sky', image: '/src/assets/thumbs/thumb2.svg' },
-    { id: 't3', title: 'Deep Sea', image: '/src/assets/thumbs/thumb3.svg' },
-    { id: 't4', title: 'Ocean Route', image: '/src/assets/thumbs/thumb1.svg' },
-    { id: 't5', title: 'Wave Runner', image: '/src/assets/thumbs/thumb2.svg' },
-    { id: 't6', title: 'Silent Reef', image: '/src/assets/thumbs/thumb3.svg' },
-  ]
-  const rails = useMemo(() => ([
-    { title: 'Top Trending', items: thumbs },
-    { title: 'Continue Watching', items: thumbs.slice().reverse() },
-    { title: 'Action', items: thumbs },
-    { title: 'Drama', items: thumbs.slice(0, 5) },
-    { title: 'Horror', items: thumbs },
-    { title: 'Comedy', items: thumbs.slice(1) },
-  ]), [])
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const [r, b] = await Promise.all([fetchHomeData(), getBanner()])
+        if (!cancelled) {
+          setRails(r || [])
+          setBanner(b || banner)
+        }
+      } catch {
+        // keep defaults on error
+      }
+    }
+    load()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <main className="app-main" aria-label="Home">
       <Banner
-        image="/src/assets/banners/hero-ocean.svg"
-        title="The Ocean Within"
-        subtitle="Experience the calm power of the deep."
-        onWatch={() => setDetails({ id: 'banner', title: 'The Ocean Within', description: 'Demo banner item', poster: '/src/assets/thumbs/thumb1.svg' })}
+        image={banner.backdrop}
+        title={banner.title}
+        subtitle={banner.subtitle}
+        onWatch={() => setDetails({ id: banner.id || 'banner', title: banner.title, description: 'Featured selection', poster: banner.backdrop })}
       />
 
       {/* Rails */}
@@ -54,8 +57,18 @@ export default function Home() {
         />
       ))}
 
-      {/* Subscriptions */}
-      <Subscriptions />
+      {/* Settings and Plan anchors for top menu deep links */}
+      <section id="settings" style={{ marginTop: 28 }}>
+        <div className="section-title">Settings</div>
+        <div className="card" style={{ padding: 16 }}>
+          This is a placeholder for Settings. Navigate with the top menu.
+        </div>
+      </section>
+
+      <section id="plan" style={{ marginTop: 28 }}>
+        <div className="section-title">My Plan</div>
+        <Subscriptions />
+      </section>
 
       {details ? (
         <ShowDetails
