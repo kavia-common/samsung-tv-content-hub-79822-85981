@@ -8,7 +8,7 @@
 // - fetchMovies(): fetches from API, normalizes { id, name, poster, genre }, and returns grouped rails
 // - fetchHomeData(): alias that delegates to fetchMovies() for backwards-compat
 // - fetchTrending(): returns Top Trending (subset) with fallback
-// - mapApiToItem(): maps API item to normalized shape { id, name, poster, genre }
+ // - mapApiToItem(): maps API item to normalized shape { id, name, poster, genre }
 // - getBanner(): returns a featured banner candidate
 //
 // Behavior:

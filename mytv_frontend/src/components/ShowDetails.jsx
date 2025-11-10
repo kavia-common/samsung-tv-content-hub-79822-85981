@@ -89,8 +89,8 @@ export default function ShowDetails({ id, onClose }) {
             <div style={{ width: '100%', height: '100%', animation: 'pulse 1.2s infinite ease-in-out', background: 'rgba(255,255,255,0.06)' }} />
           ) : (
             <img
-              src={data?.poster || ''}
-              alt={data?.title || 'poster'}
+              src={typeof data?.poster === 'string' ? data.poster : ''}
+              alt={typeof data?.name === 'string' ? data.name : (data?.title || 'poster')}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               loading="lazy"
               onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
@@ -108,7 +108,7 @@ export default function ShowDetails({ id, onClose }) {
             </>
           ) : (
             <>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>{data?.title}</div>
+              <div style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>{data?.name ?? data?.title}</div>
               <div style={{ color: '#cbd5e1', fontSize: 16 }}>{data?.description}</div>
               <div style={{ color: '#9CA3AF', fontSize: 14, marginTop: 8 }}>
                 Seasons: {data?.seasons ?? 0} • Episodes: {data?.total_episodes ?? 0}

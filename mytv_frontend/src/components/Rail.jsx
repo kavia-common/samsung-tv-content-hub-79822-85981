@@ -72,9 +72,10 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   // Tolerate both normalized and raw API shapes; avoid crashes on missing fields.
   const cards = useMemo(
     () =>
-      items.map((it, idx) => {
-        const titleText = it?.name ?? ''
-        const imgSrc = it?.poster ?? ''
+      (Array.isArray(items) ? items : []).map((it, idx) => {
+        // Defensive: only consume normalized fields
+        const titleText = typeof it?.name === 'string' ? it.name : ''
+        const imgSrc = typeof it?.poster === 'string' ? it.poster : ''
         return (
           <ThumbnailCard
             key={it?.id ?? idx}

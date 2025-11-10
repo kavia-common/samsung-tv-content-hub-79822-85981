@@ -99,24 +99,30 @@ export async function play(id) {
 // Helpers
 
 function normalizeItem(raw = {}) {
-  // Server returns ShowItem with keys like: id, name, poster (absolute or proxied absolute), description?
-  // Map to UI fields: id, title, image
-  return {
-    id: raw.id ?? raw._id ?? raw.slug ?? String(raw.name || 'unknown'),
-    title: raw.name ?? raw.title ?? 'Untitled',
-    image: raw.poster ?? raw.image ?? raw.thumbnail ?? '',
-  };
+  // Map to UI fields: id, name, poster (strict lowercase), with safe fallbacks.
+  const id =
+    raw.id ??
+    raw._id ??
+    raw.slug ??
+    String(raw.name || raw.title || 'unknown');
+
+  const name = raw.name ?? raw.title ?? 'Untitled';
+
+  // Keep output key strictly 'poster'; accept alternates only for reading
+  const poster = raw.poster ?? raw.Poster ?? raw.image ?? raw.thumbnail ?? '';
+
+  return { id, name, poster };
 }
 
 function normalizeInfo(raw = {}) {
-  // Normalize detail fields for overlay
+  // Normalize detail fields for overlay; keep name/poster consistent
   return {
     id: raw.id ?? raw._id ?? raw.slug ?? '',
-    title: raw.name ?? raw.title ?? 'Untitled',
+    name: raw.name ?? raw.title ?? 'Untitled',
     description: raw.description ?? raw.overview ?? '',
     seasons: raw.seasons ?? 0,
     total_episodes: raw.total_episodes ?? raw.episodes ?? 0,
-    poster: raw.poster ?? raw.image ?? '',
+    poster: raw.poster ?? raw.Poster ?? raw.image ?? '',
     backdrop: raw.backdrop ?? raw.hero ?? '',
   };
 }

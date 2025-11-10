@@ -50,7 +50,12 @@ export default function Home() {
         image={banner.backdrop}
         title={banner.title}
         subtitle={banner.subtitle}
-        onWatch={() => setDetails({ id: banner.id || 'banner', title: banner.title, description: 'Featured selection', poster: banner.backdrop })}
+        onWatch={() => setDetails({
+          id: banner.id || 'banner',
+          title: banner.title,
+          description: 'Featured selection',
+          poster: typeof banner.backdrop === 'string' ? banner.backdrop : '',
+        })}
       />
 
       {/* Rails */}
@@ -62,7 +67,12 @@ export default function Home() {
           railIndex={idx}
           currentRail={currentRail}
           setCurrentRail={setCurrentRail}
-          onOpenDetails={(it) => setDetails({ ...it, title: it?.name ?? it?.title, poster: it?.poster, description: 'Selection' })}
+          onOpenDetails={(it) => setDetails({
+            id: it?.id,
+            title: (typeof it?.name === 'string' && it.name) ? it.name : (typeof it?.title === 'string' ? it.title : 'Selection'),
+            poster: (typeof it?.poster === 'string' ? it.poster : ''),
+            description: 'Selection',
+          })}
           loading={loading}
           error={error}
         />
