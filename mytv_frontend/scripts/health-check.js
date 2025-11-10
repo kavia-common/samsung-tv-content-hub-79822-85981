@@ -3,8 +3,9 @@
  * PUBLIC_INTERFACE
  * Minimal health check: requests /healthz on localhost using PORT or 3000.
  * Exits 0 on OK, non-zero otherwise. Useful for CI readiness probes.
+ * ESM-compatible (package.json has "type":"module").
  */
-const http = require('http');
+import http from 'http';
 
 const port = Number(process.env.PORT || 3000);
 const options = {
