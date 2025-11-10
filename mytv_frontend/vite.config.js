@@ -188,5 +188,31 @@ export default defineConfig(() => {
     },
   }
 
+  // Provide a readiness endpoint and /dist guard for vite preview as well.
+  baseConfig.configurePreviewServer = (server) => {
+    try {
+      server.middlewares.use((req, res, next) => {
+        if (req?.url && req.url.split('?')[0] === '/healthz') {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          res.end('OK')
+          return
+        }
+        next()
+      })
+
+      server.middlewares.use((req, res, next) => {
+        if (req?.url && req.url.startsWith('/dist/')) {
+          res.statusCode = 404
+          res.end('Not Found')
+          return
+        }
+        next()
+      })
+    } catch (e) {
+      server?.config?.logger?.warn?.(`configurePreviewServer non-fatal: ${e?.message || e}`)
+    }
+  }
+
   return baseConfig
 })

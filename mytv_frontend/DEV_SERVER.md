@@ -14,7 +14,7 @@
 - Scope: only `src`, `public`, and `index.html` are watched during dev (fs.strict + ignored paths).
 - Readiness: GET /healthz returns 200 OK.
 - Dev never serves `/dist/*`; a middleware explicitly 404s those paths.
-- Preview mirrors dev host/allowedHosts and exposes /healthz; port also controlled by CLI with strictPort.
+- Preview mirrors dev host/allowedHosts and exposes /healthz via configurePreviewServer; port also controlled by CLI with strictPort.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai
