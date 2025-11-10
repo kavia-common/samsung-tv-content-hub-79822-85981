@@ -88,28 +88,26 @@ export default function Rail({ title, items = [], railIndex = 0, currentRail, se
   )
 
   return (
-    <div style={{ marginTop: 18 }}>
+    <div className="mt-4.5">
       <div className="section-title">{title}</div>
       {error ? (
-        <div style={{ color: 'var(--muted)', marginLeft: 8, marginBottom: 8 }}>
+        <div className="text-gray-400 ml-2 mb-2">
           Failed to load. Please try again later.
         </div>
       ) : null}
       <div
         ref={containerRef}
-        style={{
-          display: 'flex',
-          overflowX: 'auto',
-          overflowY: 'hidden',
-          padding: '10px 6px 10px 8px',
-          scrollbarWidth: 'none',
-          gap: 0,
-        }}
+        className="flex overflow-x-auto overflow-y-hidden px-2 py-2 pl-2.5 gap-0 [scrollbar-width:none]"
       >
-        {loading ? skeletons : cards}
+        {loading
+          ? Array.from({ length: 8 }).map((_, idx) => (
+              <div
+                key={`s-${idx}`}
+                className="card w-[260px] h-[150px] mr-[14px] bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_25%,rgba(255,255,255,0.09)_37%,rgba(255,255,255,0.05)_63%)] bg-[length:400%_100%] animate-shimmer"
+              />
+            ))
+          : cards}
       </div>
-
-      <style>{`@keyframes shimmer { 0%{background-position: 200% 0} 100%{background-position: -200% 0} }`}</style>
     </div>
   )
 }

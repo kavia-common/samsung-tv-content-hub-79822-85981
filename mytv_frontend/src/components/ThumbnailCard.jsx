@@ -13,15 +13,7 @@ const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter },
     <div
       ref={ref}
       tabIndex={0}
-      className="focusable card"
-      style={{
-        width: 260,
-        height: 150,
-        marginRight: 14,
-        overflow: 'hidden',
-        position: 'relative',
-        cursor: 'pointer',
-      }}
+      className="focusable card w-[260px] h-[150px] mr-[14px] overflow-hidden relative cursor-pointer"
       role="button"
       aria-label={title}
       onKeyDown={(e) => {
@@ -34,22 +26,10 @@ const ThumbnailCard = forwardRef(function ThumbnailCard({ src, title, onEnter },
         alt={title}
         loading="lazy"
         onError={() => setErrored(true)}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', background: '#0a0f1f' }}
+        className="w-full h-full object-cover bg-[#0a0f1f]"
       />
       <div
-        className="thumb-title"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: '6px 10px',
-          fontSize: 14,
-          fontWeight: 700,
-          color: '#E5E7EB',
-          background: 'linear-gradient(180deg, rgba(2,6,23,0), rgba(2,6,23,0.85))',
-          textShadow: '0 2px 6px rgba(0,0,0,0.6)',
-        }}
+        className="thumb-title absolute left-0 right-0 bottom-0 px-[10px] py-[6px] text-sm font-bold text-gray-200 bg-gradient-to-b from-[rgba(2,6,23,0)] to-[rgba(2,6,23,0.85)] [text-shadow:0_2px_6px_rgba(0,0,0,0.6)]"
       >
         {title}
       </div>

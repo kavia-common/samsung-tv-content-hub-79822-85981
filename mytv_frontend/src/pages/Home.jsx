@@ -58,14 +58,14 @@ export default function Home() {
       ))}
 
       {/* Settings and Plan anchors for top menu deep links */}
-      <section id="settings" style={{ marginTop: 28 }}>
+      <section id="settings" className="mt-7">
         <div className="section-title">Settings</div>
-        <div className="card" style={{ padding: 16 }}>
+        <div className="card p-4">
           This is a placeholder for Settings. Navigate with the top menu.
         </div>
       </section>
 
-      <section id="plan" style={{ marginTop: 28 }}>
+      <section id="plan" className="mt-7">
         <div className="section-title">My Plan</div>
         <Subscriptions />
       </section>

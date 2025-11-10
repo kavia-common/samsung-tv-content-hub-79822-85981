@@ -1,24 +1,19 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Allow responsive root sizing (global.css will manage final visuals) */
+/* Minimal base to ensure full-viewport sizing; detailed visuals handled by theme.css/global.css and Tailwind utilities */
 html, body, #root {
-  width: 100%;
-  height: 100%;
+  @apply w-full h-full;
 }
 
 body {
-  margin: 0;
-  padding: 0;
+  @apply m-0 p-0;
   font-family: 'Samsung Sharp Sans', Arial, sans-serif;
 }
 
 #root {
-  width: 100%;
-  min-height: 100%;
+  @apply w-full min-h-full;
 }
 
 button, input {

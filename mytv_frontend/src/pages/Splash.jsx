@@ -50,39 +50,13 @@ export default function Splash() {
 
   return (
     <div
+      className="grid place-items-center min-h-screen w-full h-full overflow-hidden relative animate-splash-bg-fade"
       style={{
-        // Grid center ensures content is centered both vertically and horizontally
-        display: 'grid',
-        placeItems: 'center',
-        minHeight: '100vh',
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden', // prevent scrollbars
-        position: 'relative',
         background:
           'radial-gradient(900px 680px at 50% 22%, rgba(37,99,235,0.36), rgba(11,18,32,0)) , linear-gradient(180deg, rgba(37,99,235,0.10), rgba(17,24,39,0.18)), #0B1220',
-        animation: 'splash-bg-fade 900ms ease-out forwards',
       }}
     >
-      {/* Inner bounded container that cannot exceed viewport */}
-      <div
-        style={{
-          // Constrain the content to stay within screen
-          maxWidth: 'min(80vw, 1200px)',
-          maxHeight: 'min(80vh, 700px)',
-          width: '100%',
-          // Maintain natural flow; no explicit scaling beyond bounds
-          padding: '0 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transformOrigin: 'center',
-          animation: 'splash-content-fade 950ms ease-out 100ms both',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Middle line "MyTV" (kept as the prominent center line) */}
+      <div className="max-w-[min(80vw,1200px)] max-h-[min(80vh,700px)] w-full px-6 flex flex-col items-center justify-center origin-center overflow-hidden animate-splash-content-fade">
         <h1
           style={{
             margin: 0,
@@ -106,26 +80,20 @@ export default function Splash() {
         >
           MyTV
         </h1>
-
-        {/* Sub-caption with amber/blue underline accent */}
         <div
+          className="relative text-center max-w-full"
           style={{
             marginTop: 10,
             fontSize: subtitleSize,
             color: '#cbd5e1',
             letterSpacing: 0.4,
-            position: 'relative',
-            textAlign: 'center',
-            maxWidth: '100%',
           }}
         >
           Ocean Professional
           <span
             aria-hidden
+            className="absolute left-1/2 -translate-x-1/2"
             style={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
               bottom: -8,
               width: 80,
               height: 3,
@@ -137,47 +105,18 @@ export default function Splash() {
         </div>
       </div>
 
-      {/* Soft corner vignettes for a modern cinematic feel */}
       <div
         aria-hidden
+        className="absolute -inset-20 pointer-events-none"
         style={{
-          position: 'absolute',
-          inset: -80,
-          pointerEvents: 'none',
           background:
             'radial-gradient(600px 400px at 0% 0%, rgba(0,0,0,0.35), transparent 70%), radial-gradient(600px 400px at 100% 0%, rgba(0,0,0,0.25), transparent 70%), radial-gradient(600px 400px at 0% 100%, rgba(0,0,0,0.25), transparent 70%), radial-gradient(600px 400px at 100% 100%, rgba(0,0,0,0.35), transparent 70%)',
         }}
       />
 
-      {/* Dev-only allowed host note for reference (non-intrusive) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 18,
-          right: 24,
-          fontSize: 12,
-          color: 'rgba(255,255,255,0.55)',
-          letterSpacing: 0.3,
-          userSelect: 'none',
-        }}
-      >
+      <div className="absolute bottom-[18px] right-6 text-[12px] text-white/60 tracking-[0.3px] select-none">
         Allowed hosts: vscode-internal-26938-beta.beta01.cloud.kavia.ai · vscode-internal-33763-beta.beta01.cloud.kavia.ai · vscode-internal-10832-beta.beta01.cloud.kavia.ai · vscode-internal-28347-beta.beta01.cloud.kavia.ai
       </div>
-
-      {/* Local keyframes for this page */}
-      <style>{(function(){
-        const css = [
-          '@keyframes splash-bg-fade {',
-          '  from { opacity: 0; }',
-          '  to { opacity: 1; }',
-          '}',
-          '@keyframes splash-content-fade {',
-          '  from { opacity: 0; transform: translateY(12px); }',
-          '  to { opacity: 1; transform: translateY(0); }',
-          '}'
-        ].join('\n')
-        return css
-      })()}</style>
     </div>
   )
 }

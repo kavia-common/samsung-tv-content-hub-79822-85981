@@ -63,52 +63,32 @@ export default function TopMenu({ items = [] }) {
   return (
     <div
       ref={containerRef}
-      style={{
-        height: 88,
-        padding: '14px 40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        background: 'linear-gradient(180deg, rgba(2,6,23,0.95), rgba(2,6,23,0.75))',
-        backdropFilter: 'blur(8px)',
-      }}
+      className="h-[88px] px-10 py-[14px] flex items-center justify-between border-b border-white/10 bg-topmenu-gradient backdrop-blur-md"
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div style={{ fontSize: 28, fontWeight: 800, color: 'white', letterSpacing: 0.6 }}>
+      <div className="flex items-center gap-4">
+        <div className="text-white font-extrabold tracking-[0.6px] text-[28px]">
           MyTV
         </div>
-        <div style={{ width: 8 }} />
-        <div style={{ fontSize: 14, color: '#9CA3AF' }}>Ocean Professional</div>
+        <div className="w-2" />
+        <div className="text-sm text-gray-400">Ocean Professional</div>
       </div>
-      <nav style={{ display: 'flex', gap: 14 }}>
+      <nav className="flex gap-3.5">
         {items.map((it, idx) => {
           const active = idx === focusIndex
           return (
             <button
               key={it.label}
-              className="focusable"
+              className={
+                [
+                  'focusable',
+                  'h-12 min-w-[160px] px-[18px] py-[10px] rounded-[12px] text-white text-lg font-extrabold cursor-pointer transition',
+                  active
+                    ? 'border border-secondary shadow-[0_0_0_3px_rgba(245,158,11,0.35),0_14px_34px_rgba(0,0,0,0.40)] scale-[1.05] bg-gradient-to-b from-amber-500/25 to-amber-500/10'
+                    : 'border border-white/20 shadow-[0_10px_24px_rgba(0,0,0,0.35)] bg-gradient-to-b from-blue-600/20 to-blue-600/10'
+                ].join(' ')
+              }
               tabIndex={0}
               onClick={() => goTo(it)}
-              style={{
-                height: 48,
-                minWidth: 160,
-                padding: '10px 18px',
-                borderRadius: 12,
-                border: `1px solid ${active ? 'var(--secondary)' : 'rgba(255,255,255,0.14)'}`,
-                background: active
-                  ? 'linear-gradient(180deg, rgba(245,158,11,0.25), rgba(245,158,11,0.12))'
-                  : 'linear-gradient(180deg, rgba(37,99,235,0.18), rgba(37,99,235,0.10))',
-                color: '#fff',
-                fontSize: 18,
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: active
-                  ? '0 0 0 3px rgba(245,158,11,0.35), 0 14px 34px rgba(0,0,0,0.40)'
-                  : '0 10px 24px rgba(0,0,0,0.35)',
-                transform: active ? 'scale(1.05)' : 'scale(1.0)',
-                transition: 'transform 120ms ease, box-shadow 120ms ease, background 120ms ease',
-              }}
               onKeyDown={(e) => {
                 if (e.keyCode === 13) {
                   goTo(it)

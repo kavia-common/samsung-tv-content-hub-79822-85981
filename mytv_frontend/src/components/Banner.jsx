@@ -19,83 +19,32 @@ export default function Banner({
   }, [])
 
   return (
-    <div
-      className="banner-shadowed"
-      style={{
-        width: '100%',
-        height: 360,
-        borderRadius: 18,
-        overflow: 'hidden',
-        position: 'relative',
-        border: '1px solid rgba(255,255,255,0.06)',
-        background: '#0a0f1f',
-      }}
-    >
+    <div className="banner-shadowed relative w-full h-[360px] rounded-[18px] overflow-hidden border border-white/10 bg-[#0a0f1f]">
       <img
         src={image}
         alt="Banner"
         loading="lazy"
         onError={(e)=>{ e.currentTarget.style.visibility = 'hidden' }}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(1.05) contrast(1.05)' }}
+        className="w-full h-full object-cover [filter:saturate(1.05)_contrast(1.05)]"
       />
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(90deg, rgba(2,6,23,0.85) 0%, rgba(2,6,23,0.55) 40%, rgba(2,6,23,0.2) 70%, rgba(2,6,23,0.0) 100%)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          left: 36,
-          top: 32,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-          maxWidth: 820,
-        }}
-      >
-        <div style={{ color: '#93C5FD', fontWeight: 700, letterSpacing: 1 }}>MyTV ORIGINAL</div>
-        <div style={{ fontSize: 42, fontWeight: 900, color: 'white', textShadow: '0 6px 18px rgba(0,0,0,0.65)' }}>
+      <div className="absolute inset-0 bg-banner-gradient" />
+      <div className="absolute left-9 top-8 flex flex-col gap-2.5 max-w-[820px]">
+        <div className="text-blue-300 font-bold tracking-wider">MyTV ORIGINAL</div>
+        <div className="text-white font-black text-[42px] [text-shadow:0_6px_18px_rgba(0,0,0,0.65)]">
           {title}
         </div>
-        <div style={{ fontSize: 20, color: '#D1D5DB' }}>{subtitle}</div>
-        <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
+        <div className="text-gray-300 text-[20px]">{subtitle}</div>
+        <div className="flex gap-3 mt-2.5">
           <button
             ref={btnRef}
-            className="focusable"
-            style={{
-              height: 54,
-              minWidth: 160,
-              padding: '10px 18px',
-              borderRadius: 12,
-              border: '1px solid var(--primary)',
-              background: 'linear-gradient(180deg, rgba(37,99,235,0.28), rgba(37,99,235,0.16))',
-              color: '#fff',
-              fontSize: 18,
-              fontWeight: 800,
-              cursor: 'pointer',
-            }}
+            className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-primary text-white text-lg font-extrabold cursor-pointer bg-gradient-to-b from-blue-600/30 to-blue-600/20"
             onClick={() => onWatch?.()}
             onKeyDown={(e)=>{ if(e.keyCode===13) onWatch?.() }}
           >
             Watch Now
           </button>
           <button
-            className="focusable"
-            style={{
-              height: 54,
-              minWidth: 160,
-              padding: '10px 18px',
-              borderRadius: 12,
-              border: '1px solid rgba(255,255,255,0.2)',
-              background: 'rgba(255,255,255,0.05)',
-              color: '#fff',
-              fontSize: 18,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
+            className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-white/20 bg-white/10 text-white text-lg font-bold cursor-pointer"
             onClick={() => {}}
           >
             Add to List

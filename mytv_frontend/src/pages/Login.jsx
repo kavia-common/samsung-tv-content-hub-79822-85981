@@ -11,79 +11,28 @@ export default function Login() {
   }, [])
 
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: 60,
-      }}
-    >
-      <div className="card" style={{ width: 720, padding: 28, color: '#E5E7EB' }}>
-        <div style={{ fontSize: 32, fontWeight: 900, marginBottom: 18, color: '#fff' }}>Login</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="w-full h-full flex items-start justify-center pt-15">
+      <div className="card w-[720px] p-7 text-gray-200">
+        <div className="text-white text-[32px] font-black mb-[18px]">Login</div>
+        <div className="flex flex-col gap-4">
           <input
             ref={emailRef}
-            className="focusable"
+            className="focusable h-14 rounded-[10px] border border-white/20 bg-white/5 text-white px-[14px] text-lg placeholder-white/60"
             placeholder="Email"
-            style={{
-              height: 56,
-              borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.15)',
-              background: 'rgba(255,255,255,0.04)',
-              color: '#fff',
-              padding: '0 14px',
-              fontSize: 18,
-            }}
           />
           <input
-            className="focusable"
+            className="focusable h-14 rounded-[10px] border border-white/20 bg-white/5 text-white px-[14px] text-lg placeholder-white/60"
             placeholder="Password"
             type="password"
-            style={{
-              height: 56,
-              borderRadius: 10,
-              border: '1px solid rgba(255,255,255,0.15)',
-              background: 'rgba(255,255,255,0.04)',
-              color: '#fff',
-              padding: '0 14px',
-              fontSize: 18,
-            }}
           />
-          <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+          <div className="flex gap-3 mt-1.5">
             <button
-              className="focusable"
-              style={{
-                height: 54,
-                minWidth: 160,
-                padding: '10px 18px',
-                borderRadius: 12,
-                border: '1px solid var(--primary)',
-                background: 'linear-gradient(180deg, rgba(37,99,235,0.28), rgba(37,99,235,0.16))',
-                color: '#fff',
-                fontSize: 18,
-                fontWeight: 800,
-                cursor: 'pointer',
-              }}
+              className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-primary bg-gradient-to-b from-blue-600/30 to-blue-600/20 text-white text-lg font-extrabold cursor-pointer"
             >
               Sign In
             </button>
             <button
-              className="focusable"
-              style={{
-                height: 54,
-                minWidth: 160,
-                padding: '10px 18px',
-                borderRadius: 12,
-                border: '1px solid rgba(255,255,255,0.2)',
-                background: 'rgba(255,255,255,0.05)',
-                color: '#fff',
-                fontSize: 18,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              className="focusable h-[54px] min-w-[160px] px-[18px] py-[10px] rounded-[12px] border border-white/20 bg-white/10 text-white text-lg font-bold cursor-pointer"
             >
               Create Account
             </button>
