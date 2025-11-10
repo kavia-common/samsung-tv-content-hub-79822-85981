@@ -6,10 +6,18 @@
 
 Watch:
 - Custom ignore rules to prevent reload storms:
-  - Ignored: dist, node_modules, .git, lock/log files, post_process_status.lock
+  - Ignored: ../mytv/** (sibling project is not part of this app)
+  - Ignored: dist, node_modules, .git, .cache, .vite, lock/log files, post_process_status.lock
+  - Ignored: .env and .env.* (env changes do NOT trigger restarts)
   - Ignored: public/**/* except whitelisted `public/images/**` and `public/assets/**`
   - Ignored: public/healthz and subpaths
 - Keep assets under `public/assets/` or `public/images/` only. Do not programmatically write to `public/` or `index.html` at runtime.
+
+Environment variables:
+- Place local overrides in `.env.local` if needed. Vite will read them, but watcher ignores `.env*` so changes won’t auto-restart; restart manually if necessary.
+
+Single app root:
+- Use only `mytv_frontend/` as the Vite root. The sibling `mytv/` project is a separate demo and is ignored by dev server.
 
 Allowed hosts:
 - vscode-internal-39544-beta.beta01.cloud.kavia.ai
@@ -26,7 +34,7 @@ Scripts:
 
 Notes:
 - index.html contains a single #root and a single module script to /src/main.jsx. No meta-refresh, no auto reload scripts.
-- All design CSS/JS used by pages live under `/public/assets/*`. Avoid placing raw HTML design exports inside public/.
+- All raw design HTML exports live under `assets-reference/` (not served). Only CSS/JS needed at runtime is placed in `/public/assets/*`.
 
 Validation checklist:
 1) Start dev server:
