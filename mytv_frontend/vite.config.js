@@ -29,6 +29,7 @@ export default defineConfig(() => {
       'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
       // Include the currently used preview domain to prevent HMR reconnect loops.
       'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
+      'vscode-internal-14612-beta.beta01.cloud.kavia.ai',
     ])
   )
 
