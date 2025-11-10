@@ -1,22 +1,17 @@
-# Node
-node_modules
-dist
-.vite
-.cache
-*.log
-*.lock
+# Ignore environment and build artifacts
+.env
+.env.*
+dist/
+.vite/
+node_modules/
+app.wgt
 
-# OS
+# Editor/OS
 .DS_Store
 Thumbs.db
 
-# Build artifacts
-app.wgt
-
-# Env files - do not commit environment config
-.env
-.env.*
-!.env.example
-
-# Misc
-public/healthz
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

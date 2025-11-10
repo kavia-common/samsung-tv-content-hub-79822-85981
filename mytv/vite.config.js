@@ -5,13 +5,28 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    strictPort: false, // allow fallback to avoid premature exit on port contention
-    // Preserve existing settings and add required allowed host
+    strictPort: true,
     allowedHosts: [
       'vscode-internal-39544-beta.beta01.cloud.kavia.ai',
     ],
+    watch: {
+      ignored: [
+        '**/vite.config.*',
+        '**/.env',
+        '**/.env.*',
+        '**/public/assets/**/*.html',
+        '**/assets/**/*.html',
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/dist/**',
+        '**/.vite/**',
+        '../**',
+        '../../**',
+        '../../../**',
+      ],
+    },
     hmr: {
-      clientPort: process.env.PORT ? Number(process.env.PORT) : 3000,
+      clientPort: 3000,
     },
   }
 })

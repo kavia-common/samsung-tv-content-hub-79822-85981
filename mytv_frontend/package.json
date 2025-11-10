@@ -35,5 +35,8 @@
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
     "vite": "^5.4.10"
+  },
+  "lint-staged": {
+    "*": "echo 'lint-staged disabled during dev to avoid modifying vite.config.js' && exit 0"
   }
 }

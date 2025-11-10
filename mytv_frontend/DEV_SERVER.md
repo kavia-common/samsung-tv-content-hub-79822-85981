@@ -1,15 +1,16 @@
 # Dev server behavior (stabilized)
 
-- Root: Explicitly set to the mytv_frontend project directory via `root: process.cwd()` so only this app is watched.
+- Root: Explicit absolute path to the mytv_frontend directory; only this app is watched.
 - Host: 0.0.0.0 (server.host: true).
 - Allowed host: vscode-internal-39544-beta.beta01.cloud.kavia.ai
-- Port: Controlled by CLI/env; HMR clientPort fixed to 3000 for stability.
+- Port/HMR: Fixed HMR clientPort 3000; strictPort=true to avoid bouncing.
 
 Watch ignores (strict):
-- This config and sibling configs: `**/vite.config.js`, `**/postcss.config.js`, `**/tailwind.config.js`, `**/DEV_SERVER.md`
+- This config and sibling configs: `**/vite.config.*`, `**/postcss.config.*`, `**/tailwind.config.*`, `**/DEV_SERVER.md`
+- Absolute ignores: project vite.config.js, workspace root, and sibling `mytv/` (and its vite.config.js).
 - Sibling and workspace parents: `../**`, `../../**`, `../../../**` (prevents picking up `mytv/` or workspace `assets/`).
 - HTML under public/assets and assets: `**/public/assets/**/*.html`, `**/assets/**/*.html`
-- Environment files: `**/.env`, `**/.env.*` (env changes won’t restart; restart manually if needed)
+- Environment files: `**/.env`, `**/.env.*` (env changes won’t restart; use `.env.local` and restart manually if needed)
 - Build/cache/SCM: `**/node_modules/**`, `**/.git/**`, `**/dist/**`, `**/.vite/**`
 
 Index/Assets:
@@ -19,7 +20,10 @@ Index/Assets:
 Environment variables:
 - Use `.env.local` for local overrides. Watcher ignores `.env*`, so changes do not auto-restart. Never write to `.env*` from scripts.
 
-Scripts:
+Scripts/Tools:
+- No postinstall/dev hooks or format-on-save modify `vite.config.js` during dev. `lint-staged` is disabled to avoid write-backs.
+
+Commands:
 - npm run dev            -> vite
 - npm run dev:3000       -> vite --host 0.0.0.0 --port 3000
 - npm run dev:mem        -> vite with NODE_OPTIONS=--max-old-space-size=384

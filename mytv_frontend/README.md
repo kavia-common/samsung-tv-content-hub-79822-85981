@@ -18,7 +18,9 @@ Stability notes:
   - Ignore siblings/workspace: `../**`, `../../**`
   - Ignore HTML under `public/assets` and `assets`: `**/public/assets/**/*.html`, `**/assets/**/*.html`
   - Ignore `.env*`, `dist`, `.git`, `node_modules`, `.vite`
+  - Absolute ignores for this vite.config.js, workspace root, and sibling `mytv/` project
 - No runtime process writes to vite.config.js, index.html, or `.env`.
+- Use `.env.local` for local overrides; `.env*` files are ignored by the watcher to avoid restarts.
 
 Commands:
 - npm run dev -> vite (port controlled by CLI/env)

@@ -1,54 +1,89 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
+import { fileURLToPath } from 'node:url'
+import fs from 'fs'
 
 /**
  PUBLIC_INTERFACE
  Vite config for React app with stable dev server and HMR.
- - Explicitly sets root to the project directory to ensure only this app is watched.
+ - Explicitly sets root to this project directory only.
  - Prevents reload storms by ignoring siblings and workspace-level noisy paths.
  - Ignores HTML under public/assets and assets, and any .env changes.
+ - Adds absolute-path ignores for this vite.config.js and the sibling mytv project’s config, plus workspace root.
+ - Avoids dynamic env in config to prevent re-writes or variability (no process.env in HMR clientPort etc.).
 */
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+// Resolve absolute paths used in watch.ignored to be explicit and robust
+const projectRoot = __dirname
+const workspaceRoot = path.resolve(projectRoot, '..') // samsung-tv-content-hub-79822-85981
+const siblingMyTv = path.join(workspaceRoot, 'mytv')
+const thisViteConfig = path.join(projectRoot, 'vite.config.js')
+// Potential sibling/parent vite configs to ignore if present
+const siblingMyTvVite = path.join(siblingMyTv, 'vite.config.js')
+const parentViteGlob = path.join(workspaceRoot, '**/vite.config.*')
+
+// Compose ignore list with both globs and resolved paths.
+// Note: Vite uses chokidar under the hood; ignored accepts globs and functions. Using array of strings is fine.
+const ignoredList = [
+  // Absolute files/dirs
+  thisViteConfig,
+  siblingMyTv,
+  siblingMyTvVite,
+  workspaceRoot, // ignore workspace root to avoid parent activity triggering
+  // Glob fallbacks/patterns
+  '**/vite.config.*',
+  '**/postcss.config.*',
+  '**/tailwind.config.*',
+  '**/DEV_SERVER.md',
+  // Env files: prefer .env.local; ensure we do not watch any .env*
+  '**/.env',
+  '**/.env.*',
+  // HTML under public/assets and any assets folder HTML
+  '**/public/assets/**/*.html',
+  '**/assets/**/*.html',
+  // Typical noisy/large dirs
+  '**/node_modules/**',
+  '**/.git/**',
+  '**/dist/**',
+  '**/.vite/**',
+  // Parents/siblings
+  '../**',
+  '../../**',
+  '../../../**',
+]
+
+// Ensure only one index.html at root: if duplicates under public/assets, we still ignore them via patterns above.
+// Also make sure there is no symlink loop for vite.config.js (defensive): if symlink, resolve target and ignore it explicitly.
+try {
+  const st = fs.lstatSync(thisViteConfig)
+  if (st.isSymbolicLink()) {
+    const linkTarget = fs.realpathSync(thisViteConfig)
+    if (linkTarget && linkTarget !== thisViteConfig) {
+      ignoredList.push(linkTarget)
+    }
+  }
+} catch {
+  // best effort; do nothing
+}
+
 export default defineConfig({
   // Pin the Vite root to this project folder only.
-  root: process.cwd(),
+  root: projectRoot,
   plugins: [react()],
   publicDir: 'public',
   server: {
     host: true,
+    strictPort: true, // keep port stable during dev; avoids bouncing
     // Only allow our known dev host
     allowedHosts: ['vscode-internal-39544-beta.beta01.cloud.kavia.ai'],
-    // Ensure the file watcher does not react to config changes, envs, or sibling/workspace paths
+    // Clear any implicit parent watchers by providing explicit ignores
     watch: {
-      // Note: picomatch globs are resolved from process.cwd() (the project root).
-      ignored: [
-        // Ignore this config file and common config files in this project
-        '**/vite.config.js',
-        '**/postcss.config.js',
-        '**/tailwind.config.js',
-        '**/DEV_SERVER.md',
-
-        // Ignore env files (do not trigger restarts)
-        '**/.env',
-        '**/.env.*',
-
-        // Ignore HTML under public/assets and any assets folder HTML
-        '**/public/assets/**/*.html',
-        '**/assets/**/*.html',
-
-        // Ignore typical noisy/large dirs
-        '**/node_modules/**',
-        '**/.git/**',
-        '**/dist/**',
-        '**/.vite/**',
-
-        // Ignore all parents/siblings to avoid watching outside this app
-        '../**',
-        '../../**',
-        '../../../**',
-      ],
+      ignored: ignoredList,
     },
     hmr: {
-      // Keep a fixed clientPort for stability in our environment
+      // Fixed value; do not depend on environment variables that can change during sessions
       clientPort: 3000,
     },
   },
