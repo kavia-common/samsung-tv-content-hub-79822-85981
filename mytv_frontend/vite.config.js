@@ -23,31 +23,28 @@ export default defineConfig({
     },
     // Explicitly ignore file changes that can be updated by external processes
     watch: {
-      // Ignore everything under public except images and assets
+      // Strong ignore patterns to avoid reload storms
       ignored: [
-        // Workspace-wide noisy paths
-        '../mytv/**',              // ignore sibling app entirely
+        // Core noisy paths
         '**/node_modules/**',
         '**/.git/**',
-        '**/.cache/**',
-        '**/.vite/**',
         '**/dist/**',
+        '**/.vite/**',
+
+        // HTML asset reload reducers
+        '**/public/assets/**/*.html',
+        '**/assets/**/*.html',
+
+        // Sibling project - ensure single Vite root
+        '../mytv/**',
+
+        // Env files should not trigger restarts/HMR
+        '**/.env*',
+
+        // Logs and locks
         '**/*.lock',
         '**/*.log',
         '**/post_process_status.lock',
-
-        // Env files should not trigger restarts/HMR
-        '**/.env',
-        '**/.env.*',
-
-        // Public directory rules
-        '**/public/**/*',
-        '!**/public/images/**',
-        '!**/public/assets/**',
-
-        // Health checks
-        '**/public/healthz',
-        '**/public/healthz/**',
       ],
     },
   },

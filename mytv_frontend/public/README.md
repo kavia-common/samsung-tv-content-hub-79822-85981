@@ -1,10 +1,10 @@
-Public assets policy:
+This public directory is intentionally minimal.
 
-- Serve only immutable static assets from here.
-- Do NOT place raw HTML files in this folder; extra HTML can trigger Vite reloads.
-- Place runtime assets under:
-  - public/images/**   (images only)
-  - public/assets/**   (CSS/JS only)
-- Health check file reserved: public/healthz (ignored by watcher).
+- Do NOT place .html files under public/assets or public/ directly.
+- If you need to keep raw HTML exported from design tools, place them under:
+  mytv_frontend/assets-reference/
+These files are references only and should not be served by Vite to avoid dev-server reload storms.
 
-Note: .env and .env.* are ignored by Vite watcher; change requires manual restart if needed.
+Allowed:
+- public/images/**
+- public/assets/** but only CSS/JS/media (no .html)

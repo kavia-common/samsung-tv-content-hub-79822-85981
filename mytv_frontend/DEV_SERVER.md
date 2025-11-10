@@ -8,13 +8,15 @@ Watch:
 - Custom ignore rules to prevent reload storms:
   - Ignored: ../mytv/** (sibling project is not part of this app)
   - Ignored: dist, node_modules, .git, .cache, .vite, lock/log files, post_process_status.lock
-  - Ignored: .env and .env.* (env changes do NOT trigger restarts)
-  - Ignored: public/**/* except whitelisted `public/images/**` and `public/assets/**`
+  - Ignored: .env* (env changes do NOT trigger restarts)
+  - Ignored: HTML under public/assets and assets: `**/public/assets/**/*.html`, `**/assets/**/*.html`
+  - Ignored: public/**/* except whitelisted media/CSS/JS (no HTML served)
   - Ignored: public/healthz and subpaths
-- Keep assets under `public/assets/` or `public/images/` only. Do not programmatically write to `public/` or `index.html` at runtime.
+- Keep assets under `public/assets/` or `public/images/` only. Do not programmatically write to `public/` or `index.html` at runtime. Place any raw HTML exports under `assets-reference/` only.
 
 Environment variables:
 - Place local overrides in `.env.local` if needed. Vite will read them, but watcher ignores `.env*` so changes won’t auto-restart; restart manually if necessary.
+- .gitignore includes `.env*` to avoid committing secrets.
 
 Single app root:
 - Use only `mytv_frontend/` as the Vite root. The sibling `mytv/` project is a separate demo and is ignored by dev server.

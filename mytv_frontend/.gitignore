@@ -1,14 +1,22 @@
-# Ignore build outputs and caches
-dist/
-node_modules/
-.vite/
-.cache/
-
-# VCS
+# Node
+node_modules
+dist
+.vite
+.cache
 *.log
 *.lock
-post_process_status.lock
 
-# Environment files (watcher also ignores in vite.config.js)
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+app.wgt
+
+# Env files - do not commit environment config
 .env
 .env.*
+!.env.example
+
+# Misc
+public/healthz

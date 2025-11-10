@@ -9,6 +9,7 @@ Why here?
 Notes:
 - Do not move these files back into `public/` or `src`. If you need to reference their structure, open them here.
 - CSS/JS consumed at runtime remain in `/public/assets/*.css|*.js` so React pages can link them safely.
+- Vite watcher is configured to ignore `**/public/assets/**/*.html` and `**/assets/**/*.html` to prevent reload storms.
 
 Files parked here:
 - aafinicio-copy-2-2001-3396.html
