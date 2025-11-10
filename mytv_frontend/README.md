@@ -9,34 +9,27 @@ Currently, two official plugins are available:
 
 ## Dev server and health check
 
-- Dev server runs on 0.0.0.0 with strictPort=true; the port is controlled by CLI/env (e.g., `--port 3000` or `--port 3005`). Use `npm run dev` or `npm run dev:3000`.
-- File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, `assets-reference/**/*.html`, and other `*.config.*` files are excluded from watch to prevent HMR self-restarts.
-- Dev never serves `/dist/*`; build output is only used for preview/build. A middleware 404s `/dist/*` during dev.
-- A readiness endpoint is available at GET /healthz returning 200 OK.
-- Allowed hosts configured: vscode-internal-26938-beta.beta01.cloud.kavia.ai, vscode-internal-33763-beta.beta01.cloud.kavia.ai, vscode-internal-10832-beta.beta01.cloud.kavia.ai
-- See DEV_SERVER.md for full behavior and scripts.
+- Dev server runs on 0.0.0.0 with strictPort=false; the port is controlled by CLI/env (e.g., `--port 3000` or `--port 3005`). Use `npm run dev` or `npm run dev:3000`.
+- A readiness endpoint is served by Vite at `/` and the app also logs a dev heartbeat; no custom middleware is required.
+- Allowed hosts configured: vscode-internal-39544-beta.beta01.cloud.kavia.ai
 
 Stability notes:
 - No runtime process writes to vite.config.js or .env. Defaults are set in the config; scripts avoid duplicate CLI flags.
-- Vite watch ignores vite.config.js and docs/config/lockfiles to prevent HMR restart loops.
-- Strict port (no auto port switching). If a desired port is reserved, run explicitly on another port via CLI, e.g., `--port 3001`.
-- Quick readiness check: curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
+- Watcher ignores only dist/.git/node_modules and lockfiles to avoid reload storms without skipping source updates.
 
 Commands:
-- npm run dev -> vite (port controlled by CLI/env; strictPort=true)
+- npm run dev -> vite (port controlled by CLI/env)
 - npm run dev:3000 -> vite --port 3000
 - npm run dev:mem -> dev with reduced memory cap (NODE_OPTIONS=--max-old-space-size=384)
 - npm run dev:mem:256 -> dev with tighter memory cap (256 MB)
-- npm run preview -> vite preview (port controlled by CLI/env; strictPort=true)
+- npm run preview -> vite preview (port controlled by CLI/env)
 
 Tip: To run on a specific port non-interactively (e.g., 3001 or 3005), use:
 - npm run dev -- --host 0.0.0.0 --port 3001
 - npm run dev -- --host 0.0.0.0 --port 3005
 
-Stability guarantees:
-- The dev server ignores changes to `vite.config.js`, docs, and other config files to prevent HMR restart loops.
-- No script or plugin in this repo modifies `vite.config.js` or `.env` at runtime. CLI flags `--host` and `--port` are honored in-memory only; nothing is written to disk.
-- Allowed hosts include vscode-internal-26938-beta.beta01.cloud.kavia.ai, vscode-internal-33763-beta.beta01.cloud.kavia.ai, and vscode-internal-10832-beta.beta01.cloud.kavia.ai. strictPort=true ensures we don't auto-switch ports.
+Project root:
+- Use only `mytv_frontend/` as the Vite root for this app. The sibling `mytv/` project is a separate demo and is not used by preview for this container.
 
 ## Second screen navigation
 
