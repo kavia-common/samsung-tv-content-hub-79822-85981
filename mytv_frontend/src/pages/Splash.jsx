@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
  - Auto-navigates to /home after exactly 5 seconds; timer cleared on unmount.
  - Focus-safe styling for Tizen TV (no focus traps; outline visible if focused).
  - Fit-to-viewport: content is bounded within the screen without overflow or scrollbars.
+ - NOTE: This component does not call window.location.reload or force a hard refresh.
 */
 export default function Splash() {
   const navigate = useNavigate()

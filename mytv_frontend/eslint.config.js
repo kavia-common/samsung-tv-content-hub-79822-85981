@@ -51,6 +51,12 @@ export default defineConfig([
       'no-dupe-args': 'error',
       'no-duplicate-case': 'error',
       'constructor-super': 'error',
+      // Guardrail: prevent accidental hard reloads in app code
+      'no-restricted-properties': ['warn', {
+        object: 'window',
+        property: 'location',
+        message: 'Avoid forcing reloads (window.location.*). Use router navigation instead.'
+      }],
     },
   },
 ])

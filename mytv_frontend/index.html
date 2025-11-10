@@ -7,7 +7,8 @@
     <meta name="description" content="Tizen TV Application" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <title>mytv_frontend</title>
-    <!-- Only inline styles for body size; all CSS is imported via JS entry to avoid extra watched files -->
+    <!-- Only inline styles for body size; all CSS is imported via JS entry to avoid extra watched files.
+         IMPORTANT: No meta refresh, no auto reload scripts. Keep a single module entry below. -->
     <style>
       body {
         margin: 0;
@@ -19,7 +20,9 @@
     </style>
   </head>
   <body>
+    <!-- Single root only -->
     <div id="root"></div>
+    <!-- Single module script only -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
