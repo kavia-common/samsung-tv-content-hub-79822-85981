@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Banner from '../components/Banner.jsx'
 import Rail from '../components/Rail.jsx'
 import Subscriptions from '../components/Subscriptions.jsx'
@@ -19,6 +19,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  // Manual Trending item to prepend/merge with any API-provided Trending list.
+  const manualTrendingItem = useMemo(() => ({
+    id: 'manual-bcs',
+    name: 'Better Call Saul',
+    poster: 'https://example.com/proxy/3001/images/bcs.jpg',
+    genre: 'Drama',
+  }), [])
+
   useEffect(() => {
     let cancelled = false
     async function load() {
@@ -28,7 +36,32 @@ export default function Home() {
         // fetchMovies() is the new API-aware loader; fetchHomeData() remains for backward-compat.
         const [r, b] = await Promise.all([fetchMovies().catch(() => fetchHomeData()), getBanner()])
         if (!cancelled) {
-          setRails(r || [])
+          const inputRails = Array.isArray(r) ? r : []
+
+          // Ensure a "Trending" rail exists and merge/prepend manual item.
+          // We will treat either "Trending" or "Top Trending" as the targeted rail title.
+          const TRENDING_TITLES = new Set(['Trending', 'Top Trending'])
+          const trendingIndex = inputRails.findIndex(rr => TRENDING_TITLES.has(rr?.title))
+
+          let nextRails = inputRails.slice()
+
+          if (trendingIndex >= 0) {
+            // Merge/prepend to existing Trending rail
+            const existing = nextRails[trendingIndex] || { title: 'Trending', items: [] }
+            const items = Array.isArray(existing.items) ? existing.items : []
+            // Avoid duplicates by id
+            const hasManual = items.some(x => x?.id === manualTrendingItem.id)
+            const mergedItems = hasManual ? items : [manualTrendingItem, ...items]
+            nextRails[trendingIndex] = { ...existing, title: existing.title === 'Top Trending' ? existing.title : 'Trending', items: mergedItems }
+          } else {
+            // Create a new Trending rail at the top, keeping others intact
+            nextRails = [
+              { title: 'Trending', items: [manualTrendingItem] },
+              ...nextRails,
+            ]
+          }
+
+          setRails(nextRails || [])
           setBanner(b || banner)
         }
       } catch (e) {
@@ -42,7 +75,7 @@ export default function Home() {
     load()
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [manualTrendingItem])
 
   return (
     <main className="app-main" aria-label="Home">
@@ -61,7 +94,7 @@ export default function Home() {
       {/* Rails */}
       {rails.map((r, idx) => (
         <Rail
-          key={r.title}
+          key={`${r.title}-${idx}`}
           title={r.title}
           items={r.items}
           railIndex={idx}
