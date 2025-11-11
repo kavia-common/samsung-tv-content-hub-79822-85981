@@ -5,13 +5,13 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 with orchestrator-friendly port/host handling.
- * Adjusted to avoid intercepting server.close() so Vite can manage its own lifecycle.
+ * This config relies on Vite's own lifecycle (no httpServer.close interception).
  * - Host: 0.0.0.0 by default (can be overridden by --host/HOST).
  * - Port: controlled by CLI/env; strictPort=true prevents silent port switching.
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying.
  * - Health endpoints: /healthz (text) and /api/healthz (json) for readiness probes.
  * - Watcher ignores config/docs/locks/raw HTML to avoid self-restart loops.
- * - Dev-only keep-alive: periodic lightweight log; NO override of httpServer.close unless explicitly enabled via VITE_ENABLE_GUARD=1.
+ * - Dev-only keep-alive: periodic lightweight log only.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -63,7 +63,7 @@ export default defineConfig(() => {
     '../../../**',
   ]
 
-  // Non-invasive keep-alive plugin: only logs; does not intercept server.close by default.
+  // Non-invasive keep-alive plugin: logs only; never overrides server lifecycle.
   const keepAlivePlugin = {
     name: 'dev-keep-alive',
     apply: 'serve',
@@ -75,24 +75,6 @@ export default defineConfig(() => {
         } catch { /* noop */ }
       }, Math.max(15000, intervalMs))
       server.httpServer?.once('close', () => clearInterval(timer))
-
-      // Optional, env-gated guard: only attach when explicitly enabled
-      const enableGuard = String(process.env.VITE_ENABLE_GUARD || '').trim()
-      if (enableGuard === '1' || enableGuard.toLowerCase() === 'true') {
-        const httpServer = server.httpServer
-        if (httpServer && typeof httpServer.close === 'function') {
-          const origClose = httpServer.close.bind(httpServer)
-          httpServer.close = (...args) => {
-            // Respect ALLOW_SERVER_CLOSE to allow controlled shutdowns
-            const allowClose = process.env.ALLOW_SERVER_CLOSE === '1'
-            if (!allowClose) {
-              server.config.logger.warn('[guard] httpServer.close() intercepted (guard enabled). To allow, set ALLOW_SERVER_CLOSE=1')
-              return
-            }
-            return origClose(...args)
-          }
-        }
-      }
     },
   }
 
