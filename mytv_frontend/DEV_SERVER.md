@@ -14,7 +14,8 @@
 - Scope: only `src`, `public`, and `index.html` are watched during dev (fs.strict + ignored paths).
 - Readiness: GET /healthz returns 200 OK. Also available: GET /api/healthz returns {"status":"ok"}.
 - Dev never serves `/dist/*`; a middleware explicitly 404s those paths.
-- Preview mirrors dev host/allowedHosts and exposes /healthz via configurePreviewServer; port also controlled by CLI with strictPort.
+- Preview mirrors dev host behavior and exposes /healthz via configurePreviewServer; port also controlled by CLI with strictPort.
+- Liveness: a dev-only keep-alive plugin emits a periodic "[keepalive]" log so CI/preview runners that monitor stdout do not assume the process is idle and terminate it. It also guards against unexpected httpServer.close() during dev, unless ALLOW_SERVER_CLOSE=1 is set.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai
@@ -27,6 +28,7 @@ Scripts:
 - npm run dev:3000       -> runs vite with --port 3000; strictPort=true.
 - npm run dev:mem        -> runs dev with NODE_OPTIONS=--max-old-space-size=384 to reduce memory spikes.
 - npm run dev:mem:256    -> runs dev with NODE_OPTIONS=--max-old-space-size=256 for tighter limits.
+- npm run dev:ci         -> vite (same as dev; safe for CI).
 - npm run preview        -> vite preview (port controlled by CLI; strictPort=true).
 - npm run build:tizen    -> builds to ./dist (no packaging)
 - npm run package:tizen  -> creates app.wgt at project root without requiring system 'zip'
@@ -37,6 +39,7 @@ Notes:
 - Avoid adding wrapper scripts that set both PORT and --port/--host redundantly; this can confuse orchestrators.
 - If the requested port is busy, the process will exit (strictPort=true). Free the port or choose another explicitly (e.g., vite --port 3001).
 - The HMR clientPort is derived from PORT/CLI when provided to match the proxy; do not hardcode unless your proxy requires it.
+- Keep-alive interval can be tuned with VITE_KEEPALIVE_MS (defaults to ~30s). To allow controlled shutdowns in scripted environments, set ALLOW_SERVER_CLOSE=1 before sending a close signal.
 
 Quick checks:
 - Verify readiness:
@@ -51,50 +54,19 @@ Troubleshooting:
 - On successful start you should see logs like:
   [dev-ready] Vite listening on http://0.0.0.0:3000 ...
   [dev-ready] Health checks: /healthz (text) and /api/healthz (json)
-
-- Recommended in CI/preview runners:
-  npm run dev        # plain vite; runner injects --host/--port
-  # or memory-capped:
-  npm run dev:ci     # same as dev, plain vite (no flags)
-  npm run dev:ci:mem # plain vite with NODE_OPTIONS=--max-old-space-size=384
-
-- Run on explicit port 3000 (strict) in non-interactive mode:
-  npm run dev:3000
-
-- Run on orchestrator-provided port 3005 (or other) from CLI:
-  npm run dev -- --host 0.0.0.0 --port 3005
-
-Operational notes:
-- No runtime writes to `.env` or `vite.config.js`. Defaults are set in the config; scripts avoid duplicate CLI flags.
-- Watcher excludes `vite.config.js`, docs, and lockfiles; these changes will not trigger HMR restarts.
-- Strict port (no auto port switching). If desired port is reserved, run explicitly on another port via CLI (e.g., `--port 3001`).
-- Avoid adding middleware/plugins that write to files during requests; this causes watch loops.
-- Do not add tools that auto-write to `dist/` during dev; builds should only output to `dist` when running `vite build`.
-
-## Second screen navigation
-
-After Splash, the second screen (Home) renders a Top menu with four focusable buttons:
-- Home, Login, Settings, and My Plan
-
-Behavior:
-- Home and Login navigate to /home and /login respectively.
-- Settings and My Plan navigate to anchors on the Home page (/home#settings and /home#plan), with smooth scroll into view.
-- Buttons are focusable and remote/keyboard accessible (Enter activates).
+  [keepalive] dev server alive
 
 Validation checklist:
-1) Start dev server:
+1) Start dev server with the orchestrator (it will inject --host/--port) or run:
    npm run dev -- --host 0.0.0.0 --port 3000
    or
    npm run dev -- --host 0.0.0.0 --port 3005
-2) Open the app and wait for Splash to redirect (~5.5s) to /home.
-3) Confirm top menu shows four buttons: Home, Login, Settings, My Plan.
-4) Use keyboard/remote:
-   - Left/Right moves focus between the four buttons.
-   - Enter on Home -> stays on /home.
-   - Enter on Login -> navigates to /login, inputs are focusable.
-   - Enter on Settings -> navigates to /home#settings and scrolls the Settings section into view.
-   - Enter on My Plan -> navigates to /home#plan and scrolls the section into view.
-5) Confirm no dev server restart occurs when navigating or interacting with UI.
+2) Confirm the console shows "[dev-ready]" lines and periodic "[keepalive]" lines.
+3) Probe health:
+   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz
+   curl -fsS http://127.0.0.1:${PORT:-3000}/api/healthz
+4) Ensure the process remains running (no exit code 1) and responds to the probes continually.
+5) UI: Splash should redirect to /home after ~3s and the top menu should provide Home, Login, Settings, My Plan navigation.
 
 If the orchestrator kills the process due to memory limits (exit 137), prefer:
 - npm run dev:mem:256

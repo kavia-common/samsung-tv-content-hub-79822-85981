@@ -38,9 +38,8 @@ root.render(
   </StrictMode>
 )
 
-// Emit a concise log to stdout to help CI determine that the client side rendered successfully.
+ // Emit a concise log to stdout to help CI determine that the client side rendered successfully.
 try {
   // Avoid noisy logs in test; keep a single line marker
-  // eslint-disable-next-line no-console
   console.log(`[app] mounted at ${new Date().toISOString()}`)
 } catch { /* noop */ }

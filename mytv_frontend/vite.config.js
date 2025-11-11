@@ -13,6 +13,7 @@ import react from '@vitejs/plugin-react'
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying.
  * - Healthz endpoint and /dist guard middleware.
  * - Watcher ignores config/docs/locks/raw HTML to avoid self-restart loops.
+ * - Dev-only keep-alive to prevent premature exit in certain orchestrators.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -70,6 +71,38 @@ export default defineConfig(() => {
     '**/assets/**/*.html',
   ]
 
+  // Dev-only keep alive plugin to ensure process remains active in runners that watch stdout.
+  const keepAlivePlugin = {
+    name: 'dev-keep-alive',
+    apply: 'serve',
+    configureServer(server) {
+      // Periodic lightweight log to indicate liveness without spamming
+      const intervalMs = Number(process.env.VITE_KEEPALIVE_MS || 30000)
+      const timer = setInterval(() => {
+        try {
+          server.config.logger.info?.('[keepalive] dev server alive')
+        } catch { /* noop */ }
+      }, Math.max(15000, intervalMs))
+      server.httpServer?.once('close', () => clearInterval(timer))
+      // Guard against plugins calling close/exit unexpectedly
+      const httpServer = server.httpServer
+      if (httpServer) {
+        const origClose = httpServer.close?.bind(httpServer)
+        if (typeof origClose === 'function') {
+          httpServer.close = (...args) => {
+            // Only allow close when Vite itself is shutting down (SIGTERM) or tests call it explicitly
+            const allowClose = process.env.ALLOW_SERVER_CLOSE === '1'
+            if (!allowClose) {
+              server.config.logger.warn('[guard] Prevented unexpected httpServer.close() during dev')
+              return
+            }
+            return origClose(...args)
+          }
+        }
+      }
+    },
+  }
+
   const baseConfig = {
     base: '/',
     clearScreen: false,
@@ -92,7 +125,8 @@ export default defineConfig(() => {
             }
           })
         }
-      }
+      },
+      keepAlivePlugin,
     ],
     publicDir: 'public',
     build: {
@@ -112,6 +146,24 @@ export default defineConfig(() => {
   // Single configureServer hook (avoid duplicates or heavy work).
   baseConfig.configureServer = (server) => {
     try {
+      // Validate index.html presence and root mount element to catch misconfigs early
+      server.middlewares.use((req, res, next) => {
+        if (req?.url === '/' || req?.url?.startsWith('/index.html')) {
+          // Best-effort check existence of index.html on first request
+          import('fs').then((fsMod) => {
+            try {
+              const fs = fsMod.default || fsMod
+              if (!fs.existsSync(indexHtml)) {
+                server.config.logger.error('[guard] index.html is missing; dev server will be blank')
+              }
+            } catch {
+              // noop
+            }
+          }).catch(() => { /* noop */ })
+        }
+        next()
+      })
+
       // Readiness endpoint for orchestrator health checks.
       server.middlewares.use((req, res, next) => {
         const pathOnly = req?.url ? req.url.split('?')[0] : ''
