@@ -207,6 +207,7 @@ export default defineConfig(() => {
     // allowedHosts is not supported on Vite v4; omit to avoid schema errors.
     hmr: {
       overlay: true,
+      // Prefer env-provided PORT for clientPort; fall back to Vite's default if not set
       clientPort: hmrClientPort,
       host: proxyHost, // ensure HMR websocket connects via the reverse proxy host
       protocol: hmrProtocol, // allow ws/wss override via env when required by proxy
@@ -218,6 +219,8 @@ export default defineConfig(() => {
       ignored: [
         ...ignoredGlobs,
         '**/assets-reference/**/*.html',
+        // Prevent watching outside project (e.g., CI bind mounts) to avoid unexpected restarts
+        '../../**',
       ],
     },
     fs: {

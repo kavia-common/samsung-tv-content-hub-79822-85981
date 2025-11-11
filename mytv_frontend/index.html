@@ -15,7 +15,17 @@
     </style>
   </head>
   <body>
-    <div id="root" aria-label="app-root"></div>
+    <noscript>
+      <div style="position:fixed;inset:0;display:grid;place-items:center;background:#0B1220;color:#E5E7EB;">
+        JavaScript is required to run this app.
+      </div>
+    </noscript>
+    <div id="root" aria-label="app-root">
+      <!-- Fallback content to avoid total blank screen before React mounts -->
+      <div style="display:grid;place-items:center;min-height:60vh;color:#cbd5e1;font-family:system-ui,Arial,sans-serif;">
+        <div style="opacity:.8">Loading MyTV…</div>
+      </div>
+    </div>
     <!-- Single entry module only; React root is mounted once in main.jsx -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
