@@ -69,6 +69,9 @@ export default defineConfig(() => {
     'public/assets/**/*.html',
     'assets-reference/**/*.html',
     '**/assets/**/*.html',
+    // Also ignore parent workspace directories to prevent HMR storms and premature reloads
+    '../../**',
+    '../../../**',
   ]
 
   // Dev-only keep alive plugin to ensure process remains active in runners that watch stdout.
@@ -77,13 +80,14 @@ export default defineConfig(() => {
     apply: 'serve',
     configureServer(server) {
       // Periodic lightweight log to indicate liveness without spamming
-      const intervalMs = Number(process.env.VITE_KEEPALIVE_MS || 30000)
+      const intervalMs = Number(process.env.VITE_KEEPALIVE_MS || 15000)
       const timer = setInterval(() => {
         try {
           server.config.logger.info?.('[keepalive] dev server alive')
         } catch { /* noop */ }
       }, Math.max(15000, intervalMs))
       server.httpServer?.once('close', () => clearInterval(timer))
+
       // Guard against plugins calling close/exit unexpectedly
       const httpServer = server.httpServer
       if (httpServer) {
@@ -107,9 +111,8 @@ export default defineConfig(() => {
     base: '/',
     clearScreen: false,
     plugins: [
-      // Keep plugin-react without any custom esbuild options that could pass globs.
       react(),
-      // Lightweight plugin to log readiness once the server is listening
+      // Log readiness after listening, and log the exact health endpoints
       {
         name: 'dev-ready-log',
         configureServer(server) {
@@ -119,7 +122,7 @@ export default defineConfig(() => {
               const port = typeof addr === 'object' && addr ? addr.port : process.env.PORT || '(unknown)'
               const host = resolvedHost
               server.config.logger.info(`[dev-ready] Vite listening on http://${host}:${port} (strictPort=${server.config.server?.strictPort === true})`)
-              server.config.logger.info(`[dev-ready] Health checks: /healthz (text) and /api/healthz (json)`)
+              server.config.logger.info(`[dev-ready] Health checks ready: GET /healthz (text) and GET /api/healthz (json)`)
             } catch {
               // best-effort log; do not crash
             }
@@ -136,7 +139,6 @@ export default defineConfig(() => {
       assetsInlineLimit: 0,
       sourcemap: false,
     },
-    // Ensure optimizeDeps only lists package names; no paths/globs.
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-router-dom'],
       exclude: [],
@@ -149,7 +151,6 @@ export default defineConfig(() => {
       // Validate index.html presence and root mount element to catch misconfigs early
       server.middlewares.use((req, res, next) => {
         if (req?.url === '/' || req?.url?.startsWith('/index.html')) {
-          // Best-effort check existence of index.html on first request
           import('fs').then((fsMod) => {
             try {
               const fs = fsMod.default || fsMod
@@ -196,36 +197,29 @@ export default defineConfig(() => {
     }
   }
 
-  // Dev server: let CLI define port; keep strictPort to avoid silent switching.
-  // Note: HMR clientPort is derived from env PORT when provided by orchestrator.
-  // Avoid hardcoding host/port to prevent reconnect loops.
+  // Dev server configuration
   baseConfig.server = {
     host: resolvedHost,
     port: undefined,
     strictPort: true,
     open: false,
-    // allowedHosts is not supported on Vite v4; omit to avoid schema errors.
     hmr: {
       overlay: true,
-      // Prefer env-provided PORT for clientPort; fall back to Vite's default if not set
       clientPort: hmrClientPort,
-      host: proxyHost, // ensure HMR websocket connects via the reverse proxy host
-      protocol: hmrProtocol, // allow ws/wss override via env when required by proxy
+      host: proxyHost,
+      protocol: hmrProtocol,
     },
     watch: {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
-      // Multi-wildcard globs ONLY appear here for chokidar, never for esbuild.
       ignored: [
         ...ignoredGlobs,
-        '**/assets-reference/**/*.html',
-        // Prevent watching outside project (e.g., CI bind mounts) to avoid unexpected restarts
-        '../../**',
       ],
     },
     fs: {
-      strict: true,
-      allow: [srcDir, publicDir, indexHtml],
+      // Allow reading project root (index.html) and default to non-strict to prevent resolution failures under CI workspaces
+      strict: false,
+      allow: [rootDir, srcDir, publicDir, indexHtml],
       deny: ['dist'],
     },
     middlewareMode: false,
@@ -237,7 +231,6 @@ export default defineConfig(() => {
     port: undefined,
     strictPort: true,
     open: false,
-    // allowedHosts not supported on Vite v4 preview either
     hmr: {
       host: proxyHost,
       clientPort: hmrClientPort,
@@ -247,32 +240,7 @@ export default defineConfig(() => {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
       ignored: [
-        '**/dist/**',
-        '**/.git/**',
-        '**/*.md',
-        '**/README.md',
-        '**/DEV_SERVER.md',
-        '**/CHANGELOG*',
-        '**/docs/**',
-        '**/node_modules/**',
-        '**/.env*',
-        '**/app.wgt',
-        '**/scripts/**',
-        '**/*.lock',
-        '**/package-lock.json',
-        '**/pnpm-lock.yaml',
-        '**/yarn.lock',
-        '**/vite.config.*',
-        '**/*eslint*.config.*',
-        '**/*.config.js',
-        '**/*.config.cjs',
-        '**/*.config.mjs',
-        '**/post_process_status.lock',
-        'public/assets/**/*.html',
-        'assets-reference/**/*.html',
-        '**/assets/**/*.html',
-        // Prevent watching outside project (CI bind mounts) to avoid restarts.
-        '../../**',
+        ...ignoredGlobs,
       ],
     },
   }

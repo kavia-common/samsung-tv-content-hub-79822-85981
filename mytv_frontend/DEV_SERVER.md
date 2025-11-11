@@ -10,12 +10,13 @@
   - Critical configs: `**/vite.config.*`, `**/*eslint*.config.*`, and other `**/*.config.*`
   - CI churn: `**/post_process_status.lock`
   - Raw design HTML: `**/public/assets/**/*.html`, `**/assets/**/*.html`, `**/assets-reference/**/*.html` (prevents HMR reload storms)
+  - Parent workspace dirs: `../../**`, `../../../**` (prevents external file churn from triggering reloads)
   - Note: Raw exported HTML belongs in `assets-reference/` only. Do not place `*.html` under `public/assets` or `src/assets` as it can trigger needless reloads. Preview mode inherits the same ignore rules for stability.
-- Scope: only `src`, `public`, and `index.html` are watched during dev (fs.strict + ignored paths).
+- Scope: index.html, public, and src are allowed; fs.strict is disabled to allow serving from project root while still denying `/dist` during dev.
 - Readiness: GET /healthz returns 200 OK. Also available: GET /api/healthz returns {"status":"ok"}.
 - Dev never serves `/dist/*`; a middleware explicitly 404s those paths.
 - Preview mirrors dev host behavior and exposes /healthz via configurePreviewServer; port also controlled by CLI with strictPort.
-- Liveness: a dev-only keep-alive plugin emits a periodic "[keepalive]" log so CI/preview runners that monitor stdout do not assume the process is idle and terminate it. It also guards against unexpected httpServer.close() during dev, unless ALLOW_SERVER_CLOSE=1 is set.
+- Liveness: a dev-only keep-alive plugin emits a periodic "[keepalive]" log (every 15s by default) so CI/preview runners that monitor stdout do not assume the process is idle and terminate it. It also guards against unexpected httpServer.close() during dev, unless ALLOW_SERVER_CLOSE=1 is set.
 
 Allowed hosts:
 - vscode-internal-26938-beta.beta01.cloud.kavia.ai
@@ -39,7 +40,7 @@ Notes:
 - Avoid adding wrapper scripts that set both PORT and --port/--host redundantly; this can confuse orchestrators.
 - If the requested port is busy, the process will exit (strictPort=true). Free the port or choose another explicitly (e.g., vite --port 3001).
 - The HMR clientPort is derived from PORT/CLI when provided to match the proxy; do not hardcode unless your proxy requires it.
-- Keep-alive interval can be tuned with VITE_KEEPALIVE_MS (defaults to ~30s). To allow controlled shutdowns in scripted environments, set ALLOW_SERVER_CLOSE=1 before sending a close signal.
+- Keep-alive interval can be tuned with VITE_KEEPALIVE_MS (defaults ~15s). To allow controlled shutdowns in scripted environments, set ALLOW_SERVER_CLOSE=1 before sending a close signal.
 
 Quick checks:
 - Verify readiness:
@@ -61,7 +62,7 @@ Validation checklist:
    npm run dev -- --host 0.0.0.0 --port 3000
    or
    npm run dev -- --host 0.0.0.0 --port 3005
-2) Confirm the console shows "[dev-ready]" lines and periodic "[keepalive]" lines.
+2) Confirm the console shows "[dev-ready]" lines and periodic "[keepalive]" lines (every ~15s).
 3) Probe health:
    curl -fsS http://127.0.0.1:${PORT:-3000}/healthz
    curl -fsS http://127.0.0.1:${PORT:-3000}/api/healthz

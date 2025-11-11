@@ -37,9 +37,13 @@ export default function TopMenu({ items = [] }) {
     if (hash) {
       // Allow content to render before attempting scroll into view
       setTimeout(() => {
-        const el = document.getElementById(hash)
-        if (el && typeof el.scrollIntoView === 'function') {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+        try {
+          const el = document.getElementById(hash)
+          if (el && typeof el.scrollIntoView === 'function') {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' })
+          }
+        } catch {
+          // ignore scroll errors during HMR or transient unmounts
         }
       }, 50)
     }

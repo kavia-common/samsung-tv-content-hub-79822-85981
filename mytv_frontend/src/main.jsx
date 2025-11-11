@@ -29,14 +29,19 @@ if (!root) {
   Object.defineProperty(mountEl, '_reactRoot', { value: root, writable: false })
 }
 
-// Render App
-root.render(
-  <StrictMode>
-    <div className="app-root">
-      <AppRouter />
-    </div>
-  </StrictMode>
-)
+// Render App with safety guard to avoid unhandled exceptions terminating HMR
+try {
+  root.render(
+    <StrictMode>
+      <div className="app-root">
+        <AppRouter />
+      </div>
+    </StrictMode>
+  )
+} catch (e) {
+  // Non-fatal log; allow HMR to continue and show fallback if needed
+  console.error('[app] render error:', e && e.message ? e.message : e)
+}
 
  // Emit a concise log to stdout to help CI determine that the client side rendered successfully.
 try {
