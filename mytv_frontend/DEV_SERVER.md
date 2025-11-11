@@ -12,7 +12,7 @@
   - Raw design HTML: `**/public/assets/**/*.html`, `**/assets/**/*.html`, `**/assets-reference/**/*.html` (prevents HMR reload storms)
   - Note: Raw exported HTML belongs in `assets-reference/` only. Do not place `*.html` under `public/assets` or `src/assets` as it can trigger needless reloads. Preview mode inherits the same ignore rules for stability.
 - Scope: only `src`, `public`, and `index.html` are watched during dev (fs.strict + ignored paths).
-- Readiness: GET /healthz returns 200 OK.
+- Readiness: GET /healthz returns 200 OK. Also available: GET /api/healthz returns {"status":"ok"}.
 - Dev never serves `/dist/*`; a middleware explicitly 404s those paths.
 - Preview mirrors dev host/allowedHosts and exposes /healthz via configurePreviewServer; port also controlled by CLI with strictPort.
 
@@ -41,11 +41,16 @@ Notes:
 Quick checks:
 - Verify readiness:
   curl -fsS http://127.0.0.1:${PORT:-3000}/healthz || echo "not ready"
+- Verify readiness (json):
+  curl -fsS http://127.0.0.1:${PORT:-3000}/api/healthz || echo "not ready"
 
 Troubleshooting:
 - If you see "Port 3000 is already in use" when starting, it means another instance (orchestrator-run) is already bound. Use the health probe above to confirm readiness or choose another port:
   npm run dev -- --port 3001
 - If /healthz returns 404 from a foreign process, ensure you are hitting the Vite instance configured in this repo (our Vite adds /healthz in both dev and preview).
+- On successful start you should see logs like:
+  [dev-ready] Vite listening on http://0.0.0.0:3000 ...
+  [dev-ready] Health checks: /healthz (text) and /api/healthz (json)
 
 - Recommended in CI/preview runners:
   npm run dev        # plain vite; runner injects --host/--port

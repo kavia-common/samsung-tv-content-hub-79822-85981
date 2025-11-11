@@ -76,6 +76,23 @@ export default defineConfig(() => {
     plugins: [
       // Keep plugin-react without any custom esbuild options that could pass globs.
       react(),
+      // Lightweight plugin to log readiness once the server is listening
+      {
+        name: 'dev-ready-log',
+        configureServer(server) {
+          server.httpServer?.once('listening', () => {
+            try {
+              const addr = server.httpServer.address()
+              const port = typeof addr === 'object' && addr ? addr.port : process.env.PORT || '(unknown)'
+              const host = resolvedHost
+              server.config.logger.info(`[dev-ready] Vite listening on http://${host}:${port} (strictPort=${server.config.server?.strictPort === true})`)
+              server.config.logger.info(`[dev-ready] Health checks: /healthz (text) and /api/healthz (json)`)
+            } catch {
+              // best-effort log; do not crash
+            }
+          })
+        }
+      }
     ],
     publicDir: 'public',
     build: {
@@ -97,10 +114,17 @@ export default defineConfig(() => {
     try {
       // Readiness endpoint for orchestrator health checks.
       server.middlewares.use((req, res, next) => {
-        if (req?.url && req.url.split('?')[0] === '/healthz') {
+        const pathOnly = req?.url ? req.url.split('?')[0] : ''
+        if (pathOnly === '/healthz') {
           res.statusCode = 200
           res.setHeader('Content-Type', 'text/plain; charset=utf-8')
           res.end('OK')
+          return
+        }
+        if (pathOnly === '/api/healthz') {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.end(JSON.stringify({ status: 'ok' }))
           return
         }
         next()
@@ -202,10 +226,17 @@ export default defineConfig(() => {
   baseConfig.configurePreviewServer = (server) => {
     try {
       server.middlewares.use((req, res, next) => {
-        if (req?.url && req.url.split('?')[0] === '/healthz') {
+        const pathOnly = req?.url ? req.url.split('?')[0] : ''
+        if (pathOnly === '/healthz') {
           res.statusCode = 200
           res.setHeader('Content-Type', 'text/plain; charset=utf-8')
           res.end('OK')
+          return
+        }
+        if (pathOnly === '/api/healthz') {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.end(JSON.stringify({ status: 'ok' }))
           return
         }
         next()
