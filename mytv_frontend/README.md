@@ -10,10 +10,10 @@ Currently, two official plugins are available:
 ## Dev server and health check
 
 - Dev server runs on 0.0.0.0 with strictPort=true; the port is controlled by CLI/env (e.g., `--port 3000` or `--port 3005`). Use `npm run dev` or `npm run dev:3000`.
-- File watching is debounced and ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, `assets-reference/**/*.html`, and other `*.config.*` files are excluded from watch to prevent HMR self-restarts. Parent workspace directories are also ignored to avoid external churn.
-- Dev never serves `/dist/*`; build output is only used for preview/build. A middleware 404s `/dist/*` during dev.
-- A readiness endpoint is available at GET /healthz returning 200 OK (also GET /api/healthz returns JSON). Keep-alive logs print roughly every 15 seconds.
-- Allowed hosts configured: vscode-internal-26938-beta.beta01.cloud.kavia.ai, vscode-internal-33763-beta.beta01.cloud.kavia.ai, vscode-internal-10832-beta.beta01.cloud.kavia.ai
+- File watching ignores non-source paths to avoid restart loops. Notably, `vite.config.js`, `README.md`, `DEV_SERVER.md`, `assets-reference/**/*.html`, and other lockfiles/config/docs are excluded from watch. Parent workspace directories are also ignored.
+- Dev never serves `/dist/*`; build output is only used for preview/build.
+- Readiness endpoints: GET /healthz returns 200 OK, GET /api/healthz returns JSON. No keep-alive timers or periodic logs are emitted.
+- HMR host is configured for reverse proxy: vscode-internal-19531-beta.beta01.cloud.kavia.ai (wss, clientPort 443).
 - See DEV_SERVER.md for full behavior and scripts.
 
 Stability notes:

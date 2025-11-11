@@ -3,12 +3,12 @@ import react from '@vitejs/plugin-react'
 
 // PUBLIC_INTERFACE
 /**
- * Minimal Vite v4 config for React.
- * - Standard fields only; no lifecycle guards, keepalive timers, or server.close interceptions.
- * - Dev server: host 0.0.0.0 (host: true), strictPort: true, clearScreen: false, fs.strict: false.
- * - Watch ignores safe, non-source churn paths.
- * - HMR configured for reverse proxy with secure WebSocket.
- * - Health endpoints: GET /healthz (text) and GET /api/healthz (json).
+ * Minimal, stable Vite v4 config for React.
+ * - No lifecycle guards/keepalives. Only two health endpoints.
+ * - Dev server: host 0.0.0.0, strictPort: true, clearScreen: false, fs.strict: false.
+ * - Safe watch ignores to prevent restart loops; no polling.
+ * - HMR for reverse proxy via secure WebSocket.
+ * - Health endpoints: GET /healthz (text 'OK') and GET /api/healthz (JSON).
  */
 export default defineConfig(() => {
   return {
@@ -17,10 +17,7 @@ export default defineConfig(() => {
     server: {
       host: true, // 0.0.0.0
       strictPort: true,
-      // Port is controlled by CLI (--port 3000) per orchestrator; do not hardcode here.
-      fs: {
-        strict: false,
-      },
+      fs: { strict: false },
       watch: {
         ignored: [
           '**/dist/**',
@@ -41,7 +38,6 @@ export default defineConfig(() => {
           '../../../**',
         ],
       },
-      // Enforce stable HMR over proxy
       hmr: {
         host: 'vscode-internal-19531-beta.beta01.cloud.kavia.ai',
         clientPort: 443,
@@ -49,7 +45,7 @@ export default defineConfig(() => {
       },
     },
     configureServer(server) {
-      // Health endpoints only; no additional middlewares that alter lifecycle behavior.
+      // Health endpoints only.
       server.middlewares.use((req, res, next) => {
         const url = (req?.url || '').split('?')[0]
         if (url === '/healthz') {

@@ -115,7 +115,7 @@ export default function Splash() {
       />
 
       <div className="absolute bottom-[18px] right-6 text-[12px] text-white/60 tracking-[0.3px] select-none">
-        Allowed hosts: vscode-internal-26938-beta.beta01.cloud.kavia.ai · vscode-internal-33763-beta.beta01.cloud.kavia.ai · vscode-internal-10832-beta.beta01.cloud.kavia.ai · vscode-internal-28347-beta.beta01.cloud.kavia.ai
+        Allowed HMR host: vscode-internal-19531-beta.beta01.cloud.kavia.ai
       </div>
     </div>
   )
