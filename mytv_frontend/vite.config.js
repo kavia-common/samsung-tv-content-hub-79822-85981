@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Minimal, stable Vite v4 config for React.
- * - No server close interception or lifecycle guards.
+ * - No server close interception or lifecycle guards or guards/keep-alive touching server objects.
  * - clearScreen disabled for cleaner logs.
  * - server: host true (0.0.0.0), strictPort true, fs.strict false.
  * - HMR configured for orchestrator proxy with host and clientPort.
@@ -13,7 +13,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(() => {
   // Derive HMR values based on orchestrator
   const hmrHost = 'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
-  const clientPort = process.env.PORT ? Number(process.env.PORT) : 443
+  // Client connects through proxy port when provided; otherwise default to 443 for secured tunnels.
+  const derivedPort = Number(process.env.PORT)
+  const clientPort = Number.isFinite(derivedPort) && derivedPort > 0 ? derivedPort : 443
   const protocol = (process.env.VITE_HMR_PROTOCOL || '').toLowerCase()
   const hmrProtocol = protocol === 'ws' || protocol === 'wss' ? protocol : 'auto'
 
@@ -51,15 +53,17 @@ export default defineConfig(() => {
           'public/assets/**/*.html',
           'assets-reference/**/*.html',
           '**/assets/**/*.html',
+          '../../**',
+          '../../../**',
         ],
       },
       hmr: {
         host: hmrHost,
-        clientPort: Number.isFinite(clientPort) && clientPort > 0 ? clientPort : 443,
+        clientPort,
         protocol: hmrProtocol,
       },
     },
-    // Health endpoints and /dist 404 guard
+    // Health endpoints and /dist 404 guard only; no lifecycle interception.
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = (req?.url || '').split('?')[0]
