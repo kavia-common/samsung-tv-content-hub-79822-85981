@@ -32,6 +32,8 @@ export default defineConfig(() => {
       'vscode-internal-14612-beta.beta01.cloud.kavia.ai',
       // Newly added allowed host for current runner
       'vscode-internal-38453-beta.beta01.cloud.kavia.ai',
+      // Requested new host
+      'vscode-internal-19531-beta.beta01.cloud.kavia.ai',
     ])
   )
 
