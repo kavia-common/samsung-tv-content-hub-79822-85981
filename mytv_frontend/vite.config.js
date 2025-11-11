@@ -34,6 +34,13 @@ export default defineConfig(() => {
   const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
   const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
 
+  // Optional protocol override for HMR via env when running behind HTTPS proxies.
+  // Accepts 'ws' or 'wss'. If not provided, Vite will infer automatically.
+  const hmrProtocol = (() => {
+    const p = (process.env.VITE_HMR_PROTOCOL || '').trim().toLowerCase()
+    return p === 'ws' || p === 'wss' ? p : undefined
+  })()
+
   // Keep watcher minimal to reduce memory and prevent self-restarts (Chokidar patterns only).
   const ignoredGlobs = [
     '**/dist/**',
@@ -126,6 +133,7 @@ export default defineConfig(() => {
       overlay: true,
       clientPort: hmrClientPort,
       host: proxyHost, // ensure HMR websocket connects via the reverse proxy host
+      protocol: hmrProtocol, // allow ws/wss override via env when required by proxy
     },
     watch: {
       usePolling: false,
@@ -154,6 +162,7 @@ export default defineConfig(() => {
     hmr: {
       host: proxyHost,
       clientPort: hmrClientPort,
+      protocol: hmrProtocol,
     },
     watch: {
       usePolling: false,
