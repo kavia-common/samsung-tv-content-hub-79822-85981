@@ -5,15 +5,13 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 with orchestrator-friendly port/host handling.
- * Compat notes:
- * - Vite v4 does NOT support server.allowedHosts (added in v5). Remove it to avoid schema errors.
- * - Use server.hmr.host (and preview.hmr.host) so the HMR client connects via the reverse-proxied host.
- * - Host: 0.0.0.0 (host: true translates to 0.0.0.0) unless overridden by --host/HOST.
+ * Adjusted to avoid intercepting server.close() so Vite can manage its own lifecycle.
+ * - Host: 0.0.0.0 by default (can be overridden by --host/HOST).
  * - Port: controlled by CLI/env; strictPort=true prevents silent port switching.
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying.
- * - Healthz endpoint and /dist guard middleware.
+ * - Health endpoints: /healthz (text) and /api/healthz (json) for readiness probes.
  * - Watcher ignores config/docs/locks/raw HTML to avoid self-restart loops.
- * - Dev-only keep-alive to prevent premature exit in certain orchestrators.
+ * - Dev-only keep-alive: periodic lightweight log; NO override of httpServer.close unless explicitly enabled via VITE_ENABLE_GUARD=1.
  */
 export default defineConfig(() => {
   const rootDir = process.cwd()
@@ -24,25 +22,18 @@ export default defineConfig(() => {
   const cliHost = process.env.HOST?.trim()
   const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : '0.0.0.0'
 
-  // Host that the browser should use to reach the dev server through the orchestrator/proxy.
-  // Include requested domain for stability in HMR:
   const proxyHost =
     process.env.VITE_PUBLIC_HOST?.trim() ||
     'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
 
-  // Determine port from env if provided (orchestrator may pass --port; Vite will set config.port accordingly).
-  // We only use this to shape HMR clientPort; leaving server.port undefined lets CLI win.
   const cliPort = process.env.PORT ? Number(process.env.PORT) : undefined
   const hmrClientPort = Number.isFinite(cliPort) ? cliPort : undefined
 
-  // Optional protocol override for HMR via env when running behind HTTPS proxies.
-  // Accepts 'ws' or 'wss'. If not provided, Vite will infer automatically.
   const hmrProtocol = (() => {
     const p = (process.env.VITE_HMR_PROTOCOL || '').trim().toLowerCase()
     return p === 'ws' || p === 'wss' ? p : undefined
   })()
 
-  // Keep watcher minimal to reduce memory and prevent self-restarts (Chokidar patterns only).
   const ignoredGlobs = [
     '**/dist/**',
     '**/.git/**',
@@ -65,21 +56,18 @@ export default defineConfig(() => {
     '**/*.config.cjs',
     '**/*.config.mjs',
     '**/post_process_status.lock',
-    // Raw/exported HTML should never reach esbuild; only ignore via chokidar watcher.
     'public/assets/**/*.html',
     'assets-reference/**/*.html',
     '**/assets/**/*.html',
-    // Also ignore parent workspace directories to prevent HMR storms and premature reloads
     '../../**',
     '../../../**',
   ]
 
-  // Dev-only keep alive plugin to ensure process remains active in runners that watch stdout.
+  // Non-invasive keep-alive plugin: only logs; does not intercept server.close by default.
   const keepAlivePlugin = {
     name: 'dev-keep-alive',
     apply: 'serve',
     configureServer(server) {
-      // Periodic lightweight log to indicate liveness without spamming
       const intervalMs = Number(process.env.VITE_KEEPALIVE_MS || 15000)
       const timer = setInterval(() => {
         try {
@@ -88,16 +76,17 @@ export default defineConfig(() => {
       }, Math.max(15000, intervalMs))
       server.httpServer?.once('close', () => clearInterval(timer))
 
-      // Guard against plugins calling close/exit unexpectedly
-      const httpServer = server.httpServer
-      if (httpServer) {
-        const origClose = httpServer.close?.bind(httpServer)
-        if (typeof origClose === 'function') {
+      // Optional, env-gated guard: only attach when explicitly enabled
+      const enableGuard = String(process.env.VITE_ENABLE_GUARD || '').trim()
+      if (enableGuard === '1' || enableGuard.toLowerCase() === 'true') {
+        const httpServer = server.httpServer
+        if (httpServer && typeof httpServer.close === 'function') {
+          const origClose = httpServer.close.bind(httpServer)
           httpServer.close = (...args) => {
-            // Only allow close when Vite itself is shutting down (SIGTERM) or tests call it explicitly
+            // Respect ALLOW_SERVER_CLOSE to allow controlled shutdowns
             const allowClose = process.env.ALLOW_SERVER_CLOSE === '1'
             if (!allowClose) {
-              server.config.logger.warn('[guard] Prevented unexpected httpServer.close() during dev')
+              server.config.logger.warn('[guard] httpServer.close() intercepted (guard enabled). To allow, set ALLOW_SERVER_CLOSE=1')
               return
             }
             return origClose(...args)
@@ -112,7 +101,6 @@ export default defineConfig(() => {
     clearScreen: false,
     plugins: [
       react(),
-      // Log readiness after listening, and log the exact health endpoints
       {
         name: 'dev-ready-log',
         configureServer(server) {
@@ -145,27 +133,10 @@ export default defineConfig(() => {
     },
   }
 
-  // Single configureServer hook (avoid duplicates or heavy work).
+  // Development middlewares
   baseConfig.configureServer = (server) => {
     try {
-      // Validate index.html presence and root mount element to catch misconfigs early
-      server.middlewares.use((req, res, next) => {
-        if (req?.url === '/' || req?.url?.startsWith('/index.html')) {
-          import('fs').then((fsMod) => {
-            try {
-              const fs = fsMod.default || fsMod
-              if (!fs.existsSync(indexHtml)) {
-                server.config.logger.error('[guard] index.html is missing; dev server will be blank')
-              }
-            } catch {
-              // noop
-            }
-          }).catch(() => { /* noop */ })
-        }
-        next()
-      })
-
-      // Readiness endpoint for orchestrator health checks.
+      // Readiness endpoints
       server.middlewares.use((req, res, next) => {
         const pathOnly = req?.url ? req.url.split('?')[0] : ''
         if (pathOnly === '/healthz') {
@@ -183,7 +154,7 @@ export default defineConfig(() => {
         next()
       })
 
-      // Disallow serving built assets during dev to prevent loops and confusion.
+      // Disallow serving built assets during dev
       server.middlewares.use((req, res, next) => {
         if (req?.url && req.url.startsWith('/dist/')) {
           res.statusCode = 404
@@ -217,7 +188,6 @@ export default defineConfig(() => {
       ],
     },
     fs: {
-      // Allow reading project root (index.html) and default to non-strict to prevent resolution failures under CI workspaces
       strict: false,
       allow: [rootDir, srcDir, publicDir, indexHtml],
       deny: ['dist'],
@@ -225,7 +195,7 @@ export default defineConfig(() => {
     middlewareMode: false,
   }
 
-  // Preview mirrors dev configuration. Leave port undefined for CLI control.
+  // Preview mirrors dev behavior and exposes health endpoints
   baseConfig.preview = {
     host: resolvedHost,
     port: undefined,
@@ -245,7 +215,6 @@ export default defineConfig(() => {
     },
   }
 
-  // Provide a readiness endpoint and /dist guard for vite preview as well.
   baseConfig.configurePreviewServer = (server) => {
     try {
       server.middlewares.use((req, res, next) => {
