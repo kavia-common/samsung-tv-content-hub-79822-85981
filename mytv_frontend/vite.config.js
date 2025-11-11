@@ -7,17 +7,10 @@ import react from '@vitejs/plugin-react'
  * - Standard fields only; no lifecycle guards, keepalive timers, or server.close interceptions.
  * - Dev server: host 0.0.0.0 (host: true), strictPort: true, clearScreen: false, fs.strict: false.
  * - Watch ignores safe, non-source churn paths.
- * - HMR set for proxy usage; default to the given proxy host with clientPort 443 when HTTPS proxying is used.
+ * - HMR configured for reverse proxy with secure WebSocket.
  * - Health endpoints: GET /healthz (text) and GET /api/healthz (json).
  */
 export default defineConfig(() => {
-  // HMR options suitable for reverse proxy (e.g., Codespaces-style)
-  const hmrHost = process.env.VITE_HMR_HOST || 'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
-  // If HTTPS proxy is used, clientPort should be 443; otherwise honor PORT/CLI or leave auto.
-  const derivedPort = Number(process.env.PORT)
-  const isHttpsProxy = String(process.env.VITE_HMR_HTTPS || process.env.HTTPS || '').toLowerCase() === 'true'
-  const clientPort = isHttpsProxy ? 443 : (Number.isFinite(derivedPort) && derivedPort > 0 ? derivedPort : undefined)
-
   return {
     clearScreen: false,
     plugins: [react()],
@@ -48,10 +41,11 @@ export default defineConfig(() => {
           '../../../**',
         ],
       },
+      // Enforce stable HMR over proxy
       hmr: {
-        host: hmrHost,
-        // Only set clientPort when deterministically needed; undefined lets Vite auto-derive in HTTP setups.
-        clientPort,
+        host: 'vscode-internal-19531-beta.beta01.cloud.kavia.ai',
+        clientPort: 443,
+        protocol: 'wss',
       },
     },
     configureServer(server) {
