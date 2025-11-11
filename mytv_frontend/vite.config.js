@@ -5,8 +5,10 @@ import react from '@vitejs/plugin-react'
 // PUBLIC_INTERFACE
 /**
  * Stable Vite 4 + React configuration for Node 18 with orchestrator-friendly port/host handling.
- * - Vite v4 supported fields only (e.g., server.allowedHosts as string[]).
- * - Host: 0.0.0.0 (host: true) unless overridden by --host/HOST.
+ * Compat notes:
+ * - Vite v4 does NOT support server.allowedHosts (added in v5). Remove it to avoid schema errors.
+ * - Use server.hmr.host (and preview.hmr.host) so the HMR client connects via the reverse-proxied host.
+ * - Host: 0.0.0.0 (host: true translates to 0.0.0.0) unless overridden by --host/HOST.
  * - Port: controlled by CLI/env; strictPort=true prevents silent port switching.
  * - HMR: overlay enabled; clientPort derived from env/CLI (PORT) for reliable proxying.
  * - Healthz endpoint and /dist guard middleware.
@@ -21,21 +23,11 @@ export default defineConfig(() => {
   const cliHost = process.env.HOST?.trim()
   const resolvedHost = cliHost && cliHost.length > 0 ? cliHost : '0.0.0.0'
 
-  // Vite v4: allowedHosts is an array<string> of hostnames (no protocol/port).
-  const allowedHosts = Array.from(
-    new Set([
-      'vscode-internal-26938-beta.beta01.cloud.kavia.ai',
-      'vscode-internal-33763-beta.beta01.cloud.kavia.ai',
-      'vscode-internal-10832-beta.beta01.cloud.kavia.ai',
-      // Include the currently used preview domain to prevent HMR reconnect loops.
-      'vscode-internal-28347-beta.beta01.cloud.kavia.ai',
-      'vscode-internal-14612-beta.beta01.cloud.kavia.ai',
-      // Newly added allowed host for current runner
-      'vscode-internal-38453-beta.beta01.cloud.kavia.ai',
-      // Requested new host
-      'vscode-internal-19531-beta.beta01.cloud.kavia.ai',
-    ])
-  )
+  // Host that the browser should use to reach the dev server through the orchestrator/proxy.
+  // Include requested domain for stability in HMR:
+  const proxyHost =
+    process.env.VITE_PUBLIC_HOST?.trim() ||
+    'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
 
   // Determine port from env if provided (orchestrator may pass --port; Vite will set config.port accordingly).
   // We only use this to shape HMR clientPort; leaving server.port undefined lets CLI win.
@@ -129,10 +121,11 @@ export default defineConfig(() => {
     port: undefined,
     strictPort: true,
     open: false,
-    allowedHosts,
+    // allowedHosts is not supported on Vite v4; omit to avoid schema errors.
     hmr: {
       overlay: true,
       clientPort: hmrClientPort,
+      host: proxyHost, // ensure HMR websocket connects via the reverse proxy host
     },
     watch: {
       usePolling: false,
@@ -157,7 +150,11 @@ export default defineConfig(() => {
     port: undefined,
     strictPort: true,
     open: false,
-    allowedHosts,
+    // allowedHosts not supported on Vite v4 preview either
+    hmr: {
+      host: proxyHost,
+      clientPort: hmrClientPort,
+    },
     watch: {
       usePolling: false,
       awaitWriteFinish: { stabilityThreshold: 900, pollInterval: 200 },
