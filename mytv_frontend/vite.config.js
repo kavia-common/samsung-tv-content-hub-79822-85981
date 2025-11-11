@@ -3,38 +3,32 @@ import react from '@vitejs/plugin-react'
 
 // PUBLIC_INTERFACE
 /**
- * Minimal, stable Vite v4 config for React.
- * - No server lifecycle interception or keepalive timers/logs.
- * - clearScreen disabled for clean logs in CI.
- * - server: host true (0.0.0.0), strictPort true, fs.strict false.
- * - watch ignores common churn paths; safe globs only.
- * - HMR configured to use the proxy-exposed host with clientPort derived from PORT/CLI.
- * - Health endpoints: /healthz (text) and /api/healthz (json).
+ * Minimal Vite v4 config for React.
+ * - Standard fields only; no lifecycle guards, keepalive timers, or server.close interceptions.
+ * - Dev server: host 0.0.0.0 (host: true), strictPort: true, clearScreen: false, fs.strict: false.
+ * - Watch ignores safe, non-source churn paths.
+ * - HMR set for proxy usage; default to the given proxy host with clientPort 443 when HTTPS proxying is used.
+ * - Health endpoints: GET /healthz (text) and GET /api/healthz (json).
  */
 export default defineConfig(() => {
-  // Derive HMR client configuration suitable for a reverse proxy
+  // HMR options suitable for reverse proxy (e.g., Codespaces-style)
+  const hmrHost = process.env.VITE_HMR_HOST || 'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
+  // If HTTPS proxy is used, clientPort should be 443; otherwise honor PORT/CLI or leave auto.
   const derivedPort = Number(process.env.PORT)
-  const clientPort = Number.isFinite(derivedPort) && derivedPort > 0 ? derivedPort : 3000
-  const hmrHost =
-    process.env.VITE_HMR_HOST ||
-    'vscode-internal-19531-beta.beta01.cloud.kavia.ai'
-  const hmrProtocol = (() => {
-    const p = (process.env.VITE_HMR_PROTOCOL || '').toLowerCase()
-    return p === 'ws' || p === 'wss' ? p : 'auto'
-  })()
+  const isHttpsProxy = String(process.env.VITE_HMR_HTTPS || process.env.HTTPS || '').toLowerCase() === 'true'
+  const clientPort = isHttpsProxy ? 443 : (Number.isFinite(derivedPort) && derivedPort > 0 ? derivedPort : undefined)
 
   return {
     clearScreen: false,
     plugins: [react()],
     server: {
-      host: true, // resolves to 0.0.0.0
+      host: true, // 0.0.0.0
       strictPort: true,
-      // Do not hardcode port; allow CLI/env to control it.
+      // Port is controlled by CLI (--port 3000) per orchestrator; do not hardcode here.
       fs: {
         strict: false,
       },
       watch: {
-        // Avoid heavy/unsafe patterns; keep ignores minimal and safe.
         ignored: [
           '**/dist/**',
           '**/.git/**',
@@ -50,16 +44,18 @@ export default defineConfig(() => {
           '**/post_process_status.lock',
           'assets-reference/**/*.html',
           'public/assets/**/*.html',
+          '../../**',
+          '../../../**',
         ],
       },
       hmr: {
         host: hmrHost,
+        // Only set clientPort when deterministically needed; undefined lets Vite auto-derive in HTTP setups.
         clientPort,
-        protocol: hmrProtocol,
       },
     },
-    // Preserve minimal middlewares for health checks; no additional guards
     configureServer(server) {
+      // Health endpoints only; no additional middlewares that alter lifecycle behavior.
       server.middlewares.use((req, res, next) => {
         const url = (req?.url || '').split('?')[0]
         if (url === '/healthz') {
