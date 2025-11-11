@@ -38,13 +38,4 @@ try {
       </div>
     </StrictMode>
   )
-} catch (e) {
-  // Non-fatal log; allow HMR to continue and show fallback if needed
-  console.error('[app] render error:', e && e.message ? e.message : e)
-}
-
- // Emit a concise log to stdout to help CI determine that the client side rendered successfully.
-try {
-  // Avoid noisy logs in test; keep a single line marker
-  console.log(`[app] mounted at ${new Date().toISOString()}`)
 } catch { /* noop */ }
